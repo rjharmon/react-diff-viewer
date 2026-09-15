@@ -6,7 +6,7 @@
 
 **Success criteria**: Every mission outcome in MISSION.md is met by a delivered work chunk.
 
-**Status**: `draft` · **Contents**: 3 (3 backlog)
+**Status**: `draft` · **Contents**: 3 (2 backlog, 1 surrogate)
 
 
 **References**: [reqts](diff-viewer.reqts.jsonl)
@@ -18,7 +18,7 @@
 ## Work Units
 
 
-### BACKLOG (3)
+### BACKLOG (2)
 
 
 #### Diff viewer Dioxus component
@@ -30,7 +30,7 @@
 
 **Plan**: Settle the Dioxus equivalents for resetCodeBlocks and the render-function props during planning, before this chunk is work-ready. Risk signals: implementation-complexity; architectural-uncertainty until those equivalents are settled.
 
-**Depends on**: [Line diff engine on similar](#work-p7e70a5mwf)
+**Depends on**: [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)*
 
 **Blocks**: [Diff viewer theming](#work-b86cyjcn7m)
 
@@ -49,14 +49,18 @@
 
 
 
+
+
+### Surrogates (1)
+
+
 #### Line diff engine on similar
 <a id="work-p7e70a5mwf"></a>
-`WORK-p7e70a5mwf` · state `backlog` · maturity `DREAMED`
+`WORK-p7e70a5mwf` · **surrogate** · original `WORK-p7e70a5mwf`
 
+**Authoritative record lives elsewhere.** See `20260915.line-diff-engine.workUnit.jsonl`.
 
-**Problem**: The viewer needs per-line diff information: paired left and right lines with numbers from a line offset, change type, modification pairing of a removed line with the added line after it, and indexes of changed lines. The reference is src/compute-lines.ts; alignment follows similar, not the TypeScript tests.
-
-**Plan**: Modified lines carry word-level or character-level inline diffs, grouped by change type. Risk signals: implementation-complexity.
+*Spun out to a standalone work unit file.*
 
 **Blocks**: [Diff viewer Dioxus component](#work-6ds59btb76)
 
@@ -65,10 +69,9 @@
 
 
 
-
 ## Dependency Graph
 
-- [Line diff engine on similar](#work-p7e70a5mwf) → [Diff viewer Dioxus component](#work-6ds59btb76) — *component renders the engine's line diff information*
+- [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)* → [Diff viewer Dioxus component](#work-6ds59btb76) — *component renders the engine's line diff information*
 - [Diff viewer Dioxus component](#work-6ds59btb76) → [Diff viewer theming](#work-b86cyjcn7m) — *theming styles the component's markup*
 
 
