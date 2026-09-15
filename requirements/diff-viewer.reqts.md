@@ -61,7 +61,6 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
  - **1.1.1: Character comparison** (**BACKLOG**) - The viewer MUST compare modified lines character by character unless the consumer selects another compare method. <nobr>***DREAMED** REQT-czecf8krqc*</nobr>
  - **1.1.2: Word comparison** (**BACKLOG**) - The viewer MUST offer word comparison, with each whitespace run and each non-whitespace run as one token. <nobr>***DREAMED** REQT-xzc8n354h1*</nobr>
  - **1.1.3: Line comparison** (**BACKLOG**) - The viewer MUST offer line comparison, with each modified line as one token. <nobr>***DREAMED** REQT-spzdk2z1pk*</nobr>
- - **1.1.4: jsdiff methods without a counterpart** (**BACKLOG**) - The viewer MUST NOT offer sentence, CSS, or trimmed-line comparison, since `similar` has no tokenizer for them; word comparison covers jsdiff's words-with-space method. <nobr>***DREAMED** REQT-h70r7qp9g0*</nobr>
 
 --------
 
