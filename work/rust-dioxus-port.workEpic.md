@@ -6,7 +6,7 @@
 
 **Success criteria**: Every mission outcome in MISSION.md is met by a delivered work chunk.
 
-**Status**: `draft` · **Contents**: 3 (2 backlog, 1 surrogate)
+**Status**: `draft` · **Contents**: 3 (1 backlog, 2 surrogate)
 
 
 **References**: [reqts](diff-viewer.reqts.jsonl)
@@ -18,22 +18,7 @@
 ## Work Units
 
 
-### BACKLOG (2)
-
-
-#### Diff viewer Dioxus component
-<a id="work-6ds59btb76"></a>
-`WORK-6ds59btb76` · state `backlog` · maturity `DREAMED`
-
-
-**Problem**: Renders line diff information as a Dioxus component with the behaviors of src/index.tsx: split and inline views, line numbers, folding and expansion, fold reset, highlighted lines, line-number click, titles, and render callbacks for content and fold messages.
-
-**Plan**: Settle the Dioxus equivalents for resetCodeBlocks and the render-function props during planning, before this chunk is work-ready. Risk signals: implementation-complexity; architectural-uncertainty until those equivalents are settled.
-
-**Depends on**: [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)*
-
-**Blocks**: [Diff viewer theming](#work-b86cyjcn7m)
-
+### BACKLOG (1)
 
 
 #### Diff viewer theming
@@ -45,13 +30,29 @@
 
 **Plan**: Settle the Rust style-override design during planning, before this chunk is work-ready. Risk signals: architectural-uncertainty until that design is settled.
 
-**Depends on**: [Diff viewer Dioxus component](#work-6ds59btb76)
+**Depends on**: [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)*
 
 
 
 
 
-### Surrogates (1)
+### Surrogates (2)
+
+
+#### Diff viewer Dioxus component
+<a id="work-6ds59btb76"></a>
+`WORK-6ds59btb76` · **surrogate** · original `WORK-6ds59btb76`
+
+**Authoritative record lives elsewhere.** See `20260915.diff-viewer-component.workUnit.jsonl`.
+
+*Spun out to a standalone work unit file.*
+
+Risk signals: implementation-complexity; architectural-uncertainty. Kept as one work unit by stakeholder decision.
+
+**Depends on**: [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)*
+
+**Blocks**: [Diff viewer theming](#work-b86cyjcn7m)
+
 
 
 #### Line diff engine on similar
@@ -64,7 +65,7 @@
 
 Risk signals: implementation-complexity.
 
-**Blocks**: [Diff viewer Dioxus component](#work-6ds59btb76)
+**Blocks**: [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)*
 
 
 
@@ -73,7 +74,7 @@ Risk signals: implementation-complexity.
 
 ## Dependency Graph
 
-- [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)* → [Diff viewer Dioxus component](#work-6ds59btb76) — *component renders the engine's line diff information*
-- [Diff viewer Dioxus component](#work-6ds59btb76) → [Diff viewer theming](#work-b86cyjcn7m) — *theming styles the component's markup*
+- [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)* → [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* — *component renders the engine's line diff information*
+- [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* → [Diff viewer theming](#work-b86cyjcn7m) — *theming styles the component's markup*
 
 
