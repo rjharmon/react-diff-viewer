@@ -109,6 +109,10 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
  - **3.1.1: Column titles** (**BACKLOG**) - When the consumer supplies titles, the viewer MUST show the left title above the old column and the right title above the new column in the split view, and only the left title in the inline view; either title MAY be text or rendered content. <nobr>***DREAMED** REQT-vbaqm4y5zk*</nobr>
  - **3.1.2: Custom line content** (**BACKLOG**) - **consumer renderer shapes line text and inline tokens** When the consumer supplies a content renderer, the viewer MUST render line text through it, including each inline-change token on modified lines. <nobr>***DREAMED** REQT-vxtax4x0vs*</nobr>
 
+#### 3.2.0: Themes (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-3cb9k1mg2d*</nobr>
+
+ - **3.2.1: Theme selection** (**BACKLOG**) - **follows the reader's color-scheme preference unless the app chooses** Unless the consumer selects light or dark, the viewer MUST follow the reader's light or dark color-scheme preference from the browser or platform. <nobr>***DREAMED** REQT-sc8expw3q8*</nobr>
+
 # Files
 
 
