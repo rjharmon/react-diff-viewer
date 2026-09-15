@@ -9,6 +9,8 @@
 **Status**: `draft` · **Contents**: 3 (3 backlog)
 
 
+**References**: [reqts](diff-viewer.reqts.jsonl)
+
 > **JSONL is authoritative.** This document is auto-generated from `EPIC-77znwqj94w`'s `.workEpic.jsonl`. Do not hand-edit; changes will be overwritten on the next write.
 
 
