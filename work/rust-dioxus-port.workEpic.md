@@ -62,6 +62,8 @@
 
 *Spun out to a standalone work unit file.*
 
+Risk signals: implementation-complexity.
+
 **Blocks**: [Diff viewer Dioxus component](#work-6ds59btb76)
 
 
