@@ -1,0 +1,9 @@
+[package]
+name = "dioxus-diff-viewer"
+version = "0.1.0"
+edition = "2024"
+description = "Show the differences between two texts in Dioxus apps"
+license = "MIT"
+
+[dependencies]
+similar = "3.2"
