@@ -39,33 +39,33 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
 ### 1. What changed
 <nobr>**Key Requirements:**</nobr>
-- **What changed**: Readers see at a glance which lines changed, and exactly which words changed within them.
+- **What changed**: Readers see which lines changed, and which words changed within them.
 
 ### 2. Where they are
 <nobr>**Key Requirements:**</nobr>
-- **Where they are**: Readers keep their bearings: unchanged stretches fold out of the way, and every line has a number they can point to.
+- **Where they are**: Readers stay oriented in long diffs: unchanged lines fold away, and every line has a number.
 
 ### 3. How it fits the app
 <nobr>**Key Requirements:**</nobr>
-- **How it fits the app**: Apps give the viewer their own look, light or dark, down to how each line's content is drawn.
+- **How it fits the app**: Apps style the viewer, light or dark, and render line content their own way.
 
 
 # Detailed Requirements
 
 
-### 1.0: What changed (**BACKLOG**) - **AREA:** What changed - Ensures readers can trust what the viewer marks as changed. Applied when reading or reviewing how changes are found and shown within lines, or when adding a way to compare text. - <nobr>***DREAMED** REQT-9273mztsx4*</nobr>
+### 1.0: What changed (**BACKLOG**) - **AREA:** What changed - Ensures accurate change marking. Applies when reading or changing line and word comparison, or compare methods. - <nobr>***draft** REQT-9273mztsx4*</nobr>
 
 
 --------
 
 
-### 2.0: Where they are (**BACKLOG**) - **AREA:** Where they are - Ensures readers stay oriented in long diffs. Applied when reading or changing how unchanged lines fold and open, or how lines are numbered, highlighted, and selected. - <nobr>***DREAMED** REQT-wxe0svnb22*</nobr>
+### 2.0: Where they are (**BACKLOG**) - **AREA:** Where they are - Ensures readers stay oriented in long diffs. Applies when reading or changing folding, line numbering, highlighting, or line selection. - <nobr>***draft** REQT-wxe0svnb22*</nobr>
 
 
 --------
 
 
-### 3.0: How it fits the app (**BACKLOG**) - **AREA:** How it fits the app - Ensures the viewer can look native in any app. Applied when reviewing or changing themes, style overrides, or how an app draws line content and titles. - <nobr>***DREAMED** REQT-x8e364jbqm*</nobr>
+### 3.0: How it fits the app (**BACKLOG**) - **AREA:** How it fits the app - Ensures the viewer matches the app's look. Applies when reading or changing themes, style overrides, or title and line content rendering. - <nobr>***draft** REQT-x8e364jbqm*</nobr>
 
 
 # Files
