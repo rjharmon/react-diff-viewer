@@ -605,3 +605,33 @@ fn every_side_s_line_numbers_run_contiguously_from_the_offset() {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// Reference quirks the engine deliberately does not carry
+// ---------------------------------------------------------------------------
+
+/// The reference substitutes a single space for an empty line's text
+/// (`src/compute-lines.ts:192`, `line || ' '`), which is display padding. The
+/// engine keeps the line empty and leaves padding to the component.
+#[test]
+fn an_empty_removed_line_keeps_its_empty_text_rather_than_a_space() {
+    let options = LineDiffOptions {
+        inline_changes: false,
+        ..LineDiffOptions::default()
+    };
+
+    let diff = line_diff("first\n\nlast", "first\nlast", &options);
+
+    assert_eq!(
+        rows(&diff),
+        vec![
+            unchanged(1, "first"),
+            removed(2, ""),
+            (
+                ChangeKind::Unchanged,
+                Some((3, "last".into())),
+                Some((2, "last".into()))
+            ),
+        ]
+    );
+}
