@@ -89,7 +89,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 #### 2.2.0: Folding (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-qerexp825r*</nobr>
 
  - **2.2.1: Folded unchanged lines** (**BACKLOG**) - **unchanged lines beyond the surrounding count fold away** Unless the consumer turns folding off, the viewer MUST fold unchanged lines lying more than the surrounding-line count away from every change; that count defaults to 3 and treats negative values as 0. <nobr>***DREAMED** REQT-qcnxhemvhn*</nobr>
- - **2.2.2: Fold rows** (**BACKLOG**) - **one row per fold, consumer may supply its content** The viewer MUST show each fold as one row reading "Expand N lines ...", where N is the number of hidden lines, unless the consumer supplies the row's content, which the viewer MUST render from the hidden-line count and the old and new line numbers where the fold ends. <nobr>***DREAMED** REQT-1tdrfvay4q*</nobr>
+ - **2.2.2: Fold rows** (**BACKLOG**) - **one row per fold, consumer may supply its content** The viewer MUST show each fold as one row reading "Expand N lines ...", where N is the number of hidden lines, unless the consumer supplies the row's content, which the viewer MUST render from the hidden-line count and the old and new line numbers of the first hidden line. <nobr>***DREAMED** REQT-1tdrfvay4q*</nobr>
  - **2.2.3: Expanding folds** (**BACKLOG**) - Activating a fold row MUST reveal the lines it hides, and they MUST stay revealed until the consumer resets folds. <nobr>***DREAMED** REQT-v748c7mjr6*</nobr>
  - **2.2.4: Fold reset** (**BACKLOG**) - The viewer MUST let the consumer return every expanded fold to folded. <nobr>***DREAMED** REQT-869jyzdes7*</nobr>
 
