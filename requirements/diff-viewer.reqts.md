@@ -64,16 +64,18 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
 #### 1.2.0: Line changes (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-wqffp3d26e*</nobr>
 
- - **1.2.1: Line marking** (**BACKLOG**) - **lines aligned as similar aligns them, each marked** The viewer MUST mark each line as unchanged, removed, or added, aligning the two texts as `similar`'s line diff aligns them. <nobr>***DREAMED** REQT-hmsfnfe5wc*</nobr>
+ - **1.2.1: Line marking** (**BACKLOG**) - **lines aligned as similar aligns them, each marked** The viewer MUST mark each line as unchanged, removed, or added, aligning the two texts as `similar`'s line diff aligns them and comparing lines by their text without line terminators. <nobr>***DREAMED** REQT-hmsfnfe5wc*</nobr>
  - **1.2.2: Modified lines** (**BACKLOG**) - **removed lines pair in order with the added lines after them** Where removed lines are immediately followed by added lines, the viewer MUST pair them in order as modified lines, and MUST show lines left without a partner as plain removals or additions. <nobr>***DREAMED** REQT-dqxm8fa7ts*</nobr>
  - **1.2.3: Inline changes** (**BACKLOG**) - **tokens changed within modified lines, on unless turned off** Unless the consumer turns inline changes off, the viewer MUST mark within each modified line the tokens removed from the old line and the tokens added in the new line, using the selected compare method. <nobr>***DREAMED** REQT-4nz35dscrn*</nobr>
  - **1.2.4: Trailing whitespace** (**BACKLOG**) - **trailing whitespace of either text never shows as a change** The viewer MUST ignore whitespace at the end of each text, so trailing blank lines never show as changes. <nobr>***DREAMED** REQT-9tze98pt6g*</nobr>
+ - **1.2.5: Line ending changes** (**BACKLOG**) - **differing terminators on paired lines are marked** Where both lines of an unchanged or modified pair end with a line terminator and the two terminators differ, the viewer MUST mark that pair as carrying a line ending change, with each side's terminator. <nobr>***DREAMED** REQT-rtwn1qresp*</nobr>
 
 #### 1.3.0: Views (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-2k7j51afde*</nobr>
 
  - **1.3.1: Split view** (**BACKLOG**) - **old left, new right, unless inline is chosen** Unless the consumer selects the inline view, the viewer MUST show old lines on the left and new lines on the right, one pair per row. <nobr>***DREAMED** REQT-ys3yr5g185*</nobr>
  - **1.3.2: Inline view** (**BACKLOG**) - **one column, old text above new on modified lines** In the inline view, the viewer MUST show lines in one column, with a modified line's old text directly above its new text, and each unchanged line once with both its old and new line numbers. <nobr>***DREAMED** REQT-0xbgrj9ane*</nobr>
  - **1.3.3: Change markers** (**BACKLOG**) - The viewer MUST mark removed lines with `-` and added lines with `+` in both views. <nobr>***DREAMED** REQT-wjjyqjnjs6*</nobr>
+ - **1.3.4: Line ending chips** (**BACKLOG**) - **each side's terminator shown as an escaped-text chip** In both views, the viewer MUST show each side of a line ending change as a compact chip on that side's line, reading the terminator as escaped text: `\n`, `\r\n`, or `\r`. <nobr>***DREAMED** REQT-4zyjfjrhd3*</nobr>
 
 --------
 
@@ -112,6 +114,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 #### 3.2.0: Themes (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-3cb9k1mg2d*</nobr>
 
  - **3.2.1: Theme selection** (**BACKLOG**) - **follows the reader's color-scheme preference unless the app chooses** Unless the consumer selects light or dark, the viewer MUST follow the reader's light or dark color-scheme preference from the browser or platform. <nobr>***DREAMED** REQT-sc8expw3q8*</nobr>
+ - **3.2.2: Line ending chip color** (**BACKLOG**) - **chips contrast with the line backgrounds beneath them** Each theme MUST color line ending chips so they contrast with every line background they appear on. <nobr>***DREAMED** REQT-8y5fp2aarz*</nobr>
 
 # Files
 
