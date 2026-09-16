@@ -3,7 +3,11 @@
 //! Architecture: ARCH-n7wmjnmt65 (LineDiffOptions).
 
 /// How a modified line's old and new text are compared when marking inline changes.
+///
+/// More compare methods are expected: the reference offers seven and three are
+/// ported so far, so a consumer's match needs a wildcard arm.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub enum CompareMethod {
     /// One token per character. REQT-czecf8krqc (Character comparison).
     #[default]
