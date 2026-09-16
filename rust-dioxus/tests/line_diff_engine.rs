@@ -1,12 +1,10 @@
-//! Pre-work test drafts for the line diff engine (WORK-p7e70a5mwf).
+//! Tests for the line diff engine, read through its public output.
 //!
-//! Drafted by the Rust Tester during pre-work review, before the crate exists.
-//! Every test names one in-scope requirement. The call shape below (`line_diff`,
-//! `LineDiffOptions`, `LineDiff`, `PairedLineEntry`) follows the candidate
-//! architecture: ARCH-jf3s5npp9s (LineDiffEngine), ARCH-n7wmjnmt65
-//! (LineDiffOptions), ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r
-//! (PairedLineEntry). The worker owns the exact spelling; what these tests hold
-//! to is the observable output each requirement names.
+//! Every test names one requirement. The tests call `line_diff` with
+//! `LineDiffOptions` and read `LineDiff` and `PairedLineEntry`:
+//! ARCH-jf3s5npp9s (LineDiffEngine), ARCH-n7wmjnmt65 (LineDiffOptions),
+//! ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r (PairedLineEntry). They hold to
+//! the observable output each requirement names.
 
 use dioxus_diff_viewer::{
     ChangeKind, CompareMethod, LineDiff, LineDiffOptions, TokenKind, line_diff,
@@ -509,8 +507,8 @@ fn each_side_counts_its_own_lines_from_one_more_than_the_offset() {
 // ---------------------------------------------------------------------------
 // Reference cases from test/compute-lines-test.ts
 //
-// WORK:crit-rdjdbfyxnt: each case is carried over, or recorded here as
-// differing with its cause: `similar`'s alignment, or a defect in the reference.
+// Each case is carried over, or recorded here as differing with its cause:
+// `similar`'s alignment, or a defect in the reference.
 // All nine reference cases are accounted for across the three tests below.
 // ---------------------------------------------------------------------------
 
