@@ -260,6 +260,39 @@ fn a_pair_carrying_a_line_ending_change_holds_a_changed_position() {
     );
 }
 
+/// REQT-rtwn1qresp (Line ending changes): a bare carriage return is one of the
+/// three terminators, and reports against a newline like any other.
+#[test]
+fn a_bare_carriage_return_against_a_newline_is_a_line_ending_change() {
+    let diff = line_diff("a\rb", "a\nb", &LineDiffOptions::default());
+
+    let ending_change = diff.entries[0]
+        .line_ending_change
+        .as_ref()
+        .expect("the first pair's terminators differ");
+    assert_eq!(
+        (ending_change.old.as_str(), ending_change.new.as_str()),
+        ("\r", "\n")
+    );
+    assert_eq!(diff.changed_positions, vec![0]);
+}
+
+/// ARCH-atczcqvdsz (Line diff hand-off): every pair of texts yields a LineDiff,
+/// with no failure case, including when either text is empty. Two empty texts
+/// yield no entries, as the reference does for the same reason
+/// (`src/compute-lines.ts:57-64`): an empty row would read as an added line.
+#[test]
+fn an_empty_text_on_either_side_yields_a_diff_rather_than_a_failure() {
+    let options = LineDiffOptions::default();
+
+    assert_eq!(line_diff("", "", &options), LineDiff::default());
+    assert_eq!(rows(&line_diff("", "abc", &options)), vec![added(1, "abc")]);
+    assert_eq!(
+        rows(&line_diff("abc", "", &options)),
+        vec![removed(1, "abc")]
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Compare methods: REQT-rvcg21axa8 and children
 // ---------------------------------------------------------------------------
