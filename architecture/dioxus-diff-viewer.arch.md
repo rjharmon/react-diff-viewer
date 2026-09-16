@@ -23,8 +23,8 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 10/11
-- draft: 1/11
+- DREAMED: 13/14
+- draft: 1/14
 
 ## In this document
 
@@ -229,6 +229,54 @@ an opaque copyable handle whose one action returns every expanded fold to folded
 The optional prop through which an app resets folds, and nothing more. The crate creates it and owns the folds it acts on, so an app never names a fold; a viewer given none keeps its folds to itself.
 
 **Supports Requirements**: REQT-869jyzdes7, REQT-v748c7mjr6
+
+
+
+<a id="software-object-ARCH-rs0yp4vc5q"></a>
+
+### LineContentRenderer (callback; DREAMED - ARCH-rs0yp4vc5q)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+a whole line's text, or one inline-change token's text, to rendered content
+```
+
+Optional; lets an app shape line text, as for syntax highlighting. The viewer keeps the change wrapping around each token, so on modified lines the renderer sees fragments.
+
+**Supports Requirements**: REQT-vxtax4x0vs
+
+
+
+<a id="software-object-ARCH-jakkqkh6e1"></a>
+
+### FoldRowRenderer (callback; DREAMED - ARCH-jakkqkh6e1)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+hidden-line count, and the first hidden line's old and new numbers, to rendered content
+```
+
+Optional; replaces the default fold-row text. Receives document coordinates only, never a fold identity.
+
+**Supports Requirements**: REQT-1tdrfvay4q
+
+
+
+<a id="software-object-ARCH-sx4az00gan"></a>
+
+### LineNumberClickHandler (callback; DREAMED - ARCH-sx4az00gan)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+the clicked line's id, as in L-20, and the modifier keys held; returns nothing
+```
+
+Optional; with highlighted lines, lets an app build line and range selection. Modifier keys travel as plain data rather than the framework's event.
+
+**Supports Requirements**: REQT-bqm9w6v4ms, REQT-zaens35zqy
 
 
 

@@ -98,7 +98,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 #### 2.3.0: Line selection (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-p2gkf77kjj*</nobr>
 
  - **2.3.1: Highlighted lines** (**BACKLOG**) - **lines listed by id are highlighted** The viewer MUST highlight each line whose old-side or new-side line id the consumer lists, where a line id joins its side (`L` for old, `R` for new) and its line number with a hyphen, as in `L-20`. <nobr>***DREAMED** REQT-zaens35zqy*</nobr>
- - **2.3.2: Line number clicks** (**BACKLOG**) - When the consumer supplies a line-number click handler, the viewer MUST call it with the clicked line's id each time a line number is clicked. <nobr>***DREAMED** REQT-bqm9w6v4ms*</nobr>
+ - **2.3.2: Line number clicks** (**BACKLOG**) - **handler gets the line id and held modifier keys** When the consumer supplies a line-number click handler, the viewer MUST call it with the clicked line's id and the modifier keys held, each time a line number is clicked. <nobr>***DREAMED** REQT-bqm9w6v4ms*</nobr>
 
 --------
 
