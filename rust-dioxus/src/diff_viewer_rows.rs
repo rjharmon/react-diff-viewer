@@ -187,11 +187,22 @@ impl RowRendering<'_> {
                     {self.line_text(&shown)}
                     // REQT-4zyjfjrhd3 (Line ending chips)
                     for (position, terminator) in shown.line_endings.iter().flatten().enumerate() {
-                        span {
-                            key: "{position}",
-                            class: "{DXDIFF__LINE_ENDING_CHIP}",
-                            class: "{state}",
-                            "{escaped_terminator(terminator)}"
+                        Fragment { key: "{position}",
+                            // An inline unchanged line carries both sides'
+                            // chips: old, an arrow, then new.
+                            if position == 1 {
+                                span {
+                                    class: "{DXDIFF__LINE_ENDING_ARROW}",
+                                    class: "{state}",
+                                    aria_label: "changed to",
+                                    "→"
+                                }
+                            }
+                            span {
+                                class: "{DXDIFF__LINE_ENDING_CHIP}",
+                                class: "{state}",
+                                "{escaped_terminator(terminator)}"
+                            }
                         }
                     }
                     // REQT-27a1gxq15f (Whitespace chips)

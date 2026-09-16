@@ -97,6 +97,10 @@ fn tokens_and_chips_carry_their_kind_and_state() {
         states_of(&viewer, DXDIFF__LINE_ENDING_CHIP),
         vec!["dxdiff-removed", "dxdiff-added"]
     );
+    assert!(
+        states_of(&viewer, DXDIFF__LINE_ENDING_ARROW).is_empty(),
+        "the split view shows no arrow"
+    );
     assert_eq!(
         states_of(&viewer, DXDIFF__WHITESPACE_CHIP),
         vec!["dxdiff-removed", "dxdiff-added"]
@@ -110,5 +114,25 @@ fn the_viewer_carries_its_view() {
     assert_eq!(
         states_of(&viewer, DXDIFF__VIEWER),
         vec!["dxdiff-split-view"]
+    );
+}
+
+#[test]
+fn the_inline_line_ending_arrow_carries_its_kind_and_state() {
+    fn inline_app() -> Element {
+        rsx! {
+            DiffViewer { old_text: "a\r\nb", new_text: "a\nb", view: dioxus_diff_viewer::DiffView::Inline }
+        }
+    }
+
+    let viewer = MountedApp::new(inline_app);
+
+    assert_eq!(
+        states_of(&viewer, DXDIFF__LINE_ENDING_ARROW),
+        vec!["dxdiff-unchanged"]
+    );
+    assert_eq!(
+        states_of(&viewer, DXDIFF__LINE_ENDING_CHIP),
+        vec!["dxdiff-unchanged", "dxdiff-unchanged"]
     );
 }

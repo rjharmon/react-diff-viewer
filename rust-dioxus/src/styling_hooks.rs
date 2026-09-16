@@ -28,6 +28,8 @@ pub const DXDIFF__CONTENT: &str = "dxdiff-content";
 pub const DXDIFF__INLINE_TOKEN: &str = "dxdiff-inline-token";
 /// The chip showing a line's terminator in a line ending change.
 pub const DXDIFF__LINE_ENDING_CHIP: &str = "dxdiff-line-ending-chip";
+/// The arrow between an inline unchanged line's old and new terminator chips.
+pub const DXDIFF__LINE_ENDING_ARROW: &str = "dxdiff-line-ending-arrow";
 /// The chip reading `WS` on a pair carrying a whitespace change.
 pub const DXDIFF__WHITESPACE_CHIP: &str = "dxdiff-whitespace-chip";
 /// A row standing in for folded unchanged lines.

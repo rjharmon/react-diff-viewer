@@ -3,7 +3,7 @@
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::{
-    DXDIFF__GUTTER, DXDIFF__LINE_ENDING_CHIP, DXDIFF__WHITESPACE_CHIP,
+    DXDIFF__GUTTER, DXDIFF__LINE_ENDING_ARROW, DXDIFF__LINE_ENDING_CHIP, DXDIFF__WHITESPACE_CHIP,
 };
 use dioxus_diff_viewer::{CompareMethod, DiffView, DiffViewer};
 
@@ -89,27 +89,41 @@ fn the_inline_view_marks_removed_and_added_lines() {
     );
 }
 
-/// REQT-4zyjfjrhd3 (Line ending chips): each side's terminator shows as
-/// escaped text, in both views.
+/// REQT-4zyjfjrhd3 (Line ending chips): in the split view, each side's
+/// terminator shows as escaped text on its own side's line.
 #[test]
 fn each_side_of_a_line_ending_change_shows_its_terminator_as_a_chip() {
     fn app() -> Element {
-        rsx! {
-            DiffViewer { old_text: "a\r\nb", new_text: "a\nb" }
-            DiffViewer { old_text: "a\r\nb", new_text: "a\nb", view: DiffView::Inline }
-        }
+        rsx! { DiffViewer { old_text: "a\r\nb", new_text: "a\nb" } }
     }
 
     let viewer = MountedApp::new(app);
 
     assert_eq!(
         viewer.texts_with_class(DXDIFF__LINE_ENDING_CHIP),
-        vec!["\\r\\n", "\\n", "\\r\\n", "\\n"]
+        vec!["\\r\\n", "\\n"]
     );
+    assert_eq!(viewer.row_readings()[0], "1 |  | a\\r\\n | 1 |  | a\\n");
+}
+
+/// REQT-4zyjfjrhd3 (Line ending chips): an inline unchanged line shows the old
+/// side's chip, an arrow, then the new side's chip.
+#[test]
+fn an_inline_unchanged_line_shows_its_old_chip_an_arrow_and_its_new_chip() {
+    fn app() -> Element {
+        rsx! { DiffViewer { old_text: "a\r\nb", new_text: "a\nb", view: DiffView::Inline } }
+    }
+
+    let viewer = MountedApp::new(app);
+
+    assert_eq!(viewer.row_readings()[0], "1 | 1 |  | a\\r\\n→\\n");
+    let arrows = viewer.tree().elements_with_class(DXDIFF__LINE_ENDING_ARROW);
+    assert_eq!(arrows.len(), 1);
+    assert_eq!(arrows[0].text(), "→");
     assert_eq!(
-        viewer.row_readings()[0],
-        "1 |  | a\\r\\n | 1 |  | a\\n",
-        "each chip sits on its own side's line"
+        arrows[0].attribute("aria-label"),
+        Some("changed to"),
+        "screen readers read the arrow as a phrase"
     );
 }
 
