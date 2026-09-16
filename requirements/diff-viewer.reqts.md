@@ -102,6 +102,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
  - **2.3.1: Highlighted lines** (**NEXT**) - **lines listed by id are highlighted** The viewer MUST highlight each line whose old-side or new-side line id the consumer lists, where a line id joins its side (`L` for old, `R` for new) and its line number with a hyphen, as in `L-20`. <nobr>***DREAMED** REQT-zaens35zqy*</nobr>
  - **2.3.2: Line number clicks** (**NEXT**) - **handler gets the line id and held modifier keys** When the consumer supplies a line-number click handler, the viewer MUST call it with the clicked line's id and the modifier keys held, each time a line number is clicked. <nobr>***DREAMED** REQT-bqm9w6v4ms*</nobr>
+ - **2.3.3: Line ids from text** (**NEXT**) - **text form reads back into a line id** The viewer MUST let the consumer turn a line id's text form, as in `L-20` or `R-3`, back into a line id, and MUST report text in any other form as not a line id. <nobr>***DREAMED** REQT-jgkndzqkyz*</nobr>
 
 --------
 
@@ -118,7 +119,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
  - **3.2.1: Theme selection** (**BACKLOG**) - **follows the reader's color-scheme preference unless the app chooses** Unless the consumer selects light or dark, the viewer MUST follow the reader's light or dark color-scheme preference from the browser or platform. <nobr>***DREAMED** REQT-sc8expw3q8*</nobr>
  - **3.2.2: Chip color** (**BACKLOG**) - **chips contrast with the line backgrounds beneath them** Each theme MUST color line ending chips and whitespace chips so they contrast with every line background they appear on. <nobr>***DREAMED** REQT-8y5fp2aarz*</nobr>
- - **3.2.3: Styling hooks** (**NEXT**) - **stable class per element kind, plus state classes** The viewer MUST give the title, each row, gutter, change marker, content cell, inline-change token, line ending chip, line ending arrow, whitespace chip, and fold row a stable class name naming its kind, plus a class for its change or highlight state, if relevant, all prefixed with `dxdiff`, so that apps and themes can style the viewer without depending on its element structure or colliding with the app's own classes. <nobr>***draft** REQT-3928hx46s3*</nobr>
+ - **3.2.3: Styling hooks** (**NEXT**) - **stable class per element kind, plus state classes** The viewer MUST give itself, the title, each row, gutter, change marker, content cell, inline-change token, line ending chip, line ending arrow, whitespace chip, and fold row a stable class name naming its kind, plus a class for its split or inline view on the viewer itself, and for its change or highlight state elsewhere, if relevant, all prefixed with `dxdiff`, so that apps and themes can style the viewer without depending on its element structure or colliding with the app's own classes. <nobr>***draft** REQT-3928hx46s3*</nobr>
 
 # Files
 
