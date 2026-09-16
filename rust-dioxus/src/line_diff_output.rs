@@ -3,9 +3,16 @@
 //!
 //! Architecture: ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r (PairedLineEntry).
 //!
-//! Every text here is owned rather than borrowed from the two input texts. A
+//! Each line's text is owned rather than borrowed from the two input texts. A
 //! Dioxus component keeps this output in state across renders, which needs
 //! `'static`, and the component is this output's only consumer.
+//!
+//! An inline token carries a range into its own side's line text rather than a
+//! copy of it, so character comparison costs one allocation per line instead of
+//! one per character. Read a token's text through `old_inline_tokens` or
+//! `new_inline_tokens` on the entry.
+
+use std::ops::Range;
 
 /// How one paired line entry changed between the two texts.
 /// REQT-hmsfnfe5wc (Line marking), REQT-dqxm8fa7ts (Modified lines).
@@ -49,8 +56,8 @@ pub enum TokenKind {
 pub struct InlineToken {
     /// How this token changed.
     pub kind: TokenKind,
-    /// The token's text.
-    pub text: String,
+    /// Where the token sits in its own side's line text.
+    pub range: Range<usize>,
 }
 
 /// The tokens of a modified line's old and new text.
@@ -90,6 +97,38 @@ pub struct PairedLineEntry {
     /// Each side's terminator when the two sides' terminators differ.
     /// REQT-rtwn1qresp (Line ending changes).
     pub line_ending_change: Option<LineEndingChange>,
+}
+
+impl PairedLineEntry {
+    /// The old line's inline tokens paired with their text, in line order.
+    /// Empty when the entry carries no inline changes.
+    pub fn old_inline_tokens(&self) -> impl Iterator<Item = (TokenKind, &str)> {
+        token_texts(
+            self.inline_changes.as_ref().map(|changes| &changes.old),
+            self.old.as_ref(),
+        )
+    }
+
+    /// The new line's inline tokens paired with their text, in line order.
+    /// Empty when the entry carries no inline changes.
+    pub fn new_inline_tokens(&self) -> impl Iterator<Item = (TokenKind, &str)> {
+        token_texts(
+            self.inline_changes.as_ref().map(|changes| &changes.new),
+            self.new.as_ref(),
+        )
+    }
+}
+
+/// Reads each token's text out of the line it indexes.
+fn token_texts<'a>(
+    tokens: Option<&'a Vec<InlineToken>>,
+    side: Option<&'a LineSide>,
+) -> impl Iterator<Item = (TokenKind, &'a str)> {
+    let text = side.map_or("", |side| side.text.as_str());
+    tokens
+        .map_or(&[][..], |tokens| tokens.as_slice())
+        .iter()
+        .map(move |token| (token.kind, &text[token.range.clone()]))
 }
 
 /// The engine's output and the component's only input for views and folding.

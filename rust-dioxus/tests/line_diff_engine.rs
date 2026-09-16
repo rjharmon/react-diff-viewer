@@ -55,27 +55,39 @@ fn removed(number: usize, text: &str) -> Row {
     (ChangeKind::Removed, Some((number, text.into())), None)
 }
 
-/// Old-side inline tokens of one entry, rejoined; panics when the entry carries none.
+/// Old-side inline tokens of one entry, rejoined.
 fn old_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
+    assert_inline_changes(diff, index);
     diff.entries[index]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .old
-        .iter()
-        .map(|token| token.text.as_str())
+        .old_inline_tokens()
+        .map(|(_, text)| text)
         .collect()
 }
 
 fn new_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
+    assert_inline_changes(diff, index);
     diff.entries[index]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .new
-        .iter()
-        .map(|token| token.text.as_str())
+        .new_inline_tokens()
+        .map(|(_, text)| text)
         .collect()
+}
+
+/// One side's tokens as kind-and-text pairs, for tests that check granularity.
+fn old_tokens(diff: &LineDiff, index: usize) -> Vec<(TokenKind, &str)> {
+    assert_inline_changes(diff, index);
+    diff.entries[index].old_inline_tokens().collect()
+}
+
+fn new_tokens(diff: &LineDiff, index: usize) -> Vec<(TokenKind, &str)> {
+    assert_inline_changes(diff, index);
+    diff.entries[index].new_inline_tokens().collect()
+}
+
+fn assert_inline_changes(diff: &LineDiff, index: usize) {
+    assert!(
+        diff.entries[index].inline_changes.is_some(),
+        "entry {index} carries inline changes"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -256,14 +268,10 @@ fn a_pair_carrying_a_line_ending_change_holds_a_changed_position() {
 fn inline_changes_compare_characters_unless_another_method_is_chosen() {
     let diff = line_diff("Hello World", "Hello Word", &LineDiffOptions::default());
 
-    let removed_text: String = diff.entries[0]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .old
-        .iter()
-        .filter(|token| token.kind == TokenKind::Removed)
-        .map(|token| token.text.as_str())
+    let removed_text: String = old_tokens(&diff, 0)
+        .into_iter()
+        .filter(|(kind, _)| *kind == TokenKind::Removed)
+        .map(|(_, text)| text)
         .collect();
     assert_eq!(removed_text, "l", "only the dropped character is marked");
 }
@@ -278,14 +286,7 @@ fn word_comparison_keeps_whitespace_runs_as_their_own_tokens() {
 
     let diff = line_diff("Hello World", "Hello Rust", &options);
 
-    let new_side: Vec<(TokenKind, &str)> = diff.entries[0]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .new
-        .iter()
-        .map(|token| (token.kind, token.text.as_str()))
-        .collect();
+    let new_side = new_tokens(&diff, 0);
     assert_eq!(
         new_side,
         vec![
@@ -306,14 +307,7 @@ fn line_comparison_marks_the_whole_line_as_one_token() {
 
     let diff = line_diff("Hello World", "Hello Rust", &options);
 
-    let new_side: Vec<(TokenKind, &str)> = diff.entries[0]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .new
-        .iter()
-        .map(|token| (token.kind, token.text.as_str()))
-        .collect();
+    let new_side = new_tokens(&diff, 0);
     assert_eq!(new_side, vec![(TokenKind::Added, "Hello Rust")]);
 }
 
@@ -516,14 +510,7 @@ fn character_comparison_emits_one_inline_token_per_character() {
         &LineDiffOptions::default(),
     );
 
-    let old_side: Vec<(TokenKind, &str)> = diff.entries[1]
-        .inline_changes
-        .as_ref()
-        .expect("modified entry carries inline changes")
-        .old
-        .iter()
-        .map(|token| (token.kind, token.text.as_str()))
-        .collect();
+    let old_side = old_tokens(&diff, 1);
     assert_eq!(
         old_side,
         vec![

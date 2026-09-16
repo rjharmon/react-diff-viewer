@@ -286,28 +286,42 @@ fn compute_inline_changes(old_line: &str, new_line: &str, compare: CompareMethod
         old: Vec::new(),
         new: Vec::new(),
     };
+    // Each side's tokens are consecutive and cover that side's whole line, so
+    // walking the changes in order gives every token's range into its own side.
+    let mut old_at = 0;
+    let mut new_at = 0;
     for change in tokens.iter_all_changes() {
-        let text = change.value().to_owned();
+        let len = change.value().len();
         match change.tag() {
             ChangeTag::Equal => {
                 changes.old.push(InlineToken {
                     kind: TokenKind::Unchanged,
-                    text: text.clone(),
+                    range: old_at..old_at + len,
                 });
                 changes.new.push(InlineToken {
                     kind: TokenKind::Unchanged,
-                    text,
+                    range: new_at..new_at + len,
                 });
+                old_at += len;
+                new_at += len;
             }
-            ChangeTag::Delete => changes.old.push(InlineToken {
-                kind: TokenKind::Removed,
-                text,
-            }),
-            ChangeTag::Insert => changes.new.push(InlineToken {
-                kind: TokenKind::Added,
-                text,
-            }),
+            ChangeTag::Delete => {
+                changes.old.push(InlineToken {
+                    kind: TokenKind::Removed,
+                    range: old_at..old_at + len,
+                });
+                old_at += len;
+            }
+            ChangeTag::Insert => {
+                changes.new.push(InlineToken {
+                    kind: TokenKind::Added,
+                    range: new_at..new_at + len,
+                });
+                new_at += len;
+            }
         }
     }
+    debug_assert_eq!(old_at, old_line.len(), "old tokens cover the old line");
+    debug_assert_eq!(new_at, new_line.len(), "new tokens cover the new line");
     changes
 }
