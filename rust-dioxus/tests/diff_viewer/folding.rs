@@ -3,7 +3,7 @@
 use dioxus::prelude::*;
 use dioxus_diff_viewer::{DiffView, DiffViewer, HiddenLines, use_fold_reset_trigger};
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 /// Ten lines with the sixth changed.
 const OLD_TEN_LINES: &str = "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10";

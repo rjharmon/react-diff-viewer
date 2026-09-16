@@ -4,7 +4,7 @@
 use dioxus::prelude::*;
 use dioxus_diff_viewer::{DiffView, DiffViewer};
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 const OLD_CODE: &str = "
 const a = 123

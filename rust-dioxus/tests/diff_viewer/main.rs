@@ -6,7 +6,7 @@
 mod content_rendering;
 mod folding;
 mod line_selection;
-mod mounted_viewer;
+mod mounted_app;
 mod reference_cases;
 mod rendered_tree;
 mod styling_hooks;

@@ -9,12 +9,12 @@ use std::rc::Rc;
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
-use crate::diff_viewer_rows::RowRendering;
 use crate::fold_planning::{PlannedRow, plan_rows};
 use crate::fold_reset_trigger::{ExpandedFolds, FoldBasis, FoldResetTrigger};
 use crate::line_diff_engine::line_diff;
 use crate::line_diff_options::{CompareMethod, LineDiffOptions};
 use crate::line_id::LineId;
+use crate::row_rendering::RowRendering;
 use crate::styling_hooks::*;
 
 /// How the viewer lays out the two texts.

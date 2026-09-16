@@ -7,7 +7,7 @@ use dioxus_diff_viewer::styling_hooks::{
 };
 use dioxus_diff_viewer::{CompareMethod, DiffView, DiffViewer};
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 /// REQT-ys3yr5g185 (Split view), with the first acceptance criterion: two
 /// texts alone show a split diff.

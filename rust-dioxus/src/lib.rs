@@ -7,13 +7,13 @@
 
 mod consumer_callbacks;
 mod diff_viewer;
-mod diff_viewer_rows;
 mod fold_planning;
 mod fold_reset_trigger;
 mod line_diff_engine;
 mod line_diff_options;
 mod line_diff_output;
 mod line_id;
+mod row_rendering;
 pub mod styling_hooks;
 
 pub use consumer_callbacks::{HiddenLines, LineContent, LineNumberClick, ModifierKeys};

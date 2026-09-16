@@ -5,7 +5,7 @@ use dioxus_diff_viewer::styling_hooks::DXDIFF__HIGHLIGHTED;
 use dioxus_diff_viewer::{DiffView, DiffViewer, LineId, LineNumberClick};
 use dioxus_html::Modifiers;
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 /// REQT-zaens35zqy (Highlighted lines): a line id joins its side and number
 /// with a hyphen.

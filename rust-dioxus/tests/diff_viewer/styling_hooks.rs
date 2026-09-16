@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::*;
 use dioxus_diff_viewer::{CompareMethod, DiffViewer, LineId};
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 /// Each element carrying `kind_class`, read as its other `dxdiff` classes.
 fn states_of(viewer: &MountedApp, kind_class: &str) -> Vec<String> {

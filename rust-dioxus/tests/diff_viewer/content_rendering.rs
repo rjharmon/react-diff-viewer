@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::DXDIFF__INLINE_TOKEN;
 use dioxus_diff_viewer::{DiffView, DiffViewer, LineContent};
 
-use crate::mounted_viewer::MountedApp;
+use crate::mounted_app::MountedApp;
 
 /// REQT-vbaqm4y5zk (Column titles): the split view shows each title above its
 /// column, as text or rendered content.
