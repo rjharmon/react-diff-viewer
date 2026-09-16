@@ -143,3 +143,22 @@ fn titles_span_the_columns_of_the_lines_below_them() {
         );
     }
 }
+
+/// REQT-vxtax4x0vs (Custom line content): the empty side of a split row is not
+/// sent through the consumer's renderer.
+#[test]
+fn a_side_with_no_line_is_not_sent_through_the_renderer() {
+    fn app() -> Element {
+        rsx! {
+            DiffViewer {
+                old_text: "a",
+                new_text: "a\nb",
+                line_content_renderer: move |content: LineContent| rsx! { em { "[{content.text()}]" } },
+            }
+        }
+    }
+
+    let viewer = MountedApp::new(app);
+
+    assert_eq!(viewer.row_readings()[1], " |  |  | 2 | + | [b]");
+}

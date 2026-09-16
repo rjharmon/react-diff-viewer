@@ -263,7 +263,9 @@ impl RowRendering<'_> {
                 }
             },
             (Some(line), None) => self.rendered_text(LineContent::whole_line(&line.text)),
-            (None, _) => self.rendered_text(LineContent::empty()),
+            // REQT-vxtax4x0vs (Custom line content): a side with no line is
+            // not sent through the consumer's renderer.
+            (None, _) => rsx! {},
         }
     }
 

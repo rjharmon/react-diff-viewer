@@ -39,14 +39,6 @@ impl LineContent {
         }
     }
 
-    /// No line at all, as on the absent side of a split row.
-    pub(crate) fn empty() -> Self {
-        Self {
-            line: Arc::default(),
-            range: 0..0,
-        }
-    }
-
     /// The text to render: the whole line, or the token.
     pub fn text(&self) -> &str {
         &self.line[self.range.clone()]
