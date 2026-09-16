@@ -236,3 +236,47 @@ fn a_fold_expands_again_after_a_reset() {
 
     assert_eq!(viewer.row_readings()[0], unchanged_row(1));
 }
+
+/// REQT-1tdrfvay4q (Fold rows): a fold row spans the same columns as the line
+/// rows around it, in both views, with line numbers shown or hidden.
+#[test]
+fn a_fold_row_spans_every_column_of_the_rows_around_it() {
+    fn split_numbered() -> Element {
+        rsx! { DiffViewer { old_text: OLD_TEN_LINES, new_text: NEW_TEN_LINES } }
+    }
+    fn split_unnumbered() -> Element {
+        rsx! {
+            DiffViewer { old_text: OLD_TEN_LINES, new_text: NEW_TEN_LINES, show_line_numbers: false }
+        }
+    }
+    fn inline_numbered() -> Element {
+        rsx! {
+            DiffViewer { old_text: OLD_TEN_LINES, new_text: NEW_TEN_LINES, view: DiffView::Inline }
+        }
+    }
+    fn inline_unnumbered() -> Element {
+        rsx! {
+            DiffViewer {
+                old_text: OLD_TEN_LINES,
+                new_text: NEW_TEN_LINES,
+                view: DiffView::Inline,
+                show_line_numbers: false,
+            }
+        }
+    }
+
+    for (layout, app, columns) in [
+        ("split, numbered", split_numbered as fn() -> Element, 6),
+        ("split, unnumbered", split_unnumbered, 4),
+        ("inline, numbered", inline_numbered, 4),
+        ("inline, unnumbered", inline_unnumbered, 2),
+    ] {
+        let viewer = MountedApp::new(app);
+
+        let counts = viewer.row_column_counts();
+        assert!(
+            counts.iter().all(|count| *count == columns),
+            "{layout}: every row spans {columns} columns, got {counts:?}"
+        );
+    }
+}

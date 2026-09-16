@@ -368,13 +368,10 @@ fn shown_side<'a>(
         Side::Old => LineId::Old(line.number),
         Side::New => LineId::New(line.number),
     });
-    let tokens = entry
-        .inline_changes
-        .as_ref()
-        .map(|changes| match side {
-            Side::Old => changes.old.as_slice(),
-            Side::New => changes.new.as_slice(),
-        });
+    let tokens = entry.inline_changes.as_ref().map(|changes| match side {
+        Side::Old => changes.old.as_slice(),
+        Side::New => changes.new.as_slice(),
+    });
     let terminator = line
         .and(entry.line_ending_change.as_ref())
         .map(|change| match side {

@@ -68,6 +68,24 @@ impl MountedApp {
             .collect()
     }
 
+    /// Each rendered table row's width in columns: its cells, each counted by
+    /// its `colspan` or as one column, in document order.
+    pub fn row_column_counts(&self) -> Vec<usize> {
+        self.tree
+            .elements_with_tag("tr")
+            .iter()
+            .map(|row| {
+                row.child_elements()
+                    .iter()
+                    .map(|cell| {
+                        cell.attribute("colspan")
+                            .map_or(1, |span| span.parse().unwrap())
+                    })
+                    .sum()
+            })
+            .collect()
+    }
+
     /// The texts of every element carrying `class`, in document order.
     pub fn texts_with_class(&self, class: &str) -> Vec<String> {
         self.tree

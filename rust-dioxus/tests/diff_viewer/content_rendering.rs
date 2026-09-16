@@ -94,3 +94,52 @@ fn a_consumer_renderer_shapes_whole_lines_and_each_inline_token() {
         "the change wrapping stays around each rendered token"
     );
 }
+
+/// REQT-vbaqm4y5zk (Column titles): titles span the columns of the lines below
+/// them, in both views, with line numbers shown or hidden.
+#[test]
+fn titles_span_the_columns_of_the_lines_below_them() {
+    fn split_numbered() -> Element {
+        rsx! { DiffViewer { old_text: "a", new_text: "b", left_title: rsx! { "Old" }, right_title: rsx! { "New" } } }
+    }
+    fn split_unnumbered() -> Element {
+        rsx! {
+            DiffViewer {
+                old_text: "a",
+                new_text: "b",
+                show_line_numbers: false,
+                left_title: rsx! { "Old" },
+                right_title: rsx! { "New" },
+            }
+        }
+    }
+    fn inline_numbered() -> Element {
+        rsx! { DiffViewer { old_text: "a", new_text: "b", view: DiffView::Inline, left_title: rsx! { "Old" } } }
+    }
+    fn inline_unnumbered() -> Element {
+        rsx! {
+            DiffViewer {
+                old_text: "a",
+                new_text: "b",
+                view: DiffView::Inline,
+                show_line_numbers: false,
+                left_title: rsx! { "Old" },
+            }
+        }
+    }
+
+    for (layout, app, columns) in [
+        ("split, numbered", split_numbered as fn() -> Element, 6),
+        ("split, unnumbered", split_unnumbered, 4),
+        ("inline, numbered", inline_numbered, 4),
+        ("inline, unnumbered", inline_unnumbered, 2),
+    ] {
+        let viewer = MountedApp::new(app);
+
+        let counts = viewer.row_column_counts();
+        assert!(
+            counts.iter().all(|count| *count == columns),
+            "{layout}: every row spans {columns} columns, got {counts:?}"
+        );
+    }
+}
