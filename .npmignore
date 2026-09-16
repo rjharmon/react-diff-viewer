@@ -2,3 +2,5 @@ examples
 test
 *.svg
 src
+.glossary.*
+.principles.*
