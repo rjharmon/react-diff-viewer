@@ -23,7 +23,8 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 10/10
+- DREAMED: 10/11
+- draft: 1/11
 
 ## In this document
 
@@ -59,6 +60,7 @@ The Dioxus component apps mount; placeholder until the component work elaborates
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
+- **Responsibility**: Expanded-fold state and the control that resets it
 
 
 **Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
@@ -211,6 +213,22 @@ old side and new side, each optional with text and line number; change kind (unc
 One row of the diff as either view reads it.
 
 **Supports Requirements**: REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-4nz35dscrn, REQT-rtwn1qresp, REQT-smd01rma2q
+
+
+
+<a id="software-object-ARCH-y9545npjzg"></a>
+
+### FoldControl (struct; draft - ARCH-y9545npjzg)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+an opaque copyable handle over the viewer's expanded folds; resets them all
+```
+
+The optional prop through which an app resets folds. The crate creates it and owns what it holds, so an app never names a fold; a viewer given none keeps its folds to itself.
+
+**Supports Requirements**: REQT-869jyzdes7, REQT-v748c7mjr6
 
 
 
