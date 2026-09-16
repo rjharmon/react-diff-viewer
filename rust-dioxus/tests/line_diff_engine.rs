@@ -11,6 +11,7 @@
 use dioxus_diff_viewer::{
     ChangeKind, CompareMethod, LineDiff, LineDiffOptions, TokenKind, line_diff,
 };
+use proptest::prelude::*;
 
 // ---------------------------------------------------------------------------
 // Reading helpers. These keep each test's assert section to one line of intent.
@@ -532,61 +533,92 @@ fn character_comparison_emits_one_inline_token_per_character() {
 
 // ---------------------------------------------------------------------------
 // Properties
+//
+// The generated properties below deliberately do not restate how the engine
+// splits lines; a test that re-implements the code under test cannot fail with
+// it. They assert what must hold whatever the split is: no character is lost or
+// invented, and each side's numbers run contiguously. The exact split of chosen
+// texts is asserted by the example test that follows them, and by the
+// reference-case table above.
 // ---------------------------------------------------------------------------
 
-/// Each side's line texts rejoin to that side's trimmed input.
-#[test]
-fn every_side_s_line_texts_rejoin_to_that_side_s_trimmed_input() {
-    let cases = vec![
-        ("test", "test\n    newLine"),
-        ("test\n    oldLine", "test"),
-        ("Hello World", "My Updated Name\nAlso this info"),
-        ("first\r\nsecond", "first\nsecond"),
-        ("a\nb\nc\n\n  ", "a\nB\nc"),
-    ];
-
-    for (old_text, new_text) in cases {
-        let diff = line_diff(old_text, new_text, &LineDiffOptions::default());
-
-        let old_rejoined: Vec<String> = diff
-            .entries
+/// A text built from short lines, each ended by one of the three terminators
+/// the engine recognizes. The last terminator makes the text end on a line
+/// break as often as not.
+fn text() -> impl Strategy<Value = String> {
+    proptest::collection::vec(
+        (
+            "[a-zA-Z ]{0,10}",
+            prop_oneof![Just("\n"), Just("\r\n"), Just("\r")],
+        ),
+        0..8,
+    )
+    .prop_map(|lines| {
+        lines
             .iter()
-            .filter_map(|entry| entry.old.as_ref().map(|side| side.text.clone()))
-            .collect();
-        let new_rejoined: Vec<String> = diff
-            .entries
-            .iter()
-            .filter_map(|entry| entry.new.as_ref().map(|side| side.text.clone()))
-            .collect();
-
-        assert_eq!(
-            old_rejoined.join("\n"),
-            old_text.trim_end().replace("\r\n", "\n"),
-            "old side of {old_text:?} against {new_text:?}"
-        );
-        assert_eq!(
-            new_rejoined.join("\n"),
-            new_text.trim_end().replace("\r\n", "\n"),
-            "new side of {old_text:?} against {new_text:?}"
-        );
-    }
+            .map(|(line, ending)| format!("{line}{ending}"))
+            .collect()
+    })
 }
 
-/// Each side's line numbers run contiguously from one more than the offset.
-#[test]
-fn every_side_s_line_numbers_run_contiguously_from_the_offset() {
-    let cases = vec![
-        (0, "test", "test\n    newLine"),
-        (5, "Hello World", "My Updated Name\nAlso this info"),
-        (12, "a\nb\nc", "a\nB\nc\nd"),
-    ];
+/// One side's line texts, in entry order.
+fn side_texts(diff: &LineDiff, side: Side) -> Vec<String> {
+    diff.entries
+        .iter()
+        .filter_map(|entry| match side {
+            Side::Old => entry.old.as_ref(),
+            Side::New => entry.new.as_ref(),
+        })
+        .map(|line| line.text.clone())
+        .collect()
+}
 
-    for (line_offset, old_text, new_text) in cases {
+#[derive(Clone, Copy)]
+enum Side {
+    Old,
+    New,
+}
+
+/// That side's characters, minus the terminators the engine holds aside.
+fn characters_without_terminators(text: &str) -> String {
+    text.trim_end()
+        .chars()
+        .filter(|character| *character != '\n' && *character != '\r')
+        .collect()
+}
+
+proptest! {
+    /// Each side's line texts together hold exactly that side's characters,
+    /// in order, with the terminators removed: nothing lost, nothing invented.
+    #[test]
+    fn each_side_s_line_texts_hold_every_character_of_that_side_s_trimmed_input(
+        old_text in text(),
+        new_text in text(),
+    ) {
+        let diff = line_diff(&old_text, &new_text, &LineDiffOptions::default());
+
+        prop_assert_eq!(
+            side_texts(&diff, Side::Old).concat(),
+            characters_without_terminators(&old_text)
+        );
+        prop_assert_eq!(
+            side_texts(&diff, Side::New).concat(),
+            characters_without_terminators(&new_text)
+        );
+    }
+
+    /// Each side's line numbers run contiguously from one more than the offset.
+    #[test]
+    fn every_side_s_line_numbers_run_contiguously_from_the_offset(
+        old_text in text(),
+        new_text in text(),
+        line_offset in 0usize..50,
+    ) {
         let options = LineDiffOptions {
             line_offset,
             ..LineDiffOptions::default()
         };
-        let diff = line_diff(old_text, new_text, &options);
+        let diff = line_diff(&old_text, &new_text, &options);
 
         let old_numbers: Vec<usize> = diff
             .entries
@@ -601,13 +633,61 @@ fn every_side_s_line_numbers_run_contiguously_from_the_offset() {
 
         let expected_old: Vec<usize> = (1..=old_numbers.len()).map(|n| n + line_offset).collect();
         let expected_new: Vec<usize> = (1..=new_numbers.len()).map(|n| n + line_offset).collect();
+        prop_assert_eq!(old_numbers, expected_old);
+        prop_assert_eq!(new_numbers, expected_new);
+    }
+}
+
+/// The chosen pairs the generated properties cannot name: each text's exact
+/// split, including trailing blank lines and each of the three terminators.
+#[test]
+fn chosen_text_pairs_split_into_the_lines_expected() {
+    let cases: Vec<(&str, &str, Vec<&str>, Vec<&str>)> = vec![
+        (
+            "test",
+            "test\n    newLine",
+            vec!["test"],
+            vec!["test", "    newLine"],
+        ),
+        (
+            "test\n    oldLine",
+            "test",
+            vec!["test", "    oldLine"],
+            vec!["test"],
+        ),
+        (
+            "Hello World",
+            "My Updated Name\nAlso this info",
+            vec!["Hello World"],
+            vec!["My Updated Name", "Also this info"],
+        ),
+        (
+            "first\r\nsecond",
+            "first\nsecond",
+            vec!["first", "second"],
+            vec!["first", "second"],
+        ),
+        (
+            "a\nb\nc\n\n  ",
+            "a\nB\nc",
+            vec!["a", "b", "c"],
+            vec!["a", "B", "c"],
+        ),
+        ("a\rb", "a\nb", vec!["a", "b"], vec!["a", "b"]),
+    ];
+
+    for (old_text, new_text, old_lines, new_lines) in cases {
+        let diff = line_diff(old_text, new_text, &LineDiffOptions::default());
+
         assert_eq!(
-            old_numbers, expected_old,
-            "old side at offset {line_offset}"
+            side_texts(&diff, Side::Old),
+            old_lines,
+            "old side of {old_text:?}"
         );
         assert_eq!(
-            new_numbers, expected_new,
-            "new side at offset {line_offset}"
+            side_texts(&diff, Side::New),
+            new_lines,
+            "new side of {new_text:?}"
         );
     }
 }
