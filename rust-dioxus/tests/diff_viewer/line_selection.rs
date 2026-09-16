@@ -13,8 +13,18 @@ use crate::mounted_viewer::MountedApp;
 fn a_line_id_reads_as_its_side_and_number_joined_by_a_hyphen() {
     assert_eq!(LineId::Old(20).to_string(), "L-20");
     assert_eq!(LineId::New(3).to_string(), "R-3");
+}
+
+/// REQT-jgkndzqkyz (Line ids from text)
+#[test]
+fn a_line_id_reads_back_from_its_text_form() {
     assert_eq!("L-20".parse(), Ok(LineId::Old(20)));
     assert_eq!("R-3".parse(), Ok(LineId::New(3)));
+}
+
+/// REQT-jgkndzqkyz (Line ids from text)
+#[test]
+fn text_in_any_other_form_is_not_a_line_id() {
     for not_a_line_id in ["", "L20", "X-1", "L-", "R-x"] {
         assert!(
             not_a_line_id.parse::<LineId>().is_err(),

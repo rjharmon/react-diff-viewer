@@ -39,6 +39,8 @@ impl fmt::Display for LineIdParseError {
 
 impl std::error::Error for LineIdParseError {}
 
+/// REQT-jgkndzqkyz (Line ids from text): reads `L-20` or `R-3` back into a line
+/// id, and rejects text in any other form.
 impl FromStr for LineId {
     type Err = LineIdParseError;
 
