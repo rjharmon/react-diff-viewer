@@ -45,7 +45,7 @@ pub fn DiffViewer(
     #[props(default)]
     compare: ReadSignal<CompareMethod>,
     /// Whether modified lines mark the tokens changed within them.
-    #[props(default = ReadSignal::new(Signal::new(true)))]
+    #[props(default = true)]
     mark_inline_changes: ReadSignal<bool>,
     /// Each side's first line is numbered one more than this.
     #[props(default)]
@@ -57,7 +57,7 @@ pub fn DiffViewer(
     #[props(default = true)]
     fold_unchanged_lines: bool,
     /// How many unchanged lines stay shown around each change.
-    #[props(default = ReadSignal::new(Signal::new(3)))]
+    #[props(default = 3_usize)]
     surrounding_line_count: ReadSignal<usize>,
     /// Renders a fold row's content in place of "Expand N lines ...".
     fold_row_renderer: Option<Callback<HiddenLines, Element>>,
