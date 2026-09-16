@@ -23,8 +23,8 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 13/14
-- draft: 1/14
+- DREAMED: 15/16
+- draft: 1/16
 
 ## In this document
 
@@ -35,7 +35,7 @@ Dioxus diff viewer crate built on a line diff engine.
 
 
 
-- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount; placeholder until the component work elaborates it.
+- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view.
 - [LineDiffEngine](#linediffengine-arch-jf3s5npp9s) (internal): Turns two texts and options into paired line information.
 - [similar](#similar-arch-wdrt39xvh4) (external): Third-party Rust crate computing text alignment.
 
@@ -47,12 +47,13 @@ Dioxus diff viewer crate built on a line diff engine.
 
 ### Component: DiffViewer (internal; DREAMED - ARCH-m4dkxzw6hh)
 
-The Dioxus component apps mount; placeholder until the component work elaborates it.
+The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view.
 
 **Activities**:
 
 - Render split and inline views from a LineDiff
 - Fold unchanged lines around changes
+- Report line-number clicks to the app
 
 
 
@@ -61,11 +62,14 @@ The Dioxus component apps mount; placeholder until the component work elaborates
 - Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
 
 
-**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge
+**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
 - **Responsibility**: Expanded-fold state and its reset trigger
+- **Responsibility**: Line highlighting and selection
+- **Responsibility**: Consumer rendering of line content and fold rows
+- **Responsibility**: Styling hook classes on its markup
 
 
 **Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
@@ -132,7 +136,7 @@ Third-party Rust crate computing text alignment.
 
 | Component | Parent | Summary |
 |-----------|--------|---------|
-| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount; placeholder until the component work elaborates it. |
+| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view. |
 | [LineDiffEngine](#linediffengine-arch-jf3s5npp9s) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | Turns two texts and options into paired line information. |
 
 
@@ -180,12 +184,12 @@ The component asks the engine for a LineDiff and renders from it; the engine spl
 **Component**: LineDiffEngine (ARCH-jf3s5npp9s)
 
 ```
-compare method (character, word, line); inline changes on or off; line offset
+compare method (character, word, line, trimmed line); inline changes on or off; line offset
 ```
 
 The engine's input choices; the app sets them through the component.
 
-**Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-4nz35dscrn, REQT-smd01rma2q
+**Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-z9r0pc53jg, REQT-4nz35dscrn, REQT-smd01rma2q
 
 
 
@@ -212,12 +216,12 @@ The engine's output and the component's only input for views and folding.
 **Component**: LineDiffEngine (ARCH-jf3s5npp9s)
 
 ```
-old side and new side, each optional with text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator
+old side and new side, each optional with text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator; whether a modified pair differs in leading or trailing whitespace
 ```
 
 One row of the diff as either view reads it.
 
-**Supports Requirements**: REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-4nz35dscrn, REQT-rtwn1qresp, REQT-smd01rma2q
+**Supports Requirements**: REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-4nz35dscrn, REQT-rtwn1qresp, REQT-hq1fzjaxg8, REQT-smd01rma2q
 
 
 
@@ -282,6 +286,38 @@ the clicked line's id, as in L-20, and the modifier keys held; returns nothing
 Optional; with highlighted lines, lets an app build line and range selection. Modifier keys travel as plain data rather than the framework's event.
 
 **Supports Requirements**: REQT-bqm9w6v4ms, REQT-zaens35zqy
+
+
+
+<a id="software-object-ARCH-mt182qa8vt"></a>
+
+### LineId (enum; DREAMED - ARCH-mt182qa8vt)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+old or new side plus a line number; text form `L-20` or `R-3`, readable back from text
+```
+
+How an app names a line, both to highlight it and in each line-number click.
+
+**Supports Requirements**: REQT-zaens35zqy, REQT-bqm9w6v4ms, REQT-jgkndzqkyz
+
+
+
+<a id="software-object-ARCH-38ktaqm4xw"></a>
+
+### StylingHookClasses (constants; DREAMED - ARCH-38ktaqm4xw)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+one `dxdiff` class per element kind, plus view classes and state classes (unchanged, removed, added, modified, empty, highlighted)
+```
+
+The public class vocabulary apps and the theming unit style against, independent of element structure.
+
+**Supports Requirements**: REQT-3928hx46s3
 
 
 
