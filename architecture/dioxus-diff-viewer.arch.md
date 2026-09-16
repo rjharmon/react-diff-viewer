@@ -60,7 +60,7 @@ The Dioxus component apps mount; placeholder until the component work elaborates
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
-- **Responsibility**: Expanded-fold state and the control that resets it
+- **Responsibility**: Expanded-fold state and its reset trigger
 
 
 **Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
@@ -218,15 +218,15 @@ One row of the diff as either view reads it.
 
 <a id="software-object-ARCH-y9545npjzg"></a>
 
-### FoldControl (struct; draft - ARCH-y9545npjzg)
+### FoldResetTrigger (struct; draft - ARCH-y9545npjzg)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
 ```
-an opaque copyable handle over the viewer's expanded folds; resets them all
+an opaque copyable handle whose one action returns every expanded fold to folded
 ```
 
-The optional prop through which an app resets folds. The crate creates it and owns what it holds, so an app never names a fold; a viewer given none keeps its folds to itself.
+The optional prop through which an app resets folds, and nothing more. The crate creates it and owns the folds it acts on, so an app never names a fold; a viewer given none keeps its folds to itself.
 
 **Supports Requirements**: REQT-869jyzdes7, REQT-v748c7mjr6
 
