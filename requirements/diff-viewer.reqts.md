@@ -113,7 +113,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 #### 3.1.0: Content rendering (**NEXT**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-3ekk7hre3k*</nobr>
 
  - **3.1.1: Column titles** (**NEXT**) - When the consumer supplies titles, the viewer MUST show the left title above the old column and the right title above the new column in the split view, and only the left title in the inline view; either title MAY be text or rendered content. <nobr>***DREAMED** REQT-vbaqm4y5zk*</nobr>
- - **3.1.2: Custom line content** (**NEXT**) - **consumer renderer shapes line text and inline tokens** When the consumer supplies a content renderer, the viewer MUST render line text through it, including each inline-change token on modified lines. <nobr>***DREAMED** REQT-vxtax4x0vs*</nobr>
+ - **3.1.2: Custom line content** (**NEXT**) - **consumer renderer shapes line text and inline tokens** When the consumer supplies a content renderer, the viewer MUST render line text through it, including each inline-change token on modified lines, and MUST NOT call it for a side of a split row that has no line. <nobr>***DREAMED** REQT-vxtax4x0vs*</nobr>
 
 #### 3.2.0: Themes (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-3cb9k1mg2d*</nobr>
 
