@@ -127,6 +127,13 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 - `rust-dioxus/src/line_diff_engine.rs` - Splits both texts into lines, aligns them through `similar`, and builds the paired entries: line marking, modified-line pairing, inline change tokens under each compare method, independent numbering, and the changed positions.
 - `rust-dioxus/src/line_diff_options.rs` - The consumer's input choices: compare method, whether to mark inline changes, and the line offset.
 - `rust-dioxus/src/line_diff_output.rs` - What the engine hands the component: paired line entries with each side's text and number, the change kind, inline tokens indexed into their line, and any line ending change.
+- `rust-dioxus/src/diff_viewer.rs` - The component apps mount: its props, the engine call, fold state, and the viewer table with its titles.
+- `rust-dioxus/src/row_rendering.rs` - The rows of both views: line rows with gutters, change markers, content, and chips, and fold rows.
+- `rust-dioxus/src/fold_planning.rs` - Which rows a view shows: each paired line entry, or a fold row for a run of unchanged lines far from every change.
+- `rust-dioxus/src/fold_reset_trigger.rs` - The expanded-fold state the viewer keeps, and the optional trigger an app uses to return every expanded fold to folded.
+- `rust-dioxus/src/consumer_callbacks.rs` - What the viewer hands the app's renderers and click handler: line content, hidden lines, and line-number clicks with held keys.
+- `rust-dioxus/src/styling_hooks.rs` - The `dxdiff` class names the viewer's markup carries for each element kind, view, and state.
+- `rust-dioxus/src/line_id.rs` - Line ids: a line's side and number, written and read as `L-20` or `R-3`.
 
 # Implementation Log
 
