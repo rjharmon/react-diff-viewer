@@ -23,7 +23,7 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 9/9
+- DREAMED: 10/10
 
 ## In this document
 
@@ -140,7 +140,7 @@ Third-party Rust crate computing text alignment.
 
 [DiffViewer](#diffviewer-arch-m4dkxzw6hh), [LineDiffEngine](#linediffengine-arch-jf3s5npp9s), [similar](#similar-arch-wdrt39xvh4) - Trigger: The component renders with new texts or options.
 
-The component asks the engine for a LineDiff and renders from it; the engine asks `similar` for alignment.
+The component asks the engine for a LineDiff and renders from it; the engine splits the lines itself and asks `similar` to align their texts.
 
 **Payload**: two texts and LineDiffOptions; LineDiff
 
@@ -189,7 +189,7 @@ The engine's input choices; the app sets them through the component.
 **Component**: LineDiffEngine (ARCH-jf3s5npp9s)
 
 ```
-paired line entries in display order; positions of entries holding a change
+paired line entries in display order; positions of entries holding a change, including a pair whose terminators differ
 ```
 
 The engine's output and the component's only input for views and folding.
@@ -205,7 +205,7 @@ The engine's output and the component's only input for views and folding.
 **Component**: LineDiffEngine (ARCH-jf3s5npp9s)
 
 ```
-old side and new side, each optional with text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries; line ending change with each side's terminator
+old side and new side, each optional with text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator
 ```
 
 One row of the diff as either view reads it.
@@ -239,6 +239,31 @@ The engine returns a LineDiff from two texts and LineDiffOptions; the component 
 
 **Also involves**:
 - DiffViewer (ARCH-m4dkxzw6hh): Renders views and folding from LineDiff alone
+
+
+
+<a id="decision-ARCH:dcisn-zyt966vq09"></a>
+
+### Engine tokenizes lines, similar aligns them (accepted; DREAMED - ARCH:dcisn-zyt966vq09)
+
+**Subject**: LineDiffEngine (ARCH-jf3s5npp9s)
+
+**Context**: Line identity must ignore terminators while each terminator stays reportable.
+
+> **Situation**: `similar`'s line tokenizer keeps `\n`, `\r\n`, and a bare `\r` inside each line token.
+>
+> **Impact**: Lines with the same text and different terminators never match, so unchanged lines read as modified.
+>
+> **Vision**: The engine splits lines, holds each terminator aside, and hands `similar` only the line texts.
+
+The engine owns line tokenization; `similar` aligns the resulting line texts and the tokens within a modified pair.
+
+
+**Also involves**:
+- similar (ARCH-wdrt39xvh4): Aligns the line texts the engine hands it
+
+
+**Supports Requirements**: REQT-hmsfnfe5wc, REQT-rtwn1qresp
 
 
 
