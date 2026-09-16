@@ -16,7 +16,7 @@ mod line_diff_output;
 mod line_id;
 pub mod styling_hooks;
 
-pub use consumer_callbacks::{HiddenLines, LineNumberClick, ModifierKeys};
+pub use consumer_callbacks::{HiddenLines, LineContent, LineNumberClick, ModifierKeys};
 pub use diff_viewer::{DiffView, DiffViewer, DiffViewerProps};
 pub use fold_reset_trigger::{FoldResetTrigger, use_fold_reset_trigger};
 pub use line_diff_engine::line_diff;

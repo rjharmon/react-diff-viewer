@@ -8,7 +8,7 @@ use std::rc::Rc;
 
 use dioxus::prelude::*;
 
-use crate::consumer_callbacks::{HiddenLines, LineNumberClick};
+use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
 use crate::diff_viewer_rows::RowRendering;
 use crate::fold_planning::{PlannedRow, plan_rows};
 use crate::fold_reset_trigger::{ExpandedFolds, FoldBasis, FoldResetTrigger};
@@ -69,7 +69,7 @@ pub fn DiffViewer(
     /// Called with the line id and held modifier keys of each clicked line number.
     on_line_number_click: Option<EventHandler<LineNumberClick>>,
     /// Renders line text, and each inline-change token on modified lines.
-    line_content_renderer: Option<Callback<String, Element>>,
+    line_content_renderer: Option<Callback<LineContent, Element>>,
     /// Shown above the old column, and above the only column inline.
     left_title: Option<Element>,
     /// Shown above the new column in the split view.

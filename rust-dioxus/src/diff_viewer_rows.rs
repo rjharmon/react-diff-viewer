@@ -5,10 +5,10 @@
 
 use dioxus::prelude::*;
 
-use crate::consumer_callbacks::{HiddenLines, LineNumberClick};
+use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
 use crate::diff_viewer::DiffView;
 use crate::fold_planning::Fold;
-use crate::line_diff_output::{ChangeKind, LineSide, PairedLineEntry, TokenKind};
+use crate::line_diff_output::{ChangeKind, InlineToken, LineSide, PairedLineEntry};
 use crate::line_id::LineId;
 use crate::styling_hooks::*;
 
@@ -18,7 +18,7 @@ pub(crate) struct RowRendering<'a> {
     pub(crate) show_line_numbers: bool,
     pub(crate) highlighted_lines: &'a [LineId],
     pub(crate) on_line_number_click: Option<EventHandler<LineNumberClick>>,
-    pub(crate) line_content_renderer: Option<Callback<String, Element>>,
+    pub(crate) line_content_renderer: Option<Callback<LineContent, Element>>,
     pub(crate) fold_row_renderer: Option<Callback<HiddenLines, Element>>,
 }
 
@@ -31,8 +31,9 @@ struct ShownLine<'a> {
     state: &'static str,
     /// `-` or `+`, when the line was removed or added.
     marker: &'static str,
-    text: Option<&'a str>,
-    tokens: Option<Vec<(TokenKind, &'a str)>>,
+    line: Option<&'a LineSide>,
+    /// The line's inline-change tokens, on a modified line carrying them.
+    tokens: Option<&'a [InlineToken]>,
     /// Each terminator to show as a line ending chip, in side order.
     line_endings: [Option<&'a str>; 2],
     whitespace_change: bool,
@@ -138,7 +139,7 @@ impl RowRendering<'_> {
             ],
             state,
             marker,
-            text: old_side.or(new_side).map(|side| side.text.as_str()),
+            line: old_side.or(new_side),
             tokens: None,
             line_endings,
             whitespace_change: entry.whitespace_change,
@@ -250,27 +251,28 @@ impl RowRendering<'_> {
     /// A line's text: its inline-change tokens on a modified line carrying
     /// them, otherwise the whole line.
     fn line_text(&self, shown: &ShownLine<'_>) -> Element {
-        match &shown.tokens {
-            Some(tokens) => rsx! {
-                for (position, (kind, text)) in tokens.iter().enumerate() {
+        match (shown.line, shown.tokens) {
+            (Some(line), Some(tokens)) => rsx! {
+                for (position, token) in tokens.iter().enumerate() {
                     span {
                         key: "{position}",
                         class: "{DXDIFF__INLINE_TOKEN}",
-                        class: "{token_state(*kind)}",
-                        {self.rendered_text(text)}
+                        class: "{token_state(token.kind)}",
+                        {self.rendered_text(LineContent::token(&line.text, token.range.clone()))}
                     }
                 }
             },
-            None => self.rendered_text(shown.text.unwrap_or_default()),
+            (Some(line), None) => self.rendered_text(LineContent::whole_line(&line.text)),
+            (None, _) => self.rendered_text(LineContent::empty()),
         }
     }
 
     /// REQT-vxtax4x0vs (Custom line content): text goes through the consumer's
     /// renderer when one is supplied, including each inline-change token.
-    fn rendered_text(&self, text: &str) -> Element {
+    fn rendered_text(&self, content: LineContent) -> Element {
         match self.line_content_renderer {
-            Some(renderer) => renderer.call(text.to_owned()),
-            None => rsx! { "{text}" },
+            Some(renderer) => renderer.call(content),
+            None => rsx! { "{content.text()}" },
         }
     }
 
@@ -366,10 +368,13 @@ fn shown_side<'a>(
         Side::Old => LineId::Old(line.number),
         Side::New => LineId::New(line.number),
     });
-    let tokens = entry.inline_changes.as_ref().map(|_| match side {
-        Side::Old => entry.old_inline_tokens().collect(),
-        Side::New => entry.new_inline_tokens().collect(),
-    });
+    let tokens = entry
+        .inline_changes
+        .as_ref()
+        .map(|changes| match side {
+            Side::Old => changes.old.as_slice(),
+            Side::New => changes.new.as_slice(),
+        });
     let terminator = line
         .and(entry.line_ending_change.as_ref())
         .map(|change| match side {
@@ -380,7 +385,7 @@ fn shown_side<'a>(
         gutters: [line_id, None],
         state,
         marker,
-        text: line.map(|line| line.text.as_str()),
+        line,
         tokens,
         line_endings: [terminator, None],
         whitespace_change: line.is_some() && entry.whitespace_change,

@@ -30,11 +30,11 @@ fn rows(diff: &LineDiff) -> Vec<Row> {
                 entry
                     .old
                     .as_ref()
-                    .map(|side| (side.number, side.text.clone())),
+                    .map(|side| (side.number, side.text.to_string())),
                 entry
                     .new
                     .as_ref()
-                    .map(|side| (side.number, side.text.clone())),
+                    .map(|side| (side.number, side.text.to_string())),
             )
         })
         .collect()
@@ -735,7 +735,7 @@ fn side_texts(diff: &LineDiff, side: Side) -> Vec<String> {
             Side::Old => entry.old.as_ref(),
             Side::New => entry.new.as_ref(),
         })
-        .map(|line| line.text.clone())
+        .map(|line| line.text.to_string())
         .collect()
 }
 
@@ -886,4 +886,13 @@ fn an_empty_removed_line_keeps_its_empty_text_rather_than_a_space() {
             ),
         ]
     );
+}
+
+/// ARCH-exgfx6rwdt (LineDiff): an app may compute a diff on another thread and
+/// hand the output across.
+#[test]
+fn the_engine_output_can_cross_threads() {
+    fn crosses_threads<T: Send + Sync + 'static>() {}
+    crosses_threads::<LineDiff>();
+    crosses_threads::<dioxus_diff_viewer::LineContent>();
 }

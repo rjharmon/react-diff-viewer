@@ -3,9 +3,10 @@
 //!
 //! Architecture: ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r (PairedLineEntry).
 //!
-//! Each line's text is owned rather than borrowed from the two input texts. A
+//! Each line's text is shared rather than borrowed from the two input texts. A
 //! Dioxus component keeps this output in state across renders, which needs
-//! `'static`, and the component is this output's only consumer.
+//! `'static`, and hands line text to a consumer's content renderer, which a
+//! shared text reaches without a copy. `Arc` keeps the output `Send` and `Sync`.
 //!
 //! An inline token carries a range into its own side's line text rather than a
 //! copy of it, so character comparison costs one allocation per line instead of
@@ -13,6 +14,7 @@
 //! `new_inline_tokens` on the entry.
 
 use std::ops::Range;
+use std::sync::Arc;
 
 /// How one paired line entry changed between the two texts.
 /// REQT-hmsfnfe5wc (Line marking), REQT-dqxm8fa7ts (Modified lines).
@@ -36,7 +38,7 @@ pub struct LineSide {
     pub number: usize,
     /// The line's text, without its line terminator.
     /// REQT-hmsfnfe5wc (Line marking).
-    pub text: String,
+    pub text: Arc<str>,
 }
 
 /// How one token within a modified line changed.
@@ -128,7 +130,7 @@ fn token_texts<'a>(
     tokens: Option<&'a Vec<InlineToken>>,
     side: Option<&'a LineSide>,
 ) -> impl Iterator<Item = (TokenKind, &'a str)> {
-    let text = side.map_or("", |side| side.text.as_str());
+    let text = side.map_or("", |side| &*side.text);
     tokens
         .map_or(&[][..], |tokens| tokens.as_slice())
         .iter()

@@ -2,7 +2,7 @@
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::DXDIFF__INLINE_TOKEN;
-use dioxus_diff_viewer::{DiffView, DiffViewer};
+use dioxus_diff_viewer::{DiffView, DiffViewer, LineContent};
 
 use crate::mounted_viewer::MountedApp;
 
@@ -70,7 +70,7 @@ fn a_consumer_renderer_shapes_whole_lines_and_each_inline_token() {
             DiffViewer {
                 old_text: "same\nab",
                 new_text: "same\nac",
-                line_content_renderer: move |text: String| rsx! { em { "[{text}]" } },
+                line_content_renderer: move |content: LineContent| rsx! { em { "[{content.text()}]" } },
             }
         }
     }

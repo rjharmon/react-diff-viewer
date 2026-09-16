@@ -9,6 +9,8 @@
 //! module splits the lines itself, holds each terminator aside, and hands
 //! `similar` only the line texts.
 
+use std::sync::Arc;
+
 use similar::{ChangeTag, DiffOp, TextDiff};
 
 use crate::line_diff_options::{CompareMethod, LineDiffOptions};
@@ -164,7 +166,7 @@ impl<'a> EntryBuilder<'a> {
         self.old_number += 1;
         LineSide {
             number: self.old_number,
-            text: line.text.to_owned(),
+            text: Arc::from(line.text),
         }
     }
 
@@ -172,7 +174,7 @@ impl<'a> EntryBuilder<'a> {
         self.new_number += 1;
         LineSide {
             number: self.new_number,
-            text: line.text.to_owned(),
+            text: Arc::from(line.text),
         }
     }
 

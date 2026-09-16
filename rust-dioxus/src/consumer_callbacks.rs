@@ -4,9 +4,54 @@
 //! Architecture: ARCH-jakkqkh6e1 (FoldRowRenderer), ARCH-sx4az00gan
 //! (LineNumberClickHandler).
 
+use std::ops::Range;
+use std::sync::Arc;
+
 use dioxus::prelude::{Modifiers, ModifiersInteraction, MouseEvent};
 
 use crate::line_id::LineId;
+
+/// What the line content renderer receives: a whole line, or one inline-change
+/// token of it, sharing the line's text rather than copying it.
+///
+/// REQT-vxtax4x0vs (Custom line content). Architecture: ARCH-rs0yp4vc5q
+/// (LineContentRenderer).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LineContent {
+    line: Arc<str>,
+    range: Range<usize>,
+}
+
+impl LineContent {
+    /// A whole line's text.
+    pub(crate) fn whole_line(line: &Arc<str>) -> Self {
+        Self {
+            line: Arc::clone(line),
+            range: 0..line.len(),
+        }
+    }
+
+    /// One token of a line, by its range in the line's text.
+    pub(crate) fn token(line: &Arc<str>, range: Range<usize>) -> Self {
+        Self {
+            line: Arc::clone(line),
+            range,
+        }
+    }
+
+    /// No line at all, as on the absent side of a split row.
+    pub(crate) fn empty() -> Self {
+        Self {
+            line: Arc::default(),
+            range: 0..0,
+        }
+    }
+
+    /// The text to render: the whole line, or the token.
+    pub fn text(&self) -> &str {
+        &self.line[self.range.clone()]
+    }
+}
 
 /// The lines one fold row hides, as the fold row renderer receives them.
 ///
