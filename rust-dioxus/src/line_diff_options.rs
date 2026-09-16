@@ -4,7 +4,7 @@
 
 /// How a modified line's old and new text are compared when marking inline changes.
 ///
-/// More compare methods are expected: the reference offers seven and three are
+/// More compare methods may follow: the reference offers seven and four are
 /// ported so far, so a consumer's match needs a wildcard arm.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[non_exhaustive]
@@ -17,6 +17,10 @@ pub enum CompareMethod {
     Word,
     /// The whole modified line as one token. REQT-spzdk2z1pk (Line comparison).
     Line,
+    /// The whole modified line as one token, unchanged when the two lines
+    /// differ only in leading or trailing whitespace.
+    /// REQT-z9r0pc53jg (Trimmed line comparison).
+    TrimmedLine,
 }
 
 /// The engine's input choices.

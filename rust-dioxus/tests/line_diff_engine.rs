@@ -277,6 +277,94 @@ fn a_bare_carriage_return_against_a_newline_is_a_line_ending_change() {
     assert_eq!(diff.changed_positions, vec![0]);
 }
 
+/// REQT-hq1fzjaxg8 (Leading or trailing whitespace changes): under trimmed line
+/// comparison, a modified pair differing at either end of its lines carries a
+/// whitespace change, with or without a content change and whether or not
+/// inline changes are marked.
+#[test]
+fn trimmed_line_comparison_marks_edge_whitespace_edits_as_whitespace_changes() {
+    let trimmed = LineDiffOptions {
+        compare: CompareMethod::TrimmedLine,
+        ..LineDiffOptions::default()
+    };
+    let trimmed_without_inline_changes = LineDiffOptions {
+        mark_inline_changes: false,
+        ..trimmed.clone()
+    };
+    // Each text's end is trimmed (REQT-9tze98pt6g), so the edited line is not last.
+    let cases: Vec<(&str, &str, &str, &LineDiffOptions)> = vec![
+        ("leading whitespace added", "a\nend", "  a\nend", &trimmed),
+        (
+            "trailing whitespace changed",
+            "a\t\nend",
+            "a \nend",
+            &trimmed,
+        ),
+        (
+            "edge and content edits together",
+            "  a\nend",
+            "b\nend",
+            &trimmed,
+        ),
+        (
+            "inline changes turned off",
+            "a\nend",
+            "a  \nend",
+            &trimmed_without_inline_changes,
+        ),
+    ];
+
+    for (case, old_text, new_text, options) in cases {
+        let diff = line_diff(old_text, new_text, options);
+
+        assert!(diff.entries[0].whitespace_change, "{case}");
+    }
+}
+
+/// REQT-hq1fzjaxg8 (Leading or trailing whitespace changes): interior
+/// whitespace is content, and other compare methods mark no whitespace change.
+#[test]
+fn only_edge_whitespace_under_trimmed_line_comparison_is_a_whitespace_change() {
+    let trimmed = LineDiffOptions {
+        compare: CompareMethod::TrimmedLine,
+        ..LineDiffOptions::default()
+    };
+    let cases: Vec<(&str, &str, &str, LineDiffOptions)> = vec![
+        ("interior whitespace edit", "a b", "a  b", trimmed),
+        (
+            "character comparison",
+            "a",
+            "  a",
+            LineDiffOptions::default(),
+        ),
+        (
+            "word comparison",
+            "a",
+            "  a",
+            LineDiffOptions {
+                compare: CompareMethod::Word,
+                ..LineDiffOptions::default()
+            },
+        ),
+        (
+            "line comparison",
+            "a",
+            "  a",
+            LineDiffOptions {
+                compare: CompareMethod::Line,
+                ..LineDiffOptions::default()
+            },
+        ),
+    ];
+
+    for (case, old_text, new_text, options) in cases {
+        let diff = line_diff(old_text, new_text, &options);
+
+        assert_eq!(diff.entries[0].change, ChangeKind::Modified, "{case}");
+        assert!(!diff.entries[0].whitespace_change, "{case}");
+    }
+}
+
 /// ARCH-atczcqvdsz (Line diff hand-off): every pair of texts yields a LineDiff,
 /// with no failure case, including when either text is empty. Two empty texts
 /// yield no entries, as the reference does for the same reason
@@ -343,6 +431,51 @@ fn line_comparison_marks_the_whole_line_as_one_token() {
 
     let new_side = new_tokens(&diff, 0);
     assert_eq!(new_side, vec![(TokenKind::Added, "Hello Rust")]);
+}
+
+/// REQT-z9r0pc53jg (Trimmed line comparison): a line whose only edit is its
+/// leading or trailing whitespace is still a modified line, and each side is
+/// one unchanged token keeping its full text.
+#[test]
+fn trimmed_line_comparison_marks_an_edge_whitespace_edit_unchanged() {
+    let options = LineDiffOptions {
+        compare: CompareMethod::TrimmedLine,
+        ..LineDiffOptions::default()
+    };
+
+    // Each text's end is trimmed (REQT-9tze98pt6g), so the edited line is not last.
+    let diff = line_diff("  Hello\nend", "Hello  \nend", &options);
+
+    assert_eq!(diff.entries[0].change, ChangeKind::Modified);
+    assert_eq!(
+        old_tokens(&diff, 0),
+        vec![(TokenKind::Unchanged, "  Hello")]
+    );
+    assert_eq!(
+        new_tokens(&diff, 0),
+        vec![(TokenKind::Unchanged, "Hello  ")]
+    );
+}
+
+/// REQT-z9r0pc53jg (Trimmed line comparison): a content change marks each
+/// whole line as one removed and one added token.
+#[test]
+fn trimmed_line_comparison_marks_a_content_change_as_whole_line_tokens() {
+    let options = LineDiffOptions {
+        compare: CompareMethod::TrimmedLine,
+        ..LineDiffOptions::default()
+    };
+
+    let diff = line_diff("Hello World", " Hello Rust", &options);
+
+    assert_eq!(
+        old_tokens(&diff, 0),
+        vec![(TokenKind::Removed, "Hello World")]
+    );
+    assert_eq!(
+        new_tokens(&diff, 0),
+        vec![(TokenKind::Added, " Hello Rust")]
+    );
 }
 
 // ---------------------------------------------------------------------------

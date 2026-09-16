@@ -97,6 +97,10 @@ pub struct PairedLineEntry {
     /// Each side's terminator when the two sides' terminators differ.
     /// REQT-rtwn1qresp (Line ending changes).
     pub line_ending_change: Option<LineEndingChange>,
+    /// Whether a modified pair's lines differ in leading or trailing
+    /// whitespace; marked only under trimmed line comparison.
+    /// REQT-hq1fzjaxg8 (Leading or trailing whitespace changes).
+    pub whitespace_change: bool,
 }
 
 impl PairedLineEntry {

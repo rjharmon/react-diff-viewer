@@ -185,6 +185,7 @@ impl<'a> EntryBuilder<'a> {
             new: Some(new),
             inline_changes: None,
             line_ending_change: line_ending_change(old_line, new_line),
+            whitespace_change: false,
         });
     }
 
@@ -196,6 +197,7 @@ impl<'a> EntryBuilder<'a> {
             new: None,
             inline_changes: None,
             line_ending_change: None,
+            whitespace_change: false,
         });
     }
 
@@ -207,6 +209,7 @@ impl<'a> EntryBuilder<'a> {
             new: Some(new),
             inline_changes: None,
             line_ending_change: None,
+            whitespace_change: false,
         });
     }
 
@@ -220,12 +223,17 @@ impl<'a> EntryBuilder<'a> {
             .options
             .mark_inline_changes
             .then(|| compute_inline_changes(old_line.text, new_line.text, self.options.compare));
+        // REQT-hq1fzjaxg8 (Leading or trailing whitespace changes): only
+        // trimmed line comparison marks end-of-line whitespace edits.
+        let whitespace_change = self.options.compare == CompareMethod::TrimmedLine
+            && edge_whitespace_differs(old_line.text, new_line.text);
         self.push(PairedLineEntry {
             change: ChangeKind::Modified,
             old: Some(old),
             new: Some(new),
             inline_changes,
             line_ending_change: line_ending_change(old_line, new_line),
+            whitespace_change,
         });
     }
 
@@ -270,9 +278,29 @@ fn line_ending_change(
     })
 }
 
+/// Whether two lines differ in their leading or their trailing whitespace.
+fn edge_whitespace_differs(old_line: &str, new_line: &str) -> bool {
+    leading_whitespace(old_line) != leading_whitespace(new_line)
+        || trailing_whitespace(old_line) != trailing_whitespace(new_line)
+}
+
+fn leading_whitespace(line: &str) -> &str {
+    &line[..line.len() - line.trim_start().len()]
+}
+
+fn trailing_whitespace(line: &str) -> &str {
+    &line[line.trim_end().len()..]
+}
+
 /// Marks the tokens removed from the old line and added in the new line.
 fn compute_inline_changes(old_line: &str, new_line: &str, compare: CompareMethod) -> InlineChanges {
     let tokens = match compare {
+        // REQT-z9r0pc53jg (Trimmed line comparison): each side is one token
+        // covering its whole line, unchanged when only the line's leading or
+        // trailing whitespace differs.
+        CompareMethod::TrimmedLine => {
+            return whole_line_tokens(old_line, new_line, old_line.trim() == new_line.trim());
+        }
         // REQT-czecf8krqc (Character comparison)
         CompareMethod::Character => TextDiff::from_chars(old_line, new_line),
         // REQT-xzc8n354h1 (Word comparison): `similar` splits into alternating
@@ -324,4 +352,24 @@ fn compute_inline_changes(old_line: &str, new_line: &str, compare: CompareMethod
     debug_assert_eq!(old_at, old_line.len(), "old tokens cover the old line");
     debug_assert_eq!(new_at, new_line.len(), "new tokens cover the new line");
     changes
+}
+
+/// One token per side covering that side's whole line, marked unchanged on
+/// both sides or removed and added.
+fn whole_line_tokens(old_line: &str, new_line: &str, unchanged: bool) -> InlineChanges {
+    let (old_kind, new_kind) = if unchanged {
+        (TokenKind::Unchanged, TokenKind::Unchanged)
+    } else {
+        (TokenKind::Removed, TokenKind::Added)
+    };
+    InlineChanges {
+        old: vec![InlineToken {
+            kind: old_kind,
+            range: 0..old_line.len(),
+        }],
+        new: vec![InlineToken {
+            kind: new_kind,
+            range: 0..new_line.len(),
+        }],
+    }
 }
