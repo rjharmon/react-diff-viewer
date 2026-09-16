@@ -136,7 +136,7 @@ fn the_same_two_lines_under_windows_and_unix_endings_are_unchanged() {
 #[test]
 fn a_removed_line_followed_by_an_added_line_is_one_modified_entry() {
     let options = LineDiffOptions {
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 
@@ -159,7 +159,7 @@ fn a_removed_line_followed_by_an_added_line_is_one_modified_entry() {
 #[test]
 fn an_added_line_beyond_the_removed_ones_stays_a_plain_addition() {
     let options = LineDiffOptions {
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 
@@ -195,7 +195,7 @@ fn a_modified_line_carries_inline_changes_by_default() {
 #[test]
 fn a_modified_line_carries_no_inline_changes_when_they_are_turned_off() {
     let options = LineDiffOptions {
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 
@@ -320,7 +320,7 @@ fn line_comparison_marks_the_whole_line_as_one_token() {
 fn each_side_counts_its_own_lines_from_one_more_than_the_offset() {
     let options = LineDiffOptions {
         line_offset: 5,
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 
@@ -385,7 +385,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "test\n    oldLine",
             "test\n    newLine",
             LineDiffOptions {
-                inline_changes: false,
+                mark_inline_changes: false,
                 ..LineDiffOptions::default()
             },
             vec![
@@ -433,7 +433,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "Hello World",
             "My Updated Name\nAlso this info",
             LineDiffOptions {
-                inline_changes: false,
+                mark_inline_changes: false,
                 ..LineDiffOptions::default()
             },
             vec![name_pair, added(2, "Also this info")],
@@ -444,7 +444,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "My Updated Name\nAlso this info",
             LineDiffOptions {
                 compare: CompareMethod::Word,
-                inline_changes: false,
+                mark_inline_changes: false,
                 line_offset: 5,
             },
             vec![
@@ -475,7 +475,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
 #[test]
 fn changed_positions_index_the_entries_that_hold_a_change() {
     let options = LineDiffOptions {
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 
@@ -622,7 +622,7 @@ fn every_side_s_line_numbers_run_contiguously_from_the_offset() {
 #[test]
 fn an_empty_removed_line_keeps_its_empty_text_rather_than_a_space() {
     let options = LineDiffOptions {
-        inline_changes: false,
+        mark_inline_changes: false,
         ..LineDiffOptions::default()
     };
 

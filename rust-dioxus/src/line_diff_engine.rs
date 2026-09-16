@@ -218,7 +218,7 @@ impl<'a> EntryBuilder<'a> {
         // consumer turned inline changes off.
         let inline_changes = self
             .options
-            .inline_changes
+            .mark_inline_changes
             .then(|| compute_inline_changes(old_line.text, new_line.text, self.options.compare));
         self.push(PairedLineEntry {
             change: ChangeKind::Modified,

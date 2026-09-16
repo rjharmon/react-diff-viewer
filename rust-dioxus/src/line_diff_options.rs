@@ -22,7 +22,7 @@ pub struct LineDiffOptions {
     pub compare: CompareMethod,
     /// Whether modified lines carry the tokens removed and added within them.
     /// REQT-4nz35dscrn (Inline changes): on unless the consumer turns them off.
-    pub inline_changes: bool,
+    pub mark_inline_changes: bool,
     /// Each side's first line is numbered one more than this.
     /// REQT-smd01rma2q (Independent numbering).
     pub line_offset: usize,
@@ -34,7 +34,7 @@ impl Default for LineDiffOptions {
             // REQT-czecf8krqc (Character comparison): the default compare method.
             compare: CompareMethod::Character,
             // REQT-4nz35dscrn (Inline changes): on unless turned off.
-            inline_changes: true,
+            mark_inline_changes: true,
             // REQT-smd01rma2q (Independent numbering): the offset defaults to 0.
             line_offset: 0,
         }
