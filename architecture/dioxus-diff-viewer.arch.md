@@ -216,7 +216,7 @@ The engine's output and the component's only input for views and folding.
 **Component**: LineDiffEngine (ARCH-jf3s5npp9s)
 
 ```
-old side and new side, each optional with text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator; whether a modified pair differs in leading or trailing whitespace
+old side and new side, each optional with shared line text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator; whether a modified pair differs in leading or trailing whitespace
 ```
 
 One row of the diff as either view reads it.
@@ -248,10 +248,10 @@ The optional prop through which an app resets folds, and nothing more. The crate
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
 ```
-a whole line's text, or one inline-change token's text, to rendered content
+a whole line or one inline-change token, as shared line text with a range, to rendered content
 ```
 
-Optional; lets an app shape line text, as for syntax highlighting. The viewer keeps the change wrapping around each token, so on modified lines the renderer sees fragments.
+Optional; lets an app shape line text, as for syntax highlighting. The viewer keeps the change wrapping around each token, so on modified lines the renderer sees fragments. Line text is shared with the engine output, so no call copies it.
 
 **Supports Requirements**: REQT-vxtax4x0vs
 
