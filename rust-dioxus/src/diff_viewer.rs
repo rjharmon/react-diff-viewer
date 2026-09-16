@@ -124,6 +124,9 @@ pub fn DiffViewer(
         table { class: "{DXDIFF__VIEWER}", class: "{view_class}",
             tbody {
                 if has_title {
+                    // REQT-3928hx46s3 (Styling hooks): titles carry only their
+                    // kind class; a title shows no line, so no change or
+                    // highlight state is relevant to it.
                     tr {
                         td { class: "{DXDIFF__TITLE}", colspan: "{title_span}", pre { {left_title} } }
                         if view == DiffView::Split {
