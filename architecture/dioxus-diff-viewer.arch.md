@@ -56,6 +56,10 @@ The Dioxus component apps mount; placeholder until the component work elaborates
 
 
 
+**Exclusions** (boundary clarifications):
+- Does NOT handle Whitespace-insensitive word, sentence, and CSS comparison (react-diff-viewer's WORDS, SENTENCES, CSS) - Not ported; the compare methods offered are character, word, line, and trimmed line, and CompareMethod leaves room for more.
+
+
 **Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge
 
 **Concerns and Responsibilities**:
@@ -87,7 +91,7 @@ Turns two texts and options into paired line information.
 - Does NOT handle Views, folding, and styling → see ARCH-m4dkxzw6hh (DiffViewer) - The engine carries no presentation.
 
 
-**Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-4nz35dscrn, REQT-9tze98pt6g, REQT-rtwn1qresp, REQT-smd01rma2q
+**Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-z9r0pc53jg, REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-4nz35dscrn, REQT-9tze98pt6g, REQT-rtwn1qresp, REQT-hq1fzjaxg8, REQT-smd01rma2q
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Line change marking as `similar` aligns lines
