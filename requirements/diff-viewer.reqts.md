@@ -118,7 +118,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
  - **3.2.1: Theme selection** (**BACKLOG**) - **follows the reader's color-scheme preference unless the app chooses** Unless the consumer selects light or dark, the viewer MUST follow the reader's light or dark color-scheme preference from the browser or platform. <nobr>***DREAMED** REQT-sc8expw3q8*</nobr>
  - **3.2.2: Chip color** (**BACKLOG**) - **chips contrast with the line backgrounds beneath them** Each theme MUST color line ending chips and whitespace chips so they contrast with every line background they appear on. <nobr>***DREAMED** REQT-8y5fp2aarz*</nobr>
- - **3.2.3: Styling hooks** (**NEXT**) - **stable class per element kind, plus state classes** The viewer MUST give the title, each row, gutter, change marker, content cell, inline-change token, line ending chip, line ending arrow, whitespace chip, and fold row a stable class name naming its kind, plus a class for its change or highlight state, all prefixed with `dxdiff`, so that apps and themes can style the viewer without depending on its element structure or colliding with the app's own classes. <nobr>***draft** REQT-3928hx46s3*</nobr>
+ - **3.2.3: Styling hooks** (**NEXT**) - **stable class per element kind, plus state classes** The viewer MUST give the title, each row, gutter, change marker, content cell, inline-change token, line ending chip, line ending arrow, whitespace chip, and fold row a stable class name naming its kind, plus a class for its change or highlight state, if relevant, all prefixed with `dxdiff`, so that apps and themes can style the viewer without depending on its element structure or colliding with the app's own classes. <nobr>***draft** REQT-3928hx46s3*</nobr>
 
 # Files
 
