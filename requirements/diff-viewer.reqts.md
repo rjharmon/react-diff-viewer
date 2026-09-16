@@ -118,6 +118,10 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
 # Files
 
+- `rust-dioxus/src/lib.rs` - The crate root: its modules and the public names apps import.
+- `rust-dioxus/src/line_diff_engine.rs` - Splits both texts into lines, aligns them through `similar`, and builds the paired entries: line marking, modified-line pairing, inline change tokens under each compare method, independent numbering, and the changed positions.
+- `rust-dioxus/src/line_diff_options.rs` - The consumer's input choices: compare method, whether to mark inline changes, and the line offset.
+- `rust-dioxus/src/line_diff_output.rs` - What the engine hands the component: paired line entries with each side's text and number, the change kind, inline tokens indexed into their line, and any line ending change.
 
 # Implementation Log
 
