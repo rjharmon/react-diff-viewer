@@ -228,6 +228,25 @@ fn a_pair_whose_terminators_differ_reports_the_ending_change_with_both_terminato
     );
 }
 
+/// REQT-rtwn1qresp (Line ending changes) with REQT-qcnxhemvhn (Folded unchanged
+/// lines): the pair holds a changed position so the component cannot fold its
+/// chip away, while both sides still read unchanged.
+#[test]
+fn a_pair_carrying_a_line_ending_change_holds_a_changed_position() {
+    let diff = line_diff(
+        "first\r\nsecond",
+        "first\nsecond",
+        &LineDiffOptions::default(),
+    );
+
+    assert_eq!(diff.changed_positions, vec![0]);
+    assert_eq!(
+        rows(&diff),
+        vec![unchanged(1, "first"), unchanged(2, "second")],
+        "the pair still reads unchanged in both views"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Compare methods: REQT-rvcg21axa8 and children
 // ---------------------------------------------------------------------------

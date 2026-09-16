@@ -233,8 +233,13 @@ impl<'a> EntryBuilder<'a> {
     ///
     /// Every entry goes through here, so `changed_positions` cannot drift out
     /// of step with `entries`.
+    ///
+    /// A line ending change counts as a change: the pair's text is unchanged,
+    /// but the component must show each side's terminator
+    /// (REQT-rtwn1qresp, Line ending changes), so the entry cannot fold away
+    /// (REQT-qcnxhemvhn, Folded unchanged lines).
     fn push(&mut self, entry: PairedLineEntry) {
-        if entry.change != ChangeKind::Unchanged {
+        if entry.change != ChangeKind::Unchanged || entry.line_ending_change.is_some() {
             self.changed_positions.push(self.entries.len());
         }
         self.entries.push(entry);
