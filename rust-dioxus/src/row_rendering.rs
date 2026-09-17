@@ -204,8 +204,8 @@ impl RowRendering<'_> {
             // REQT-m9r3k5b1ge (Hidden line numbers): gutters show unless the
             // consumer hides them.
             if self.show_line_numbers {
-                for (column, line_id) in gutters.iter().copied().enumerate() {
-                    {self.gutter(column, line_id, state, highlighted)}
+                for line_id in gutters.iter().copied() {
+                    {self.gutter(line_id, state, highlighted)}
                 }
             }
             td {
@@ -252,7 +252,6 @@ impl RowRendering<'_> {
 
     fn gutter(
         &self,
-        column: usize,
         line_id: Option<LineId>,
         state: &'static str,
         highlighted: bool,
@@ -263,7 +262,6 @@ impl RowRendering<'_> {
         });
         rsx! {
             td {
-                key: "{column}",
                 class: "{DXDIFF__GUTTER}",
                 class: "{state}",
                 class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
@@ -338,8 +336,8 @@ impl RowRendering<'_> {
             tr {
                 class: "{DXDIFF__FOLD_ROW}",
                 class: "{DXDIFF__UNCHANGED}",
-                for column in 0..gutters {
-                    td { key: "{column}", class: "{DXDIFF__GUTTER}", class: "{DXDIFF__UNCHANGED}" }
+                for _ in 0..gutters {
+                    td { class: "{DXDIFF__GUTTER}", class: "{DXDIFF__UNCHANGED}" }
                 }
                 td { class: "{DXDIFF__CHANGE_MARKER}", class: "{DXDIFF__UNCHANGED}" }
                 td {
