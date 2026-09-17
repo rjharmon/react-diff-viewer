@@ -6,7 +6,7 @@
 
 **Success criteria**: Every mission outcome in MISSION.md is met by a delivered work chunk.
 
-**Status**: `draft` · **Contents**: 4 (1 backlog, 3 surrogate)
+**Status**: `draft` · **Contents**: 4 (4 surrogate)
 
 
 **References**: [reqts](diff-viewer.reqts.jsonl)
@@ -18,25 +18,8 @@
 ## Work Units
 
 
-### BACKLOG (1)
 
-
-#### Diff viewer theming
-<a id="work-b86cyjcn7m"></a>
-`WORK-b86cyjcn7m` · state `backlog` · maturity `DREAMED`
-
-
-**Problem**: The viewer ships the light and dark palettes from src/styles.ts, and consumers can override them. The reference overrides through emotion style objects, which have no Rust counterpart.
-
-**Plan**: Settle the Rust style-override design during planning, before this chunk is work-ready. Risk signals: architectural-uncertainty until that design is settled.
-
-**Depends on**: [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)*
-
-
-
-
-
-### Surrogates (3)
+### Surrogates (4)
 
 
 #### Diff viewer Dioxus component
@@ -51,7 +34,7 @@ Risk signals: implementation-complexity; architectural-uncertainty. Kept as one 
 
 **Depends on**: [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)*
 
-**Blocks**: [Diff viewer theming](#work-b86cyjcn7m), [Programmatic control of the diff viewer](#work-98bxwcd28f) *(surrogate → 20260916.diff-viewer-programmatic-control.workUnit.jsonl)*
+**Blocks**: [Diff viewer theming](#work-b86cyjcn7m) *(surrogate → 20260914.diff-viewer-theming.workUnit.jsonl)*, [Programmatic control of the diff viewer](#work-98bxwcd28f) *(surrogate → 20260916.diff-viewer-programmatic-control.workUnit.jsonl)*
 
 
 
@@ -64,6 +47,20 @@ Risk signals: implementation-complexity; architectural-uncertainty. Kept as one 
 *Spun out to a standalone work unit file.*
 
 Risk signals: architectural-uncertainty.
+
+**Depends on**: [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)*
+
+
+
+#### Diff viewer theming
+<a id="work-b86cyjcn7m"></a>
+`WORK-b86cyjcn7m` · **surrogate** · original `WORK-b86cyjcn7m`
+
+**Authoritative record lives elsewhere.** See `20260914.diff-viewer-theming.workUnit.jsonl`.
+
+*Spun out to a standalone work unit file.*
+
+Risk signals: none remaining; the architectural uncertainty over the style-override design was settled during planning.
 
 **Depends on**: [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)*
 
@@ -90,6 +87,6 @@ Risk signals: implementation-complexity.
 
 - [Line diff engine on similar](#work-p7e70a5mwf) *(surrogate → 20260915.line-diff-engine.workUnit.jsonl)* → [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* — *component renders the engine's line diff information*
 - [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* → [Programmatic control of the diff viewer](#work-98bxwcd28f) *(surrogate → 20260916.diff-viewer-programmatic-control.workUnit.jsonl)* — *control widens the component's fold reset trigger*
-- [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* → [Diff viewer theming](#work-b86cyjcn7m) — *theming styles the component's markup*
+- [Diff viewer Dioxus component](#work-6ds59btb76) *(surrogate → 20260915.diff-viewer-component.workUnit.jsonl)* → [Diff viewer theming](#work-b86cyjcn7m) *(surrogate → 20260914.diff-viewer-theming.workUnit.jsonl)* — *theming styles the component's markup*
 
 
