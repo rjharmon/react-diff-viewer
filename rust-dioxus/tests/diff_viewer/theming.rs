@@ -328,6 +328,85 @@ fn every_theme_s_chips_and_arrow_contrast_with_the_lines_they_sit_on() {
     }
 }
 
+/// The selector opening each block that declares `--dxdiff-` properties, in
+/// the order the sheet states them.
+fn palette_selectors() -> Vec<String> {
+    let sheet = stylesheet_without_comments();
+    let mut open_selectors: Vec<String> = Vec::new();
+    let mut pending = String::new();
+    let mut found: Vec<String> = Vec::new();
+
+    for line in sheet.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        if let Some(selector) = line.strip_suffix('{') {
+            pending.push_str(selector.trim());
+            open_selectors.push(pending.trim().to_owned());
+            pending.clear();
+        } else if line == "}" {
+            open_selectors.pop();
+        } else if line.starts_with("--dxdiff-") {
+            let selector = open_selectors
+                .last()
+                .expect("a declaration sits inside a block")
+                .clone();
+            if !found.contains(&selector) {
+                found.push(selector);
+            }
+        } else if line.ends_with(',') {
+            // A selector list continued onto the next line.
+            pending.push_str(line);
+            pending.push(' ');
+        }
+    }
+    found
+}
+
+/// REQT-kcm5ba45sp (Palette override): an app restyles the viewer, wholly or
+/// one mounted viewer at a time, using only its own CSS.
+///
+/// The app-wide path needs the viewer to inherit its palette rather than
+/// declare one, since a declaration on the element would beat an app's
+/// assignment on any ancestor. So a viewer following the reader must match no
+/// palette block, and only a viewer given an explicit theme may carry values of
+/// its own, where an app's rules still reach it.
+#[test]
+fn an_app_reaches_every_viewer_it_did_not_give_an_explicit_theme() {
+    let selectors = palette_selectors();
+    assert!(
+        !selectors.is_empty(),
+        "the sheet declares its palettes somewhere"
+    );
+
+    for selector in &selectors {
+        assert!(
+            !selector.contains("auto"),
+            "{selector} would put palette values on a viewer following the reader, \
+             where they would beat an app's assignment on an ancestor"
+        );
+        let declares_at_the_root = selector.starts_with(":root");
+        let declares_on_a_themed_viewer = selector
+            .contains(r#".dxdiff-viewer[data-dxdiff-theme="light"]"#)
+            || selector.contains(r#".dxdiff-viewer[data-dxdiff-theme="dark"]"#);
+        assert!(
+            declares_at_the_root || declares_on_a_themed_viewer,
+            "{selector} declares palette values somewhere an app cannot predict"
+        );
+    }
+
+    let themed_viewer_blocks = selectors
+        .iter()
+        .filter(|selector| selector.contains("data-dxdiff-theme"))
+        .count();
+    assert_eq!(
+        themed_viewer_blocks, 2,
+        "one block per explicit theme carries its values onto the viewer element, \
+         which is what lets two mounted viewers differ"
+    );
+}
+
 /// REQT-1accrb4jhp (Named colors): every theme color a rule reads comes from a
 /// `dxdiff`-prefixed custom property, and every such property is defaulted at
 /// the document root.
