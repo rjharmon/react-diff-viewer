@@ -50,6 +50,23 @@ fn a_listed_line_is_highlighted_on_its_own_side() {
     );
 }
 
+/// REQT-zaens35zqy (Highlighted lines): in the split view, a listed old line
+/// highlights its row as a listed new line does.
+#[test]
+fn a_listed_old_line_highlights_its_row_and_its_own_side() {
+    fn app() -> Element {
+        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc", highlighted_lines: vec![LineId::Old(2)] } }
+    }
+
+    let viewer = MountedApp::new(app);
+
+    assert_eq!(
+        viewer.texts_with_class(DXDIFF__HIGHLIGHTED),
+        vec!["2-b2+c", "2", "-", "b"],
+        "the row, then the old side's gutter, marker, and content"
+    );
+}
+
 /// REQT-zaens35zqy (Highlighted lines): in the inline view, an unchanged line
 /// shown once is highlighted when either of its ids is listed.
 #[test]

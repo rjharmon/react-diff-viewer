@@ -125,20 +125,20 @@ impl RowRendering<'_> {
     /// REQT-ys3yr5g185 (Split view): old line left, new line right, one pair
     /// per row.
     fn split_row(&self, entry: &PairedLineEntry) -> Element {
-        let row_highlighted = self.is_highlighted(&[
-            entry.old.as_ref().map(|side| LineId::Old(side.number)),
-            entry.new.as_ref().map(|side| LineId::New(side.number)),
-        ]);
         let old = shown_side(entry, Side::Old);
         let new = shown_side(entry, Side::New);
+        // Each shown line is checked once; the row is highlighted when either is.
+        let old_highlighted = self.is_highlighted(&old.gutters);
+        let new_highlighted = self.is_highlighted(&new.gutters);
+        let row_highlighted = old_highlighted || new_highlighted;
         let row_state_class = row_state(entry.change);
         rsx! {
             tr {
                 class: "{DXDIFF__ROW}",
                 class: "{row_state_class}",
                 class: if row_highlighted { "{DXDIFF__HIGHLIGHTED}" },
-                {self.line_cells(old)}
-                {self.line_cells(new)}
+                {self.line_cells(old, old_highlighted)}
+                {self.line_cells(new, new_highlighted)}
             }
         }
     }
@@ -181,21 +181,20 @@ impl RowRendering<'_> {
     }
 
     fn inline_row(&self, entry: &PairedLineEntry, shown: ShownLine<'_>) -> Element {
-        let row_highlighted = self.is_highlighted(&shown.gutters);
+        let highlighted = self.is_highlighted(&shown.gutters);
         let row_state_class = row_state(entry.change);
         rsx! {
             tr {
                 class: "{DXDIFF__ROW}",
                 class: "{row_state_class}",
-                class: if row_highlighted { "{DXDIFF__HIGHLIGHTED}" },
-                {self.line_cells(shown)}
+                class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
+                {self.line_cells(shown, highlighted)}
             }
         }
     }
 
     /// The gutter, marker, and content cells of one shown line.
-    fn line_cells(&self, shown: ShownLine<'_>) -> Element {
-        let highlighted = self.is_highlighted(&shown.gutters);
+    fn line_cells(&self, shown: ShownLine<'_>, highlighted: bool) -> Element {
         let state = shown.state;
         let gutters = &shown.gutters[..self.gutters_per_line()];
         rsx! {
