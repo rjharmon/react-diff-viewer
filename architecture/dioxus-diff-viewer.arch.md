@@ -23,8 +23,8 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 15/16
-- draft: 1/16
+- DREAMED: 17/19
+- draft: 2/19
 
 ## In this document
 
@@ -62,7 +62,7 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 - Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
 
 
-**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28
+**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
@@ -71,6 +71,7 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 - **Responsibility**: Consumer rendering of line content and fold rows
 - **Responsibility**: Rendered content identity: line numbers within a text pair
 - **Responsibility**: Styling hook classes on its markup
+- **Responsibility**: Style delivery and theme selection
 
 
 **Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
@@ -322,6 +323,38 @@ The public class vocabulary apps and the theming unit style against, independent
 
 
 
+<a id="software-object-ARCH-d87pprx5vn"></a>
+
+### ThemePalette (constants; DREAMED - ARCH-d87pprx5vn)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+one `--dxdiff`-prefixed custom property per theme color, defaulted at the document root and redeclared for the dark theme
+```
+
+What an app reassigns to restyle the viewer; the stylesheet reads nothing else for color.
+
+**Supports Requirements**: REQT-78dg0g6a2h, REQT-1accrb4jhp
+
+
+
+<a id="software-object-ARCH-7kwnstr5rt"></a>
+
+### DiffTheme (enum; DREAMED - ARCH-7kwnstr5rt)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+auto, light, or dark; auto follows the reader's color-scheme preference
+```
+
+The prop choosing a viewer's palette, written onto the viewer element so two mounted viewers may differ.
+
+**Supports Requirements**: REQT-sc8expw3q8
+
+
+
 
 
 
@@ -372,6 +405,27 @@ The engine owns line tokenization; `similar` aligns the resulting line texts and
 
 
 **Supports Requirements**: REQT-hmsfnfe5wc, REQT-rtwn1qresp
+
+
+
+<a id="decision-ARCH:dcisn-pgydgmajhx"></a>
+
+### Themes shipped as one layered stylesheet (accepted; draft - ARCH:dcisn-pgydgmajhx)
+
+**Subject**: DiffViewer (ARCH-m4dkxzw6hh)
+
+**Context**: The viewer needs consumer style overrides, and emotion style objects have no Rust counterpart.
+
+> **Situation**: The reference builds every rule at runtime from a per-instance `styles` prop through emotion (`src/styles.ts:78-145`).
+>
+> **Impact**: A Rust port of that shape would need a typed field per CSS declaration and would still reach less than CSS does.
+>
+> **Vision**: One stylesheet the crate embeds, whose colors are named custom properties an app reassigns in its own CSS.
+
+The viewer renders its embedded stylesheet through `document::Style`, inside a cascade layer, so an app's own rules take effect at any specificity.
+
+
+**Supports Requirements**: REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-1accrb4jhp, REQT-ey9f1s27r1
 
 
 
