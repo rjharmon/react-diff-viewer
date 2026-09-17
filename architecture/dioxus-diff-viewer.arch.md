@@ -23,8 +23,9 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 17/19
-- draft: 2/19
+- DREAMED: 15/19
+- consented: 3/19
+- draft: 1/19
 
 ## In this document
 
@@ -325,7 +326,7 @@ The public class vocabulary apps and the theming unit style against, independent
 
 <a id="software-object-ARCH-d87pprx5vn"></a>
 
-### ThemePalette (constants; DREAMED - ARCH-d87pprx5vn)
+### ThemePalette (constants - ARCH-d87pprx5vn)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
@@ -341,7 +342,7 @@ What an app reassigns to restyle the viewer; the stylesheet reads nothing else f
 
 <a id="software-object-ARCH-7kwnstr5rt"></a>
 
-### DiffTheme (enum; DREAMED - ARCH-7kwnstr5rt)
+### DiffTheme (enum - ARCH-7kwnstr5rt)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
@@ -410,7 +411,7 @@ The engine owns line tokenization; `similar` aligns the resulting line texts and
 
 <a id="decision-ARCH:dcisn-pgydgmajhx"></a>
 
-### Themes shipped as one layered stylesheet (accepted; draft - ARCH:dcisn-pgydgmajhx)
+### Themes shipped as one layered stylesheet (accepted - ARCH:dcisn-pgydgmajhx)
 
 **Subject**: DiffViewer (ARCH-m4dkxzw6hh)
 
