@@ -23,9 +23,9 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 15/19
+- DREAMED: 14/19
 - consented: 3/19
-- draft: 1/19
+- draft: 2/19
 
 ## In this document
 
@@ -310,15 +310,15 @@ How an app names a line, both to highlight it and in each line-number click.
 
 <a id="software-object-ARCH-38ktaqm4xw"></a>
 
-### StylingHookClasses (constants; DREAMED - ARCH-38ktaqm4xw)
+### StylingHookClasses (constants; draft - ARCH-38ktaqm4xw)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
 ```
-one `dxdiff` class per element kind, plus view classes and state classes (unchanged, removed, added, modified, empty, highlighted)
+one `dxdiff` class per element kind, plus view classes, state classes (unchanged, removed, added, modified, empty, highlighted), and a class on a gutter that reports its clicks
 ```
 
-The public class vocabulary apps and the theming unit style against, independent of element structure.
+The public class vocabulary apps and the theming unit style against, independent of element structure. The clickable-gutter class is what lets a hover affordance reach only the gutters that answer a click, which is what makes the reference's gutter hover carryable.
 
 **Supports Requirements**: REQT-3928hx46s3
 
