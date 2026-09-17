@@ -430,7 +430,7 @@ fn shown_side(entry: &PairedLineEntry, side: Side) -> ShownLine<'_> {
     }
 }
 
-/// A line terminator as escaped text: `\n`, `\r\n`, or `\r`.
-fn escaped_terminator(terminator: &str) -> String {
-    terminator.escape_default().to_string()
+/// A line terminator as escaped text: `\n`, `\r\n`, or `\r`, formatted in place.
+fn escaped_terminator(terminator: &str) -> std::str::EscapeDefault<'_> {
+    terminator.escape_default()
 }
