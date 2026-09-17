@@ -3,7 +3,8 @@
 //!
 //! REQT-3928hx46s3 (Styling hooks): every class is prefixed with `dxdiff`. Each
 //! element carries one class naming its kind and one naming its change or
-//! highlight state.
+//! highlight state, and a gutter that reports its clicks carries one more
+//! naming that.
 
 use crate::line_diff_output::{ChangeKind, TokenKind};
 
@@ -20,6 +21,10 @@ pub const DXDIFF__TITLE: &str = "dxdiff-title";
 pub const DXDIFF__ROW: &str = "dxdiff-row";
 /// A line number cell.
 pub const DXDIFF__GUTTER: &str = "dxdiff-gutter";
+/// On a gutter that reports its clicks, so a hover affordance reaches only the
+/// gutters that answer a click. A fold row's gutter and one carrying no number
+/// go without it.
+pub const DXDIFF__GUTTER_CLICKABLE: &str = "dxdiff-gutter-clickable";
 /// The cell holding a line's `-` or `+`.
 pub const DXDIFF__CHANGE_MARKER: &str = "dxdiff-change-marker";
 /// The cell holding a line's text.

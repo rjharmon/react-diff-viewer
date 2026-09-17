@@ -17,6 +17,42 @@ use crate::line_id::LineId;
 use crate::row_rendering::{RowKey, RowRendering};
 use crate::styling_hooks::*;
 
+/// The viewer's own styles, embedded so that an app mounting a viewer adds no
+/// stylesheet of its own.
+///
+/// REQT-q356bvvv15 (Style delivery), ARCH:dcisn-pgydgmajhx (Themes shipped as
+/// one layered stylesheet).
+const DXDIFF_STYLESHEET: &str = include_str!("dxdiff.css");
+
+/// Which palette a viewer reads.
+///
+/// ARCH-7kwnstr5rt (DiffTheme). An app restyles a viewer with ordinary CSS
+/// against the `dxdiff` classes and the `--dxdiff-` custom property names; the
+/// crate offers no Rust type for that.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum DiffTheme {
+    /// Follow the reader's light or dark color-scheme preference.
+    /// REQT-sc8expw3q8 (Theme selection): the default.
+    #[default]
+    Auto,
+    /// Read the light palette whatever the reader prefers.
+    Light,
+    /// Read the dark palette whatever the reader prefers.
+    Dark,
+}
+
+impl DiffTheme {
+    /// The choice as the viewer element reports it, which is what the
+    /// stylesheet selects an explicit theme's palette on.
+    fn attribute_value(self) -> &'static str {
+        match self {
+            Self::Auto => "auto",
+            Self::Light => "light",
+            Self::Dark => "dark",
+        }
+    }
+}
+
 /// How the viewer lays out the two texts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DiffView {
@@ -41,6 +77,9 @@ pub fn DiffViewer(
     /// Split or inline layout.
     #[props(default)]
     view: DiffView,
+    /// Which palette this viewer reads; the default follows the reader.
+    #[props(default)]
+    theme: DiffTheme,
     /// How modified lines are compared when marking inline changes.
     #[props(default)]
     compare: ReadSignal<CompareMethod>,
@@ -131,7 +170,17 @@ pub fn DiffViewer(
     let has_title = left_title.is_some() || right_title.is_some();
 
     rsx! {
-        table { class: "{DXDIFF__VIEWER}", class: "{view_class}",
+        // REQT-q356bvvv15 (Style delivery): the sheet goes into the document's
+        // head and leaves nothing in the viewer's own tree. Two mounted viewers
+        // insert two identical copies, which costs nothing: the layer may be
+        // declared repeatedly and both carry the same declarations.
+        document::Style { "{DXDIFF_STYLESHEET}" }
+        table {
+            class: "{DXDIFF__VIEWER}",
+            class: "{view_class}",
+            // REQT-sc8expw3q8 (Theme selection): the choice rides on the
+            // viewer element, so two mounted viewers may differ.
+            "data-dxdiff-theme": "{theme.attribute_value()}",
             tbody {
                 if has_title {
                     // REQT-3928hx46s3 (Styling hooks): titles carry only their

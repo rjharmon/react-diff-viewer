@@ -10,4 +10,5 @@ mod mounted_app;
 mod reference_cases;
 mod rendered_tree;
 mod styling_hooks;
+mod theming;
 mod views;

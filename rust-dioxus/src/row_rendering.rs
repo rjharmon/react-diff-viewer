@@ -264,6 +264,10 @@ impl RowRendering<'_> {
             if let Some((handler, line_id)) = click_target {
                 td {
                     class: "{DXDIFF__GUTTER}",
+                    // REQT-3928hx46s3 (Styling hooks): only this branch answers
+                    // a click, so only this branch carries the class the
+                    // stylesheet's hover affordance reaches.
+                    class: "{DXDIFF__GUTTER_CLICKABLE}",
                     class: "{state}",
                     class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
                     onclick: move |event| handler.call(LineNumberClick::new(line_id, &event)),

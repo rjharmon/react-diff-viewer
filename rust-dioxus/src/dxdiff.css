@@ -1,0 +1,346 @@
+/*
+ * The viewer's own styles, embedded in the crate and rendered into the
+ * document by the component, so an app that mounts a viewer adds no
+ * stylesheet of its own.
+ *
+ * REQT-ey9f1s27r1 (Yielding rules): every rule below sits in one cascade
+ * layer, so an app's own unlayered rules win over any of them at any
+ * specificity and no app ever needs `!important`.
+ *
+ * Architecture: ARCH:dcisn-pgydgmajhx (Themes shipped as one layered
+ * stylesheet), ARCH-d87pprx5vn (ThemePalette), ARCH-38ktaqm4xw
+ * (StylingHookClasses).
+ */
+@layer dxdiff {
+  /*
+   * REQT-1accrb4jhp (Named colors): every theme color is read from a
+   * `--dxdiff`-prefixed custom property, defaulted at the document root, so
+   * an app's assignment on any ancestor reaches a viewer following the
+   * reader's color-scheme preference.
+   *
+   * REQT-78dg0g6a2h (Theme palettes): the light set carries the colors
+   * `react-diff-viewer` uses for the same elements (src/styles.ts:90-113).
+   * REQT-8y5fp2aarz (Chip and arrow color): the package renders no chips and
+   * no arrow, so the last four names are the theme's own.
+   *
+   * The viewer selector joins the root here because a viewer asked for light
+   * reads light whatever the reader prefers, and a declaration on the element
+   * beats the value it would otherwise inherit.
+   */
+  :root,
+  .dxdiff-viewer[data-dxdiff-theme="light"] {
+    --dxdiff-background: #fff;
+    --dxdiff-text-color: #212529;
+    --dxdiff-added-background: #e6ffed;
+    --dxdiff-added-text-color: #24292e;
+    --dxdiff-removed-background: #ffeef0;
+    --dxdiff-removed-text-color: #24292e;
+    --dxdiff-added-token-background: #acf2bd;
+    --dxdiff-removed-token-background: #fdb8c0;
+    --dxdiff-added-gutter-background: #cdffd8;
+    --dxdiff-removed-gutter-background: #ffdce0;
+    --dxdiff-gutter-background: #f7f7f7;
+    --dxdiff-gutter-hover-background: #f3f1f1;
+    --dxdiff-highlighted-background: #fffbdd;
+    --dxdiff-highlighted-gutter-background: #fff5b1;
+    --dxdiff-fold-gutter-background: #dbedff;
+    --dxdiff-fold-background: #f1f8ff;
+    --dxdiff-empty-background: #fafbfc;
+    --dxdiff-gutter-text-color: #212529;
+    --dxdiff-added-gutter-text-color: #212529;
+    --dxdiff-removed-gutter-text-color: #212529;
+    --dxdiff-fold-text-color: #212529;
+    --dxdiff-title-background: #fafbfc;
+    --dxdiff-title-text-color: #212529;
+    --dxdiff-title-border-color: #eee;
+    --dxdiff-chip-background: #e1e4e8;
+    --dxdiff-chip-text-color: #24292e;
+    --dxdiff-chip-border-color: #d1d5da;
+    --dxdiff-arrow-color: #57606a;
+  }
+
+  /*
+   * REQT-sc8expw3q8 (Theme selection): a viewer follows the reader's
+   * preference unless the app chooses. The dark set carries the package's
+   * dark colors (src/styles.ts:116-140).
+   */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --dxdiff-background: #2e303c;
+      --dxdiff-text-color: #fff;
+      --dxdiff-added-background: #044b53;
+      --dxdiff-added-text-color: #fff;
+      --dxdiff-removed-background: #632f34;
+      --dxdiff-removed-text-color: #fff;
+      --dxdiff-added-token-background: #055d67;
+      --dxdiff-removed-token-background: #7d383f;
+      --dxdiff-added-gutter-background: #034148;
+      --dxdiff-removed-gutter-background: #632b30;
+      --dxdiff-gutter-background: #2c2f3a;
+      --dxdiff-gutter-hover-background: #262933;
+      --dxdiff-highlighted-background: #2a3967;
+      --dxdiff-highlighted-gutter-background: #2d4077;
+      --dxdiff-fold-gutter-background: #21232b;
+      --dxdiff-fold-background: #262831;
+      --dxdiff-empty-background: #363946;
+      --dxdiff-gutter-text-color: #464c67;
+      --dxdiff-added-gutter-text-color: #8c8c8c;
+      --dxdiff-removed-gutter-text-color: #8c8c8c;
+      --dxdiff-fold-text-color: #555a7b;
+      --dxdiff-title-background: #2f323e;
+      --dxdiff-title-text-color: #555a7b;
+      --dxdiff-title-border-color: #353846;
+      --dxdiff-chip-background: #3f4350;
+      --dxdiff-chip-text-color: #e6e8ee;
+      --dxdiff-chip-border-color: #555a6b;
+      --dxdiff-arrow-color: #9aa0b3;
+    }
+  }
+
+  /*
+   * A viewer asked for dark reads dark whatever the reader prefers, which is
+   * what lets two mounted viewers differ (REQT-1accrb4jhp, REQT-sc8expw3q8).
+   * The dark values appear twice because one copy has to sit outside the
+   * preference query to beat it; the light set needs no second copy, since
+   * the root declaration outside the query already carries it.
+   */
+  .dxdiff-viewer[data-dxdiff-theme="dark"] {
+    --dxdiff-background: #2e303c;
+    --dxdiff-text-color: #fff;
+    --dxdiff-added-background: #044b53;
+    --dxdiff-added-text-color: #fff;
+    --dxdiff-removed-background: #632f34;
+    --dxdiff-removed-text-color: #fff;
+    --dxdiff-added-token-background: #055d67;
+    --dxdiff-removed-token-background: #7d383f;
+    --dxdiff-added-gutter-background: #034148;
+    --dxdiff-removed-gutter-background: #632b30;
+    --dxdiff-gutter-background: #2c2f3a;
+    --dxdiff-gutter-hover-background: #262933;
+    --dxdiff-highlighted-background: #2a3967;
+    --dxdiff-highlighted-gutter-background: #2d4077;
+    --dxdiff-fold-gutter-background: #21232b;
+    --dxdiff-fold-background: #262831;
+    --dxdiff-empty-background: #363946;
+    --dxdiff-gutter-text-color: #464c67;
+    --dxdiff-added-gutter-text-color: #8c8c8c;
+    --dxdiff-removed-gutter-text-color: #8c8c8c;
+    --dxdiff-fold-text-color: #555a7b;
+    --dxdiff-title-background: #2f323e;
+    --dxdiff-title-text-color: #555a7b;
+    --dxdiff-title-border-color: #353846;
+    --dxdiff-chip-background: #3f4350;
+    --dxdiff-chip-text-color: #e6e8ee;
+    --dxdiff-chip-border-color: #555a6b;
+    --dxdiff-arrow-color: #9aa0b3;
+  }
+
+  /* The viewer table and the text inside it (src/styles.ts:162-172). */
+  .dxdiff-viewer {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--dxdiff-background);
+  }
+
+  .dxdiff-viewer pre {
+    margin: 0;
+    white-space: pre-wrap;
+    line-height: 25px;
+  }
+
+  /* Column titles (src/styles.ts:184-195). */
+  .dxdiff-title {
+    padding: 10px;
+    background: var(--dxdiff-title-background);
+    border-bottom: 1px solid var(--dxdiff-title-border-color);
+  }
+
+  .dxdiff-title:last-child {
+    border-left: 1px solid var(--dxdiff-title-border-color);
+  }
+
+  .dxdiff-title pre {
+    color: var(--dxdiff-title-text-color);
+  }
+
+  .dxdiff-row {
+    vertical-align: baseline;
+  }
+
+  /* Content cells: full width inline, half each in the split view
+     (src/styles.ts:150-160, 179-182). */
+  .dxdiff-content {
+    width: 100%;
+  }
+
+  .dxdiff-split-view .dxdiff-content {
+    width: 50%;
+  }
+
+  .dxdiff-content pre {
+    color: var(--dxdiff-text-color);
+  }
+
+  /* The change marker column (src/styles.ts:268-284). */
+  .dxdiff-change-marker {
+    width: 25px;
+    padding-left: 10px;
+    padding-right: 10px;
+    user-select: none;
+  }
+
+  /* Gutters, with their line numbers at rest (src/styles.ts:197-200,
+     298-314). */
+  .dxdiff-gutter {
+    min-width: 50px;
+    padding: 0 10px;
+    text-align: right;
+    user-select: none;
+    background: var(--dxdiff-gutter-background);
+  }
+
+  .dxdiff-gutter pre {
+    color: var(--dxdiff-gutter-text-color);
+    opacity: 0.5;
+  }
+
+  /* Removed and added lines (src/styles.ts:202-224, 315-320). */
+  .dxdiff-change-marker.dxdiff-removed,
+  .dxdiff-content.dxdiff-removed {
+    background: var(--dxdiff-removed-background);
+  }
+
+  .dxdiff-change-marker.dxdiff-removed pre,
+  .dxdiff-content.dxdiff-removed pre {
+    color: var(--dxdiff-removed-text-color);
+  }
+
+  .dxdiff-gutter.dxdiff-removed {
+    background: var(--dxdiff-removed-gutter-background);
+  }
+
+  .dxdiff-gutter.dxdiff-removed pre {
+    color: var(--dxdiff-removed-gutter-text-color);
+  }
+
+  .dxdiff-change-marker.dxdiff-added,
+  .dxdiff-content.dxdiff-added {
+    background: var(--dxdiff-added-background);
+  }
+
+  .dxdiff-change-marker.dxdiff-added pre,
+  .dxdiff-content.dxdiff-added pre {
+    color: var(--dxdiff-added-text-color);
+  }
+
+  .dxdiff-gutter.dxdiff-added {
+    background: var(--dxdiff-added-gutter-background);
+  }
+
+  .dxdiff-gutter.dxdiff-added pre {
+    color: var(--dxdiff-added-gutter-text-color);
+  }
+
+  /* A side with no line (src/styles.ts:263-266). */
+  .dxdiff-change-marker.dxdiff-empty,
+  .dxdiff-content.dxdiff-empty {
+    background: var(--dxdiff-empty-background);
+  }
+
+  /* Inline-change tokens within a modified line (src/styles.ts:226-241). */
+  .dxdiff-inline-token {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 1px;
+  }
+
+  .dxdiff-inline-token.dxdiff-removed {
+    background: var(--dxdiff-removed-token-background);
+  }
+
+  .dxdiff-inline-token.dxdiff-added {
+    background: var(--dxdiff-added-token-background);
+  }
+
+  /* Highlighted lines, declared after the change states so a highlight wins
+     at equal specificity, as it does in the package (src/styles.ts:286-296,
+     321-326). */
+  .dxdiff-change-marker.dxdiff-highlighted,
+  .dxdiff-content.dxdiff-highlighted {
+    background: var(--dxdiff-highlighted-background);
+  }
+
+  .dxdiff-content.dxdiff-highlighted .dxdiff-inline-token.dxdiff-removed,
+  .dxdiff-content.dxdiff-highlighted .dxdiff-inline-token.dxdiff-added {
+    background: initial;
+  }
+
+  .dxdiff-gutter.dxdiff-highlighted {
+    background: var(--dxdiff-highlighted-gutter-background);
+  }
+
+  /*
+   * REQT-3928hx46s3 (Styling hooks): the hover affordance reaches only the
+   * gutters that answer a click, which is what the clickable-gutter class
+   * marks. The package hovers every gutter and turns the affordance off
+   * again where there is no line number (src/styles.ts:305-311, 329-335).
+   */
+  .dxdiff-gutter-clickable:hover {
+    cursor: pointer;
+    background: var(--dxdiff-gutter-hover-background);
+  }
+
+  .dxdiff-gutter-clickable:hover pre {
+    opacity: 1;
+  }
+
+  .dxdiff-gutter-clickable.dxdiff-highlighted:hover {
+    background: var(--dxdiff-highlighted-gutter-background);
+  }
+
+  /* Fold rows and the control that expands them (src/styles.ts:174-177,
+     243-261). */
+  .dxdiff-fold-row {
+    height: 40px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--dxdiff-fold-background);
+  }
+
+  .dxdiff-fold-row .dxdiff-gutter {
+    background: var(--dxdiff-fold-gutter-background);
+  }
+
+  .dxdiff-fold-row button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--dxdiff-fold-text-color);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /*
+   * REQT-8y5fp2aarz (Chip and arrow color): chips and the arrow sit on
+   * unchanged, removed, added, empty, and highlighted line backgrounds
+   * alike, so they carry their own background and border rather than
+   * reading the line's.
+   */
+  .dxdiff-line-ending-chip,
+  .dxdiff-whitespace-chip {
+    margin-left: 4px;
+    padding: 0 4px;
+    border: 1px solid var(--dxdiff-chip-border-color);
+    border-radius: 3px;
+    background: var(--dxdiff-chip-background);
+    color: var(--dxdiff-chip-text-color);
+    font-size: 0.85em;
+    vertical-align: baseline;
+  }
+
+  .dxdiff-line-ending-arrow {
+    margin-left: 4px;
+    color: var(--dxdiff-arrow-color);
+  }
+}
