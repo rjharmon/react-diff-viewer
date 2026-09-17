@@ -330,7 +330,7 @@ The public class vocabulary apps and the theming unit style against, independent
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
 ```
-one `--dxdiff`-prefixed custom property per theme color, defaulted at the document root and redeclared for the dark theme
+one `--dxdiff`-prefixed custom property per theme color, defaulted at the document root, redeclared for the dark theme, and carried on a viewer given an explicit theme
 ```
 
 What an app reassigns to restyle the viewer; the stylesheet reads nothing else for color.
