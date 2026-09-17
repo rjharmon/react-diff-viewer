@@ -129,8 +129,8 @@ impl RowRendering<'_> {
             entry.old.as_ref().map(|side| LineId::Old(side.number)),
             entry.new.as_ref().map(|side| LineId::New(side.number)),
         ]);
-        let old = split_side(entry, Side::Old);
-        let new = split_side(entry, Side::New);
+        let old = shown_side(entry, Side::Old);
+        let new = shown_side(entry, Side::New);
         let row_state_class = row_state(entry.change);
         rsx! {
             tr {
@@ -158,11 +158,9 @@ impl RowRendering<'_> {
 
         let old_side = entry.old.as_ref();
         let new_side = entry.new.as_ref();
-        let (state, marker) = match entry.change {
-            ChangeKind::Removed => (DXDIFF__REMOVED, "-"),
-            ChangeKind::Added => (DXDIFF__ADDED, "+"),
-            _ => (DXDIFF__UNCHANGED, ""),
-        };
+        let line = old_side.or(new_side);
+        let side = if old_side.is_some() { Side::Old } else { Side::New };
+        let (state, marker) = line_state(line, side, entry.change);
         let line_endings = match &entry.line_ending_change {
             Some(change) => [Some(change.old.as_str()), Some(change.new.as_str())],
             None => [None, None],
@@ -174,7 +172,7 @@ impl RowRendering<'_> {
             ],
             state,
             marker,
-            line: old_side.or(new_side),
+            line,
             tokens: None,
             line_endings,
             whitespace_change: entry.whitespace_change,
@@ -374,26 +372,27 @@ fn side_of(entry: &PairedLineEntry, side: Side) -> Option<&LineSide> {
     }
 }
 
-/// One side of a split row.
-fn split_side(entry: &PairedLineEntry, side: Side) -> ShownLine<'_> {
-    let line = side_of(entry, side);
-    let (state, marker) = match (line, side, entry.change) {
+/// A shown line's state class and change marker, in either view: empty where
+/// the side has no line, unchanged on an unchanged entry, and otherwise removed
+/// `-` on the old side or added `+` on the new side.
+///
+/// REQT-wjjyqjnjs6 (Change markers)
+fn line_state(
+    line: Option<&LineSide>,
+    side: Side,
+    change: ChangeKind,
+) -> (&'static str, &'static str) {
+    match (line, side, change) {
         (None, _, _) => (DXDIFF__EMPTY, ""),
         (Some(_), _, ChangeKind::Unchanged) => (DXDIFF__UNCHANGED, ""),
         (Some(_), Side::Old, _) => (DXDIFF__REMOVED, "-"),
         (Some(_), Side::New, _) => (DXDIFF__ADDED, "+"),
-    };
-    shown_side(entry, side, line, state, marker)
+    }
 }
 
 /// One side of a modified pair, shown as its own inline row.
 fn inline_side(entry: &PairedLineEntry, side: Side) -> ShownLine<'_> {
-    let line = side_of(entry, side);
-    let (state, marker) = match side {
-        Side::Old => (DXDIFF__REMOVED, "-"),
-        Side::New => (DXDIFF__ADDED, "+"),
-    };
-    let mut shown = shown_side(entry, side, line, state, marker);
+    let mut shown = shown_side(entry, side);
     // The old row numbers only the old gutter, the new row only the new one.
     shown.gutters = match side {
         Side::Old => [shown.gutters[0], None],
@@ -402,13 +401,11 @@ fn inline_side(entry: &PairedLineEntry, side: Side) -> ShownLine<'_> {
     shown
 }
 
-fn shown_side<'a>(
-    entry: &'a PairedLineEntry,
-    side: Side,
-    line: Option<&'a LineSide>,
-    state: &'static str,
-    marker: &'static str,
-) -> ShownLine<'a> {
+/// One side of an entry as a shown line: a split row's side, or the start of
+/// a modified pair's inline row.
+fn shown_side(entry: &PairedLineEntry, side: Side) -> ShownLine<'_> {
+    let line = side_of(entry, side);
+    let (state, marker) = line_state(line, side, entry.change);
     let line_id = line.map(|line| match side {
         Side::Old => LineId::Old(line.number),
         Side::New => LineId::New(line.number),
