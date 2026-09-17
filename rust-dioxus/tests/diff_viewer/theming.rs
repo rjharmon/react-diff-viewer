@@ -244,6 +244,90 @@ fn each_theme_names_the_colors_of_the_elements_the_package_does_not_render() {
     }
 }
 
+/// The properties coloring a line's background, which is what a chip or the
+/// arrow ends up sitting on.
+const LINE_BACKGROUNDS: [&str; 6] = [
+    "--dxdiff-background",
+    "--dxdiff-added-background",
+    "--dxdiff-removed-background",
+    "--dxdiff-empty-background",
+    "--dxdiff-highlighted-background",
+    "--dxdiff-fold-background",
+];
+
+/// A hex color's relative luminance, per the WCAG definition.
+fn relative_luminance(color: &str) -> f64 {
+    let digits = color.trim_start_matches('#');
+    let digits: String = if digits.len() == 3 {
+        digits.chars().flat_map(|digit| [digit, digit]).collect()
+    } else {
+        digits.to_owned()
+    };
+    let channel = |at: usize| {
+        let raw = u8::from_str_radix(&digits[at..at + 2], 16)
+            .unwrap_or_else(|_| panic!("{color} is a hex color")) as f64
+            / 255.0;
+        if raw <= 0.03928 {
+            raw / 12.92
+        } else {
+            ((raw + 0.055) / 1.055).powf(2.4)
+        }
+    };
+    0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
+}
+
+/// The contrast ratio between two hex colors, from 1.0 to 21.0.
+fn contrast_ratio(one: &str, other: &str) -> f64 {
+    let (one, other) = (relative_luminance(one), relative_luminance(other));
+    (one.max(other) + 0.05) / (one.min(other) + 0.05)
+}
+
+/// REQT-8y5fp2aarz (Chip and arrow color): the colors each theme names for
+/// chips and the arrow contrast with every line background they appear on.
+///
+/// A chip is a filled box with a border, so what separates it from the line is
+/// its border, and what makes it readable is its text against its own fill. The
+/// arrow is a bare glyph on the line itself. The floors are the WCAG ones for
+/// each of those jobs: 3 for a graphical boundary, 4.5 for text.
+#[test]
+fn every_theme_s_chips_and_arrow_contrast_with_the_lines_they_sit_on() {
+    for (theme, selector) in PALETTE_BLOCKS {
+        let declared = declared_palette(selector);
+        let color = |property: &str| {
+            declared
+                .iter()
+                .find(|(name, _)| name == property)
+                .map(|(_, color)| color.clone())
+                .unwrap_or_else(|| panic!("the palette for {theme} names {property}"))
+        };
+
+        let chip_fill = color("--dxdiff-chip-background");
+        let chip_text = color("--dxdiff-chip-text-color");
+        let chip_border = color("--dxdiff-chip-border-color");
+        let arrow = color("--dxdiff-arrow-color");
+
+        let text_on_chip = contrast_ratio(&chip_text, &chip_fill);
+        assert!(
+            text_on_chip >= 4.5,
+            "in {theme}, a chip's text reads at {text_on_chip:.2} against its own fill"
+        );
+
+        for line in LINE_BACKGROUNDS {
+            let background = color(line);
+            let edge = contrast_ratio(&chip_border, &background);
+            assert!(
+                edge >= 3.0,
+                "in {theme}, a chip's edge reads at {edge:.2} against {line}"
+            );
+            let glyph = contrast_ratio(&arrow, &background);
+            assert!(
+                glyph >= 3.0,
+                "in {theme}, the arrow reads at {glyph:.2} against {line}"
+            );
+        }
+    }
+}
+
 /// REQT-1accrb4jhp (Named colors): every theme color a rule reads comes from a
 /// `dxdiff`-prefixed custom property, and every such property is defaulted at
 /// the document root.

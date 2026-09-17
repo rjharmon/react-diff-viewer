@@ -53,9 +53,9 @@
     --dxdiff-title-background: #fafbfc;
     --dxdiff-title-text-color: #212529;
     --dxdiff-title-border-color: #eee;
-    --dxdiff-chip-background: #e1e4e8;
+    --dxdiff-chip-background: #d0d7de;
     --dxdiff-chip-text-color: #24292e;
-    --dxdiff-chip-border-color: #d1d5da;
+    --dxdiff-chip-border-color: #6e7781;
     --dxdiff-arrow-color: #57606a;
   }
 
@@ -90,9 +90,9 @@
       --dxdiff-title-background: #2f323e;
       --dxdiff-title-text-color: #555a7b;
       --dxdiff-title-border-color: #353846;
-      --dxdiff-chip-background: #3f4350;
-      --dxdiff-chip-text-color: #e6e8ee;
-      --dxdiff-chip-border-color: #555a6b;
+      --dxdiff-chip-background: #30363d;
+      --dxdiff-chip-text-color: #e6edf3;
+      --dxdiff-chip-border-color: #8b949e;
       --dxdiff-arrow-color: #9aa0b3;
     }
   }
@@ -129,9 +129,9 @@
     --dxdiff-title-background: #2f323e;
     --dxdiff-title-text-color: #555a7b;
     --dxdiff-title-border-color: #353846;
-    --dxdiff-chip-background: #3f4350;
-    --dxdiff-chip-text-color: #e6e8ee;
-    --dxdiff-chip-border-color: #555a6b;
+    --dxdiff-chip-background: #30363d;
+    --dxdiff-chip-text-color: #e6edf3;
+    --dxdiff-chip-border-color: #8b949e;
     --dxdiff-arrow-color: #9aa0b3;
   }
 
