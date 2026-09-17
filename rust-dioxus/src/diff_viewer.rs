@@ -14,7 +14,7 @@ use crate::fold_reset_trigger::{ExpandedFolds, FoldBasis, FoldResetTrigger};
 use crate::line_diff_engine::line_diff;
 use crate::line_diff_options::{CompareMethod, LineDiffOptions};
 use crate::line_id::LineId;
-use crate::row_rendering::RowRendering;
+use crate::row_rendering::{RowKey, RowRendering};
 use crate::styling_hooks::*;
 
 /// How the viewer lays out the two texts.
@@ -85,6 +85,16 @@ pub fn DiffViewer(
         };
         line_diff(&old_text.read(), &new_text.read(), &options)
     });
+    // REQT-zen8fyae28 (Rendered content identity): a change to either text
+    // gives every row a new identity, so consumer-rendered content remounts.
+    let texts_hash = use_memo(move || {
+        let old_text = old_text.read();
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(&(old_text.len() as u64).to_le_bytes());
+        hasher.update(old_text.as_bytes());
+        hasher.update(new_text.read().as_bytes());
+        hasher.finalize()
+    });
     let input_generation = use_fold_input_generation(old_text, new_text, surrounding_line_count);
     let mut expanded_folds = use_signal(ExpandedFolds::default);
 
@@ -134,18 +144,21 @@ pub fn DiffViewer(
                         }
                     }
                 }
-                for planned in planned_rows {
-                    match planned {
-                        PlannedRow::Entry(position) => rsx! {
-                            Fragment { key: "entry-{position}", {rows.entry_rows(&diff.entries[position])} }
-                        },
-                        PlannedRow::Fold(fold) => rsx! {
-                            Fragment { key: "fold-{fold.start}",
-                                {rows.fold_row(fold, &diff.entries[fold.start], move || {
-                                    expanded_folds.write().expand(basis, fold.start);
-                                })}
+                // A one-item keyed list: a new key replaces every row beneath it.
+                for texts_hash in std::iter::once(texts_hash()) {
+                    Fragment { key: "{texts_hash}",
+                        // The keyed Fragment is the loop's own item, so Dioxus
+                        // matches rows by key rather than by position.
+                        for planned in planned_rows.iter().copied() {
+                            Fragment { key: "{RowKey::new(&diff, planned)}",
+                                match planned {
+                                    PlannedRow::Entry(position) => rows.entry_rows(&diff.entries[position]),
+                                    PlannedRow::Fold(fold) => rows.fold_row(fold, &diff.entries[fold.start], move || {
+                                        expanded_folds.write().expand(basis, fold.start);
+                                    }),
+                                }
                             }
-                        },
+                        }
                     }
                 }
             }

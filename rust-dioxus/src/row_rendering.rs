@@ -3,14 +3,49 @@
 //! Architecture: ARCH-m4dkxzw6hh (DiffViewer). Rows render the engine's output
 //! without diffing again.
 
+use std::fmt;
+
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
 use crate::diff_viewer::DiffView;
-use crate::fold_planning::Fold;
-use crate::line_diff_output::{ChangeKind, InlineToken, LineSide, PairedLineEntry};
+use crate::fold_planning::{Fold, PlannedRow};
+use crate::line_diff_output::{ChangeKind, InlineToken, LineDiff, LineSide, PairedLineEntry};
 use crate::line_id::LineId;
 use crate::styling_hooks::*;
+
+/// A planned row's key: `entry` or `fold`, then the line ids of the entry it
+/// shows or first hides, as in `entry L-3 R-3`, `entry R-4`, or `fold L-1 R-1`.
+///
+/// REQT-zen8fyae28 (Rendered content identity): line numbers identify a row
+/// while the compared texts stay the same.
+pub(crate) struct RowKey<'a> {
+    diff: &'a LineDiff,
+    planned: PlannedRow,
+}
+
+impl<'a> RowKey<'a> {
+    pub(crate) fn new(diff: &'a LineDiff, planned: PlannedRow) -> Self {
+        Self { diff, planned }
+    }
+}
+
+impl fmt::Display for RowKey<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let (kind, entry) = match self.planned {
+            PlannedRow::Entry(position) => ("entry", &self.diff.entries[position]),
+            PlannedRow::Fold(fold) => ("fold", &self.diff.entries[fold.start]),
+        };
+        let old = entry.old.as_ref().map(|side| LineId::Old(side.number));
+        let new = entry.new.as_ref().map(|side| LineId::New(side.number));
+        write!(f, "{kind} ")?;
+        match (old, new) {
+            (Some(old), Some(new)) => write!(f, "{old} {new}"),
+            (Some(line_id), None) | (None, Some(line_id)) => write!(f, "{line_id}"),
+            (None, None) => Ok(()),
+        }
+    }
+}
 
 /// The choices every row reads, gathered once per render.
 pub(crate) struct RowRendering<'a> {

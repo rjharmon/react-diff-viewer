@@ -1,5 +1,7 @@
 //! Content rendering: REQT-3ekk7hre3k and children.
 
+use std::cell::Cell;
+
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::DXDIFF__INLINE_TOKEN;
 use dioxus_diff_viewer::{DiffView, DiffViewer, LineContent};
@@ -161,4 +163,74 @@ fn a_side_with_no_line_is_not_sent_through_the_renderer() {
     let viewer = MountedApp::new(app);
 
     assert_eq!(viewer.row_readings()[1], " |  |  | 2 | + | [b]");
+}
+
+thread_local! {
+    /// Counts mounts of `MountStamp` on this test thread.
+    static MOUNT_COUNT: Cell<usize> = const { Cell::new(0) };
+}
+
+/// Consumer content holding state: the mount it was created in, shown after
+/// its text as `text#mount`.
+#[component]
+fn MountStamp(text: String) -> Element {
+    let mount = use_hook(|| {
+        MOUNT_COUNT.with(|count| {
+            count.set(count.get() + 1);
+            count.get()
+        })
+    });
+    rsx! { "{text}#{mount}" }
+}
+
+/// Ten lines with the sixth changed, each line stamped with its mount, and a
+/// button that edits the last line of the new text.
+fn stamped_ten_lines() -> Element {
+    let mut new_text = use_signal(|| "l1\nl2\nl3\nl4\nl5\nL6\nl7\nl8\nl9\nl10".to_string());
+    rsx! {
+        button {
+            onclick: move |_| new_text.set("l1\nl2\nl3\nl4\nl5\nL6\nl7\nl8\nl9\nL10".into()),
+            "edit the last line"
+        }
+        DiffViewer {
+            old_text: "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10",
+            new_text: new_text(),
+            line_content_renderer: move |content: LineContent| rsx! {
+                MountStamp { text: content.text().to_string() }
+            },
+        }
+    }
+}
+
+/// REQT-zen8fyae28 (Rendered content identity): while the texts stay the
+/// same, content rendered for a line stays mounted, even as folds expand.
+#[test]
+fn rendered_content_stays_mounted_while_the_texts_stay_the_same() {
+    let mut viewer = MountedApp::new(stamped_ten_lines);
+    let line_three_before = viewer.row_readings()[1].clone();
+
+    viewer.expand_first_fold();
+
+    assert_eq!(viewer.row_readings()[2], line_three_before);
+}
+
+/// REQT-zen8fyae28 (Rendered content identity): when either text changes,
+/// content rendered for every line remounts, including unchanged lines.
+#[test]
+fn rendered_content_remounts_when_a_text_changes() {
+    let mut viewer = MountedApp::new(stamped_ten_lines);
+    let line_three_before = viewer.row_readings()[1].clone();
+
+    viewer.click_button("edit the last line");
+
+    let line_three_after = viewer.row_readings()[1].clone();
+    assert!(
+        line_three_before.starts_with("3 |  | l3#"),
+        "{line_three_before}"
+    );
+    assert!(
+        line_three_after.starts_with("3 |  | l3#"),
+        "{line_three_after}"
+    );
+    assert_ne!(line_three_after, line_three_before);
 }
