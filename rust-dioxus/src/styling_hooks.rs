@@ -39,6 +39,8 @@ pub const DXDIFF__LINE_ENDING_ARROW: &str = "dxdiff-line-ending-arrow";
 pub const DXDIFF__WHITESPACE_CHIP: &str = "dxdiff-whitespace-chip";
 /// A row standing in for folded unchanged lines.
 pub const DXDIFF__FOLD_ROW: &str = "dxdiff-fold-row";
+/// The control inside a fold row that expands the lines it hides.
+pub const DXDIFF__FOLD_CONTROL: &str = "dxdiff-fold-control";
 
 /// State: the element shows an unchanged line or token.
 pub const DXDIFF__UNCHANGED: &str = "dxdiff-unchanged";

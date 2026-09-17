@@ -355,7 +355,12 @@ impl RowRendering<'_> {
                     colspan: "{content_span}",
                     // REQT-v748c7mjr6 (Expanding folds): activating the fold
                     // row reveals the lines it hides.
-                    button { r#type: "button", onclick: move |_| on_expand(), {label} }
+                    button {
+                        class: "{DXDIFF__FOLD_CONTROL}",
+                        r#type: "button",
+                        onclick: move |_| on_expand(),
+                        {label}
+                    }
                 }
             }
         }

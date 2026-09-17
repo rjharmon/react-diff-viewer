@@ -52,6 +52,10 @@ fn rows_carry_their_kind_and_change_state() {
         states_of(&viewer, DXDIFF__FOLD_ROW),
         vec!["dxdiff-unchanged"]
     );
+    // The control expanding a fold carries its own kind class, so an app
+    // restyles it without naming the element the fold row holds it in. It
+    // shows no line, so no change or highlight state is relevant to it.
+    assert_eq!(states_of(&viewer, DXDIFF__FOLD_CONTROL), vec![""]);
     assert_eq!(states_of(&viewer, DXDIFF__TITLE), vec!["", ""]);
 }
 
