@@ -256,25 +256,35 @@ impl RowRendering<'_> {
         state: &'static str,
         highlighted: bool,
     ) -> Element {
-        let on_line_number_click = self.on_line_number_click;
+        // REQT-bqm9w6v4ms (Line number clicks): each click on a line number
+        // calls the consumer's handler with the line's id. Only a gutter with a
+        // number, in a viewer given a handler, listens for clicks.
+        let click_target = self.on_line_number_click.zip(line_id);
         let number = line_id.map(|line_id| match line_id {
             LineId::Old(number) | LineId::New(number) => number,
         });
         rsx! {
-            td {
-                class: "{DXDIFF__GUTTER}",
-                class: "{state}",
-                class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
-                // REQT-bqm9w6v4ms (Line number clicks): each click on a line
-                // number calls the consumer's handler with the line's id.
-                onclick: move |event| {
-                    if let (Some(handler), Some(line_id)) = (on_line_number_click, line_id) {
-                        handler.call(LineNumberClick::new(line_id, &event));
+            if let Some((handler, line_id)) = click_target {
+                td {
+                    class: "{DXDIFF__GUTTER}",
+                    class: "{state}",
+                    class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
+                    onclick: move |event| handler.call(LineNumberClick::new(line_id, &event)),
+                    pre {
+                        if let Some(number) = number {
+                            "{number}"
+                        }
                     }
-                },
-                pre {
-                    if let Some(number) = number {
-                        "{number}"
+                }
+            } else {
+                td {
+                    class: "{DXDIFF__GUTTER}",
+                    class: "{state}",
+                    class: if highlighted { "{DXDIFF__HIGHLIGHTED}" },
+                    pre {
+                        if let Some(number) = number {
+                            "{number}"
+                        }
                     }
                 }
             }

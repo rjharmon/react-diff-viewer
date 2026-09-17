@@ -125,10 +125,11 @@ impl MountedApp {
             .descendants_with_class("dxdiff-gutter")
             .get(column)
             .expect("the row has that gutter");
-        let element_id = gutter
-            .listener_element_id("click")
-            .expect("the gutter listens for clicks");
-        self.dispatch_click(element_id, modifiers);
+        // A gutter with no listener takes the click and nothing reports it; no
+        // element around the gutter listens for clicks either.
+        if let Some(element_id) = gutter.listener_element_id("click") {
+            self.dispatch_click(element_id, modifiers);
+        }
     }
 
     fn click_matching(&mut self, matches: impl Fn(&RenderedElement<'_>) -> bool) {
