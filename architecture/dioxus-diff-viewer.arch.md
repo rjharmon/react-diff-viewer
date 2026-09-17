@@ -62,13 +62,14 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 - Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
 
 
-**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3
+**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
 - **Responsibility**: Expanded-fold state and its reset trigger
 - **Responsibility**: Line highlighting and selection
 - **Responsibility**: Consumer rendering of line content and fold rows
+- **Responsibility**: Rendered content identity: line numbers within a text pair
 - **Responsibility**: Styling hook classes on its markup
 
 
