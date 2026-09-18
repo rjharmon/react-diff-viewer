@@ -14,12 +14,14 @@ use std::fs;
 use dioxus::prelude::*;
 use dioxus_diff_viewer::{CompareMethod, DiffTheme, DiffView, DiffViewer, LineId, LineNumberClick};
 
-/// A code edit: modified lines with word-level changes, a run of unchanged
-/// lines long enough to fold, a highlighted line, and a removal with no
-/// counterpart, so an empty side shows too.
+/// A code edit: modified lines with word-level changes, an addition and a
+/// removal with no counterpart so both empty sides show, a run of unchanged
+/// lines long enough to fold, and a highlighted line. The addition sits before
+/// the unchanged run, so every line after it carries a different number on each
+/// side and the numbering offset is visible rather than implied.
 const OLD_CODE: &str = "const a = 123\nconst b = 456\nconst c = 4556\nconst d = 4566\nconst e = () => {\n  console.log('c')\n}\nunchanged one\nunchanged two\nunchanged three\nunchanged four\nunchanged five\nunchanged six\nunchanged seven\nunchanged eight\nconst removed = true";
 
-const NEW_CODE: &str = "const a = 123\nconst b = 789\nconst c = 4556\nconst d = 4566\nconst e = () => {\n  console.log('d')\n}\nunchanged one\nunchanged two\nunchanged three\nunchanged four\nunchanged five\nunchanged six\nunchanged seven\nunchanged eight";
+const NEW_CODE: &str = "const a = 123\nconst b = 789\nconst c = 4556\nconst d = 4566\nconst e = () => {\n  console.log('d')\n}\nconst added = true\nunchanged one\nunchanged two\nunchanged three\nunchanged four\nunchanged five\nunchanged six\nunchanged seven\nunchanged eight";
 
 /// Edge whitespace and a terminator change, which is what brings out the
 /// whitespace chip, the line ending chips, and the arrow between them.
