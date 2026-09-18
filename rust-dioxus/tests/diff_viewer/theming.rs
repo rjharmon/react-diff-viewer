@@ -529,6 +529,27 @@ fn a_mounted_viewer_delivers_the_crate_s_stylesheet_to_the_document() {
     );
 }
 
+/// REQT-q356bvvv15 (Style delivery) with more than one viewer mounted: each
+/// delivers the crate's sheet, and the copies are identical, so an app that
+/// mounts several still adds none of its own.
+#[test]
+fn every_mounted_viewer_delivers_the_same_stylesheet() {
+    fn app() -> Element {
+        record_delivered_styles();
+        rsx! {
+            DiffViewer { old_text: "a", new_text: "b" }
+            DiffViewer { old_text: "a", new_text: "b", theme: DiffTheme::Dark }
+        }
+    }
+
+    let _viewer = MountedApp::new(app);
+
+    assert_eq!(
+        DELIVERED_STYLES.with_borrow(|delivered| delivered.clone()),
+        vec![STYLESHEET.to_owned(); 2]
+    );
+}
+
 /// REQT-sc8expw3q8 (Theme selection): a viewer follows the reader's preference
 /// unless the consumer selects light or dark.
 #[test]
