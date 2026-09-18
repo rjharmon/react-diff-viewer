@@ -41,6 +41,7 @@
     --dxdiff-removed-gutter-background: #ffdce0;
     --dxdiff-gutter-background: #f7f7f7;
     --dxdiff-gutter-hover-background: #f3f1f1;
+    --dxdiff-row-hover-tint: rgba(0, 0, 0, 0.06);
     --dxdiff-highlighted-background: #fffbdd;
     --dxdiff-highlighted-gutter-background: #fff5b1;
     --dxdiff-fold-gutter-background: #dbedff;
@@ -78,6 +79,7 @@
       --dxdiff-removed-gutter-background: #632b30;
       --dxdiff-gutter-background: #2c2f3a;
       --dxdiff-gutter-hover-background: #262933;
+      --dxdiff-row-hover-tint: rgba(255, 255, 255, 0.09);
       --dxdiff-highlighted-background: #2a3967;
       --dxdiff-highlighted-gutter-background: #2d4077;
       --dxdiff-fold-gutter-background: #21232b;
@@ -117,6 +119,7 @@
     --dxdiff-removed-gutter-background: #632b30;
     --dxdiff-gutter-background: #2c2f3a;
     --dxdiff-gutter-hover-background: #262933;
+    --dxdiff-row-hover-tint: rgba(255, 255, 255, 0.09);
     --dxdiff-highlighted-background: #2a3967;
     --dxdiff-highlighted-gutter-background: #2d4077;
     --dxdiff-fold-gutter-background: #21232b;
@@ -304,6 +307,17 @@
   .dxdiff-row:hover .dxdiff-gutter pre {
     color: var(--dxdiff-text-color);
     opacity: 1;
+  }
+
+  /*
+   * REQT-ef5a9d2paw (Row under the pointer): a translucent tint laid over the
+   * line's own change color rather than in place of it, so a reader follows one
+   * line across the viewer without losing what the diff says about it. The
+   * package tints no row.
+   */
+  .dxdiff-row:hover .dxdiff-change-marker,
+  .dxdiff-row:hover .dxdiff-content {
+    box-shadow: inset 0 0 0 100vmax var(--dxdiff-row-hover-tint);
   }
 
   /* Fold rows and the control that expands them (src/styles.ts:174-177,

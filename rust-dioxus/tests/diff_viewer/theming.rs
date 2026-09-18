@@ -137,7 +137,7 @@ fn declared_palette(marker: &str) -> Vec<(String, String)> {
         let line = line.trim().trim_end_matches(';');
         match line.split_once(':') {
             Some((name, value)) if name.trim().starts_with("--dxdiff-") => {
-                declared.push((name.trim().to_owned(), as_comparable_color(value)));
+                declared.push((name.trim().to_owned(), value.trim().to_owned()));
             }
             // Anything else closes the run, once the run has started.
             _ if declared.is_empty() => continue,
@@ -201,10 +201,10 @@ fn each_theme_carries_the_package_s_color_for_every_element_it_names() {
                 let carried = declared
                     .iter()
                     .find(|(name, _)| name == property)
-                    .map(|(_, color)| color)
+                    .map(|(_, color)| as_comparable_color(color))
                     .unwrap_or_else(|| panic!("the {theme} palette declares {property}"));
                 assert_eq!(
-                    carried, expected,
+                    &carried, expected,
                     "{property} should carry the {theme} {reference_name} of the package"
                 );
             }
@@ -427,7 +427,9 @@ const COLOR_PROPERTIES: &[&str] = &[
 
 /// The words a color-bearing value may carry that name no color: the line
 /// styles, and the keywords that turn a color off rather than choosing one.
-const NON_COLOR_WORDS: &[&str] = &["none", "initial", "inherit", "solid", "dashed", "dotted"];
+const NON_COLOR_WORDS: &[&str] = &[
+    "none", "initial", "inherit", "solid", "dashed", "dotted", "inset",
+];
 
 /// REQT-1accrb4jhp (Named colors): every theme color a rule reads comes from a
 /// `dxdiff`-prefixed custom property, and every such property is defaulted at
@@ -561,6 +563,45 @@ fn every_theme_s_hovered_line_numbers_read_against_the_gutter_beneath_them() {
                 "in {theme}, a line number under the pointer reads at {ratio:.2} against {gutter}"
             );
         }
+    }
+}
+
+/// REQT-ef5a9d2paw (Row under the pointer): the row under the pointer is tinted
+/// over its own colors rather than in place of them, so a line's change color
+/// still reads beneath the tint.
+#[test]
+fn the_row_under_the_pointer_is_tinted_over_its_own_line_colors() {
+    let sheet = stylesheet_without_comments();
+    let tinting = sheet
+        .find(".dxdiff-row:hover .dxdiff-content")
+        .expect("a rule tints the row under the pointer");
+    let rule = &sheet[tinting..];
+    let rule = &rule[..rule.find('}').expect("the rule is closed")];
+    assert!(
+        rule.contains("var(--dxdiff-row-hover-tint)"),
+        "the tint comes from a named property"
+    );
+    assert!(
+        !rule.contains("background"),
+        "the tint lies over the line's own background rather than replacing it"
+    );
+
+    for (theme, selector) in PALETTE_BLOCKS {
+        let declared = declared_palette(selector);
+        let tint = declared
+            .iter()
+            .find(|(name, _)| name == "--dxdiff-row-hover-tint")
+            .map(|(_, value)| value.clone())
+            .unwrap_or_else(|| panic!("the palette for {theme} names the row tint"));
+        let (_, alpha) = tint
+            .trim_end_matches(')')
+            .rsplit_once(',')
+            .unwrap_or_else(|| panic!("in {theme}, the row tint reads {tint}, which states no alpha"));
+        let alpha: f64 = alpha.trim().parse().expect("the alpha is a number");
+        assert!(
+            (0.0..1.0).contains(&alpha),
+            "in {theme}, the row tint reads at alpha {alpha}, which hides the line beneath it"
+        );
     }
 }
 
