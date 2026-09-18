@@ -336,7 +336,7 @@ one `--dxdiff`-prefixed custom property per theme color, defaulted at the docume
 
 What an app reassigns to restyle the viewer; the stylesheet reads nothing else for color.
 
-**Supports Requirements**: REQT-78dg0g6a2h, REQT-1accrb4jhp
+**Supports Requirements**: REQT-78dg0g6a2h, REQT-1accrb4jhp, REQT-8y5fp2aarz
 
 
 
