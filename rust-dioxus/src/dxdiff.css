@@ -298,9 +298,11 @@
    * REQT-aaxrz33x1n (Line numbers under the pointer): readability rather than
    * affordance, so it follows the row and reaches every viewer, including one
    * that reports no clicks. The package instead brightens a number only while
-   * the pointer is inside its own gutter.
+   * the pointer is inside its own gutter, and leaves it in the gutter's own
+   * dim color, which the dark palette does not carry far enough to read.
    */
   .dxdiff-row:hover .dxdiff-gutter pre {
+    color: var(--dxdiff-text-color);
     opacity: 1;
   }
 

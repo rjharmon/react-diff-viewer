@@ -511,6 +511,59 @@ fn every_rule_sits_in_the_crate_s_cascade_layer() {
     );
 }
 
+/// The gutter backgrounds a row's line numbers can sit on. A fold row carries
+/// `dxdiff-fold-row` rather than `dxdiff-row`, so its gutter stays out of reach
+/// of the row-hover rule and out of this list.
+const GUTTER_BACKGROUNDS: [&str; 4] = [
+    "--dxdiff-gutter-background",
+    "--dxdiff-added-gutter-background",
+    "--dxdiff-removed-gutter-background",
+    "--dxdiff-highlighted-gutter-background",
+];
+
+/// The color the row-hover rule gives a line number, as the sheet names it.
+fn hovered_line_number_color() -> String {
+    let sheet = stylesheet_without_comments();
+    let brightening = sheet
+        .find(".dxdiff-row:hover .dxdiff-gutter pre")
+        .expect("a rule brightens the numbers of the row under the pointer");
+    let rule = &sheet[brightening..];
+    let rule = &rule[..rule.find('}').expect("the rule is closed")];
+    let (_, read) = rule
+        .split_once("color: var(")
+        .expect("the row-hover rule names the color its line numbers read");
+    read[..read.find(')').expect("the read is closed")].to_owned()
+}
+
+/// REQT-aaxrz33x1n (Line numbers under the pointer): at full strength a line
+/// number reads against every gutter background it can appear on, in both
+/// themes.
+#[test]
+fn every_theme_s_hovered_line_numbers_read_against_the_gutter_beneath_them() {
+    let hovered = hovered_line_number_color();
+
+    for (theme, selector) in PALETTE_BLOCKS {
+        let declared = declared_palette(selector);
+        let color = |property: &str| {
+            declared
+                .iter()
+                .find(|(name, _)| name == property)
+                .map(|(_, color)| color.clone())
+                .unwrap_or_else(|| panic!("the palette for {theme} names {property}"))
+        };
+
+        let glyph = color(&hovered);
+        for gutter in GUTTER_BACKGROUNDS {
+            let background = color(gutter);
+            let ratio = contrast_ratio(&glyph, &background);
+            assert!(
+                ratio >= 4.5,
+                "in {theme}, a line number under the pointer reads at {ratio:.2} against {gutter}"
+            );
+        }
+    }
+}
+
 /// REQT-aaxrz33x1n (Line numbers under the pointer): the numbers of the row
 /// under the pointer read at full strength, in every viewer, while the click
 /// affordance stays on the gutters that answer a click (REQT-3928hx46s3).
