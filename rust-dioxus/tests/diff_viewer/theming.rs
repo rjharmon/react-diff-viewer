@@ -407,9 +407,32 @@ fn an_app_reaches_every_viewer_it_did_not_give_an_explicit_theme() {
     );
 }
 
+/// The properties whose value can name a color. A literal in any notation here
+/// is a color the sheet states rather than one it reads.
+const COLOR_PROPERTIES: &[&str] = &[
+    "color",
+    "background",
+    "background-color",
+    "border",
+    "border-top",
+    "border-right",
+    "border-bottom",
+    "border-left",
+    "border-color",
+    "outline",
+    "box-shadow",
+    "fill",
+    "stroke",
+];
+
+/// The words a color-bearing value may carry that name no color: the line
+/// styles, and the keywords that turn a color off rather than choosing one.
+const NON_COLOR_WORDS: &[&str] = &["none", "initial", "inherit", "solid", "dashed", "dotted"];
+
 /// REQT-1accrb4jhp (Named colors): every theme color a rule reads comes from a
 /// `dxdiff`-prefixed custom property, and every such property is defaulted at
-/// the document root.
+/// the document root. The first half checks the declaration rather than the
+/// notation, so `color: red` and `rgb(1 2 3)` fail alongside a hex literal.
 #[test]
 fn every_color_a_rule_reads_is_a_property_defaulted_at_the_root() {
     let sheet = stylesheet_without_comments();
@@ -419,14 +442,25 @@ fn every_color_a_rule_reads_is_a_property_defaulted_at_the_root() {
         .collect();
 
     for line in sheet.lines() {
-        let line = line.trim();
+        let line = line.trim().trim_end_matches(';');
         if line.starts_with("--dxdiff-") {
             continue;
         }
-        assert!(
-            !line.contains('#'),
-            "a rule states a color of its own rather than reading a property: {line}"
-        );
+        let Some((property, value)) = line.split_once(':') else {
+            continue;
+        };
+        if !COLOR_PROPERTIES.contains(&property.trim()) {
+            continue;
+        }
+        for word in value.split_whitespace() {
+            let names_no_color = word.starts_with("var(--dxdiff-")
+                || NON_COLOR_WORDS.contains(&word)
+                || word.starts_with(|first: char| first.is_ascii_digit());
+            assert!(
+                names_no_color,
+                "a rule states a color of its own rather than reading a property: {line}"
+            );
+        }
     }
 
     let mut read_properties = Vec::new();
