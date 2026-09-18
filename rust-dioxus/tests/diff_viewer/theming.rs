@@ -477,6 +477,37 @@ fn every_rule_sits_in_the_crate_s_cascade_layer() {
     );
 }
 
+/// REQT-aaxrz33x1n (Line numbers under the pointer): the numbers of the row
+/// under the pointer read at full strength, in every viewer, while the click
+/// affordance stays on the gutters that answer a click (REQT-3928hx46s3).
+#[test]
+fn the_row_under_the_pointer_shows_its_line_numbers_at_full_strength() {
+    let sheet = stylesheet_without_comments();
+
+    let brightening = sheet
+        .find(".dxdiff-row:hover .dxdiff-gutter pre")
+        .expect("a rule brightens the numbers of the row under the pointer");
+    let rule = &sheet[brightening..];
+    let rule = &rule[..rule.find('}').expect("the rule is closed")];
+    assert!(
+        rule.contains("opacity: 1"),
+        "the row-hover rule returns the numbers to full strength"
+    );
+    assert!(
+        !rule.contains("cursor"),
+        "hovering a row offers no click affordance of its own"
+    );
+
+    let affordance = sheet
+        .find("var(--dxdiff-gutter-hover-background)")
+        .expect("some rule reads the gutter hover background");
+    let selector = &sheet[..sheet[..affordance].rfind('{').expect("the rule opens")];
+    assert!(
+        selector.trim_end().ends_with(".dxdiff-gutter-clickable:hover"),
+        "the hover background reaches only the gutters that answer a click"
+    );
+}
+
 /// Records what the component hands the document, so a test can read what was
 /// delivered rather than what was rendered.
 struct RecordingDocument;

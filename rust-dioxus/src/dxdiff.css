@@ -280,7 +280,7 @@
   }
 
   /*
-   * REQT-3928hx46s3 (Styling hooks): the hover affordance reaches only the
+   * REQT-3928hx46s3 (Styling hooks): the click affordance reaches only the
    * gutters that answer a click, which is what the clickable-gutter class
    * marks. The package hovers every gutter and turns the affordance off
    * again where there is no line number (src/styles.ts:305-311, 329-335).
@@ -290,12 +290,18 @@
     background: var(--dxdiff-gutter-hover-background);
   }
 
-  .dxdiff-gutter-clickable:hover pre {
-    opacity: 1;
-  }
-
   .dxdiff-gutter-clickable.dxdiff-highlighted:hover {
     background: var(--dxdiff-highlighted-gutter-background);
+  }
+
+  /*
+   * REQT-aaxrz33x1n (Line numbers under the pointer): readability rather than
+   * affordance, so it follows the row and reaches every viewer, including one
+   * that reports no clicks. The package instead brightens a number only while
+   * the pointer is inside its own gutter.
+   */
+  .dxdiff-row:hover .dxdiff-gutter pre {
+    opacity: 1;
   }
 
   /* Fold rows and the control that expands them (src/styles.ts:174-177,
