@@ -63,7 +63,7 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 - Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
 
 
-**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8
+**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8, REQT-aaxrz33x1n, REQT-ef5a9d2paw
 
 **Concerns and Responsibilities**:
 - **Responsibility**: Rendering engine output without diffing again
@@ -73,6 +73,7 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 - **Responsibility**: Rendered content identity: line numbers within a text pair
 - **Responsibility**: Styling hook classes on its markup
 - **Responsibility**: Style delivery and theme selection
+- **Responsibility**: Hover feedback on the row under the pointer
 
 
 **Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
