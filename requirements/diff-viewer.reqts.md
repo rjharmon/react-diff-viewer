@@ -49,6 +49,10 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 <nobr>**Key Requirements:**</nobr>
 - **How it fits the app**: Apps style the viewer, light or dark, and render line content their own way.
 
+### 4. Driving it from code
+<nobr>**Key Requirements:**</nobr>
+- **Driving it from code**: Apps ask a mounted diff where its changes are and which lines are hidden, and open or re-fold them from their own code.
+
 
 # Detailed Requirements
 
@@ -128,6 +132,12 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
      - **3.2.6.2: Yielding rules** (**IMPLEMENTED/NEEDS VERIFICATION**) - **the viewer's rules lose to the app's, whatever the specificity** The viewer's own style rules MUST yield to an app's rules for the same element whatever their specificity, so that an app never needs `!important` to restyle the viewer. <nobr>***DREAMED** REQT-ey9f1s27r1*</nobr>
  - **3.2.7: Line numbers under the pointer** (**IMPLEMENTED/NEEDS VERIFICATION**) - **a row's numbers read fully while the pointer is over it** The viewer MUST read a row's line numbers at full strength while the pointer is over that row, and at reduced strength otherwise, whether or not the viewer reports line-number clicks. At full strength each number MUST reach a contrast ratio of at least 4.5 against every gutter background it can appear on. <nobr>***draft** REQT-aaxrz33x1n*</nobr>
  - **3.2.8: Row under the pointer** (**IMPLEMENTED/NEEDS VERIFICATION**) - **the hovered row tints without hiding its change colors** The viewer MUST tint the row under the pointer so a reader can follow one line across the viewer, and the tint MUST lie over each line's own change color rather than replace it. The `react-diff-viewer` package tints no row, so each theme names the tint rather than carrying it from the reference. <nobr>***DREAMED** REQT-ef5a9d2paw*</nobr>
+
+--------
+
+
+### 4.0: Driving it from code (**BACKLOG**) - **AREA:** Driving it from code - Ensures an app can read and steer a mounted viewer from its own code. Applies when reading or changing what the crate reports about a diff's changes and hidden lines, or the actions that steer folding. - <nobr>***DREAMED** REQT-62p6rwsepb*</nobr>
+
 
 # Files
 
