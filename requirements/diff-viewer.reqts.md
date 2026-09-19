@@ -139,6 +139,12 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 ### 4.0: Driving it from code (**BACKLOG**) - **AREA:** Driving it from code - Ensures an app can read and steer a mounted viewer from its own code. Applies when reading or changing what the crate reports about a diff's changes and hidden lines, or the actions that steer folding. - <nobr>***DREAMED** REQT-62p6rwsepb*</nobr>
 
 
+#### 4.1.0: The live diff (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-nyjk0c9fbf*</nobr>
+
+ - **4.1.1: Building a live diff** (**BACKLOG**) - **two texts alone, or texts with one fully defaulted options value** The crate MUST let an app build a live diff from an old and a new text alone, and MUST offer a second form taking one options value carrying the compare method, whether inline changes are marked, the line offset, whether unchanged lines fold, and how many unchanged lines surround each change, every field defaulted. <nobr>***DREAMED** REQT-7tk9vxv9wd*</nobr>
+ - **4.1.2: Rendering a live diff** (**BACKLOG**) - **the live diff is the viewer's only data prop** The viewer MUST take a live diff as its only data prop, and MUST keep as its own props the view, the theme, line-number visibility, highlighted lines, the content and fold-row renderers, the line-number click handler, and the titles. <nobr>***DREAMED** REQT-m776z5vdhe*</nobr>
+ - **4.1.3: One plan per live diff** (**BACKLOG**) - **viewers over one live diff share its row plan** Viewers rendering the same live diff MUST show the same rows, so that folding steered through that live diff reaches every one of them. <nobr>***DREAMED** REQT-dxbaat20ja*</nobr>
+
 # Files
 
 - `rust-dioxus/src/lib.rs` - The crate root: its modules and the public names apps import.
