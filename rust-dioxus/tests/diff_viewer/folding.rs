@@ -1,7 +1,9 @@
 //! Folding: REQT-qerexp825r and children.
 
 use dioxus::prelude::*;
-use dioxus_diff_viewer::{DiffOptions, DiffView, DiffViewer, HiddenLines, use_diff, use_diff_with};
+use dioxus_diff_viewer::{
+    DiffOptions, DiffView, DiffViewer, HiddenLines, LineId, use_diff, use_diff_with,
+};
 
 use crate::mounted_app::MountedApp;
 
@@ -249,6 +251,104 @@ fn a_fold_expands_again_after_a_reset() {
     assert_eq!(viewer.row_readings()[0], unchanged_row(1));
 }
 
+/// The ten-line fixture with buttons driving the live diff's fold actions from
+/// app code, each naming a line rather than a fold.
+fn ten_lines_with_fold_actions() -> Element {
+    let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
+    rsx! {
+        button { onclick: move |_| diff.expand_fold_at_line(LineId::Old(1)), "reveal old line 1" }
+        button { onclick: move |_| diff.expand_fold_at_line(LineId::New(10)), "reveal new line 10" }
+        button { onclick: move |_| diff.expand_fold_at_line(LineId::Old(5)), "reveal old line 5" }
+        button { onclick: move |_| diff.expand_fold_at_line(LineId::Old(99)), "reveal old line 99" }
+        button { onclick: move |_| diff.expand_all_folds(), "expand everything" }
+        DiffViewer { diff }
+    }
+}
+
+/// REQT-g86vdmyyp9 (Expanding at a line): naming one hidden line reveals the
+/// whole run of hidden lines it sits in.
+#[test]
+fn naming_a_hidden_line_reveals_the_whole_run_it_sits_in() {
+    let mut viewer = MountedApp::new(ten_lines_with_fold_actions);
+
+    viewer.click_button("reveal old line 1");
+
+    let mut expected = vec![unchanged_row(1), unchanged_row(2)];
+    expected.extend(folded_ten_line_rows().into_iter().skip(1));
+    assert_eq!(viewer.row_readings(), expected);
+}
+
+/// REQT-g86vdmyyp9 (Expanding at a line): a line is named on either side, so a
+/// new-side line id reaches the fold hiding it.
+#[test]
+fn naming_a_hidden_line_on_the_new_side_reveals_its_run() {
+    let mut viewer = MountedApp::new(ten_lines_with_fold_actions);
+
+    viewer.click_button("reveal new line 10");
+
+    let mut expected = folded_ten_line_rows();
+    expected.pop();
+    expected.push(unchanged_row(10));
+    assert_eq!(viewer.row_readings(), expected);
+}
+
+/// REQT-g86vdmyyp9 (Expanding at a line): a named line that is not hidden
+/// leaves the shown lines alone.
+#[test]
+fn naming_a_line_that_is_already_shown_leaves_the_shown_lines_alone() {
+    let mut viewer = MountedApp::new(ten_lines_with_fold_actions);
+
+    viewer.click_button("reveal old line 5");
+
+    assert_eq!(viewer.row_readings(), folded_ten_line_rows());
+}
+
+/// REQT-g86vdmyyp9 (Expanding at a line): a line the diff does not hold at all
+/// leaves the shown lines alone rather than opening some other fold.
+#[test]
+fn naming_a_line_the_diff_does_not_hold_leaves_the_shown_lines_alone() {
+    let mut viewer = MountedApp::new(ten_lines_with_fold_actions);
+
+    viewer.click_button("reveal old line 99");
+
+    assert_eq!(viewer.row_readings(), folded_ten_line_rows());
+}
+
+/// REQT-h8rxvhpj9g (Expanding everything): one action reveals every line the
+/// folds hide, wherever those folds sit.
+#[test]
+fn an_app_reveals_every_hidden_line_in_one_action() {
+    let mut viewer = MountedApp::new(ten_lines_with_fold_actions);
+
+    viewer.click_button("expand everything");
+
+    let mut expected: Vec<String> = (1..=5).map(unchanged_row).collect();
+    expected.push("6 | - | l6 | 6 | + | L6".into());
+    expected.extend((7..=10).map(unchanged_row));
+    assert_eq!(viewer.row_readings(), expected);
+}
+
+/// REQT-ps5zx85jvc (Resetting folds) after REQT-h8rxvhpj9g (Expanding
+/// everything): the two actions are inverses, so a reset refolds what
+/// expanding everything opened.
+#[test]
+fn a_reset_refolds_everything_an_app_expanded_in_one_action() {
+    fn app() -> Element {
+        let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
+        rsx! {
+            button { onclick: move |_| diff.expand_all_folds(), "expand everything" }
+            button { onclick: move |_| diff.reset_folds(), "reset folds" }
+            DiffViewer { diff }
+        }
+    }
+    let mut viewer = MountedApp::new(app);
+    viewer.click_button("expand everything");
+
+    viewer.click_button("reset folds");
+
+    assert_eq!(viewer.row_readings(), folded_ten_line_rows());
+}
+
 /// REQT-1tdrfvay4q (Fold rows): a fold row spans the same columns as the line
 /// rows around it, in both views, with line numbers shown or hidden.
 #[test]
@@ -299,15 +399,17 @@ fn ten_lines_in_two_viewers() -> Element {
 /// REQT-dxbaat20ja (One plan per live diff) with REQT-869jyzdes7 (Where fold
 /// state lives): a fold opened through one viewer opens in the other, because
 /// the live diff holds the one plan both of them read.
+/// How many viewers still hide the fixture's first two lines.
+fn two_line_folds(viewer: &MountedApp) -> usize {
+    viewer
+        .row_readings()
+        .iter()
+        .filter(|row| row.contains("Expand 2 lines"))
+        .count()
+}
+
 #[test]
 fn a_fold_opened_in_one_viewer_over_a_live_diff_opens_in_the_other() {
-    fn two_line_folds(viewer: &MountedApp) -> usize {
-        viewer
-            .row_readings()
-            .iter()
-            .filter(|row| row.contains("Expand 2 lines"))
-            .count()
-    }
     let mut viewer = MountedApp::new(ten_lines_in_two_viewers);
     assert_eq!(
         two_line_folds(&viewer),
@@ -327,5 +429,37 @@ fn a_fold_opened_in_one_viewer_over_a_live_diff_opens_in_the_other() {
     assert!(
         rows.contains(&"1 | 1 |  | l1".to_owned()),
         "the inline viewer shows the first revealed line its own way: {rows:?}"
+    );
+}
+
+/// Two viewers over one live diff, with a button naming a hidden line from app
+/// code rather than either viewer's own fold row.
+fn ten_lines_in_two_viewers_with_a_fold_action() -> Element {
+    let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
+    rsx! {
+        button { onclick: move |_| diff.expand_fold_at_line(LineId::Old(1)), "reveal old line 1" }
+        DiffViewer { diff }
+        DiffViewer { diff, view: DiffView::Inline }
+    }
+}
+
+/// REQT-dxbaat20ja (One plan per live diff) with REQT-g86vdmyyp9 (Expanding at
+/// a line): a fold opened through the live diff itself, naming no viewer,
+/// opens in every viewer rendering that diff.
+#[test]
+fn a_fold_an_app_opens_by_naming_a_line_opens_in_every_viewer() {
+    let mut viewer = MountedApp::new(ten_lines_in_two_viewers_with_a_fold_action);
+    assert_eq!(
+        two_line_folds(&viewer),
+        2,
+        "each viewer hides the first two lines"
+    );
+
+    viewer.click_button("reveal old line 1");
+
+    assert_eq!(
+        two_line_folds(&viewer),
+        0,
+        "the run opened in both viewers, neither of them named"
     );
 }

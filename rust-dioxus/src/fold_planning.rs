@@ -4,6 +4,8 @@
 //! This is presentation-free planning over the engine's output, kept apart from
 //! rendering so both views read the same plan.
 
+use std::ops::Range;
+
 use crate::diff_analysis_output::DiffAnalysis;
 
 /// One planned row: an entry to show, or a fold hiding a run of entries.
@@ -25,6 +27,13 @@ pub(crate) struct Fold {
     pub(crate) start: usize,
     /// How many entries the fold hides.
     pub(crate) len: usize,
+}
+
+impl Fold {
+    /// The positions of the entries this fold hides.
+    pub(crate) fn hidden_positions(&self) -> Range<usize> {
+        self.start..self.start + self.len
+    }
 }
 
 /// Plans the rows of a view.

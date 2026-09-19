@@ -11,9 +11,10 @@ use dioxus::prelude::*;
 use crate::diff_analysis_engine::analyze_diff;
 use crate::diff_analysis_output::DiffAnalysis;
 use crate::diff_options::DiffOptions;
-use crate::entry_line_numbers::{LineRun, changed_runs, line_run_of};
+use crate::entry_line_numbers::{LineRun, changed_runs, line_run_of, position_of_line};
 use crate::expanded_folds::{ExpandedFolds, FoldBasis};
 use crate::fold_planning::{PlannedRow, plan_rows};
+use crate::line_id::LineId;
 
 /// The two texts and the options they are compared and folded under.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -64,7 +65,7 @@ impl Diff {
             .read()
             .iter()
             .filter_map(|planned| match planned {
-                PlannedRow::Fold(fold) => Some(fold.start..fold.start + fold.len),
+                PlannedRow::Fold(fold) => Some(fold.hidden_positions()),
                 PlannedRow::Entry(_) => None,
             })
             .map(|positions| line_run_of(&analysis.entries, positions))
@@ -100,13 +101,70 @@ impl Diff {
         self.planned_rows
     }
 
+    /// Reveals the run of hidden lines holding the line an app names.
+    ///
+    /// REQT-g86vdmyyp9 (Expanding at a line): a line the diff does not hold,
+    /// and a line already shown, both leave the shown lines alone.
+    pub fn expand_fold_at_line(&self, line: LineId) {
+        if let Some(start) = self.fold_start_hiding(line) {
+            self.expand_folds([start]);
+        }
+    }
+
+    /// Reveals every line this diff's folds hide.
+    ///
+    /// REQT-h8rxvhpj9g (Expanding everything): one action, whose result shows
+    /// in every viewer over this diff.
+    pub fn expand_all_folds(&self) {
+        self.expand_folds(self.fold_starts());
+    }
+
     /// Reveals the lines hidden by the fold starting at `start`.
     ///
     /// REQT-v748c7mjr6 (Expanding folds): what a fold row activates.
-    pub(crate) fn expand_fold(&self, start: usize) {
+    pub(crate) fn expand_fold_at_position(&self, start: usize) {
+        self.expand_folds([start]);
+    }
+
+    /// Where the fold hiding `line` starts, absent when the diff holds no such
+    /// line or the line is shown.
+    ///
+    /// REQT-g86vdmyyp9 (Expanding at a line): the named line becomes a
+    /// position through `entry_line_numbers`, the same relation the reading
+    /// answers report through, and the row plan says which fold covers it.
+    fn fold_start_hiding(&self, line: LineId) -> Option<usize> {
+        let position = position_of_line(&self.analysis.read().entries, line)?;
+        self.planned_rows
+            .read()
+            .iter()
+            .find_map(|planned| match planned {
+                PlannedRow::Fold(fold) if fold.hidden_positions().contains(&position) => {
+                    Some(fold.start)
+                }
+                _ => None,
+            })
+    }
+
+    /// Where each fold still standing in the row plan starts.
+    fn fold_starts(&self) -> Vec<usize> {
+        self.planned_rows
+            .read()
+            .iter()
+            .filter_map(|planned| match planned {
+                PlannedRow::Fold(fold) => Some(fold.start),
+                PlannedRow::Entry(_) => None,
+            })
+            .collect()
+    }
+
+    /// Expands the folds starting at `starts`, in one write.
+    ///
+    /// The row plan is read before this call rather than during it, so no read
+    /// guard on the plan is held while the state it is planned from changes.
+    fn expand_folds(&self, starts: impl IntoIterator<Item = usize>) {
         let basis = *self.fold_basis.read();
         let mut expanded_folds = self.expanded_folds;
-        expanded_folds.write().expand(basis, start);
+        expanded_folds.write().expand(basis, starts);
     }
 }
 

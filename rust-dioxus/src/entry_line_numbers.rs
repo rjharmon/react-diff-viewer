@@ -9,6 +9,7 @@
 use std::ops::{Range, RangeInclusive};
 
 use crate::diff_analysis_output::{LineSide, PairedLineEntry};
+use crate::line_id::LineId;
 
 /// A run of consecutive lines, in each side's own line numbers.
 ///
@@ -55,4 +56,23 @@ pub(crate) fn changed_runs(changed_positions: &[usize]) -> impl Iterator<Item = 
     changed_positions
         .chunk_by(|position, next| *next == position + 1)
         .map(|run| run[0]..run[run.len() - 1] + 1)
+}
+
+/// The position of the entry carrying `line`, absent when the diff holds no
+/// such line.
+///
+/// REQT-g86vdmyyp9 (Expanding at a line): an app names a line and the crate
+/// maps it onto its own folds, so the name becomes a position here, in the
+/// same relation the reading answers report through.
+pub(crate) fn position_of_line(entries: &[PairedLineEntry], line: LineId) -> Option<usize> {
+    entries.iter().position(|entry| entry_carries(entry, line))
+}
+
+/// Whether `entry` carries `line` on the side the line names.
+fn entry_carries(entry: &PairedLineEntry, line: LineId) -> bool {
+    let (side, number) = match line {
+        LineId::Old(number) => (entry.old.as_ref(), number),
+        LineId::New(number) => (entry.new.as_ref(), number),
+    };
+    side.is_some_and(|side| side.number == number)
 }

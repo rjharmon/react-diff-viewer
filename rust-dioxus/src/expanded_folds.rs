@@ -37,14 +37,17 @@ impl ExpandedFolds {
         self.basis == Some(basis) && self.starts.contains(&start)
     }
 
-    /// Expands the fold starting at `start` under `basis`, dropping every
+    /// Expands the folds starting at `starts` under `basis`, dropping every
     /// expansion made under an earlier basis.
-    pub(crate) fn expand(&mut self, basis: FoldBasis, start: usize) {
+    ///
+    /// One action expands one fold or every fold, so both arrive here as a run
+    /// of starts and the basis is reckoned once for the action.
+    pub(crate) fn expand(&mut self, basis: FoldBasis, starts: impl IntoIterator<Item = usize>) {
         if self.basis != Some(basis) {
             self.basis = Some(basis);
             self.starts.clear();
         }
-        self.starts.insert(start);
+        self.starts.extend(starts);
     }
 
     /// Returns every expanded fold to folded.

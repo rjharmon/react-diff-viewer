@@ -155,7 +155,7 @@ pub fn DiffViewer(
                                 match planned {
                                     PlannedRow::Entry(position) => rows.entry_rows(&analysis.entries[position]),
                                     PlannedRow::Fold(fold) => rows.fold_row(fold, &analysis.entries[fold.start], move || {
-                                        diff.expand_fold(fold.start);
+                                        diff.expand_fold_at_position(fold.start);
                                     }),
                                 }
                             }
