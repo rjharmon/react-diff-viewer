@@ -145,6 +145,11 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
  - **4.1.2: Rendering a live diff** (**BACKLOG**) - **the live diff is the viewer's only data prop** The viewer MUST take a live diff as its only data prop, and MUST keep as its own props the view, the theme, line-number visibility, highlighted lines, the content and fold-row renderers, the line-number click handler, and the titles. <nobr>***DREAMED** REQT-m776z5vdhe*</nobr>
  - **4.1.3: One plan per live diff** (**BACKLOG**) - **viewers over one live diff share its row plan** Viewers rendering the same live diff MUST show the same rows, so that folding steered through that live diff reaches every one of them. <nobr>***DREAMED** REQT-dxbaat20ja*</nobr>
 
+#### 4.2.0: Reading a diff (**BACKLOG**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-jyhvdaa75p*</nobr>
+
+ - **4.2.1: Where the changes are** (**BACKLOG**) - **changes as runs, in each side's line numbers** A live diff MUST report its changes in document order, each as one run of consecutive changed lines with the old-side and new-side line numbers that run spans. The lines it counts as changed MUST be the ones folding measures its surrounding-line count from. <nobr>***DREAMED** REQT-f2affyt2h2*</nobr>
+ - **4.2.2: Which lines are hidden** (**BACKLOG**) - **hidden runs, current as of the asking** A live diff MUST report which lines its folds hide at the moment it is asked, each hidden run with the old-side and new-side line numbers that run spans, so that a fold a reader has already expanded is reported as hidden no longer. <nobr>***DREAMED** REQT-hsef5r7c4z*</nobr>
+
 # Files
 
 - `rust-dioxus/src/lib.rs` - The crate root: its modules and the public names apps import.
