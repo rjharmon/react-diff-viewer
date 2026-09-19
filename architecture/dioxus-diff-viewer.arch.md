@@ -23,9 +23,9 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 14/22
-- draft: 5/22
-- consented: 3/22
+- DREAMED: 17/25
+- draft: 5/25
+- consented: 3/25
 
 ## In this document
 
@@ -355,6 +355,54 @@ auto, light, or dark; auto follows the reader's color-scheme preference
 The prop choosing a viewer's palette, written onto the viewer element so two mounted viewers may differ.
 
 **Supports Requirements**: REQT-sc8expw3q8
+
+
+
+<a id="software-object-ARCH-8tce9rry3b"></a>
+
+### Diff (struct; DREAMED - ARCH-8tce9rry3b)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+the two texts, the analysis, the content identity, the expanded folds with their basis, and the planned rows
+```
+
+The live state an app holds and viewers render. It answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything and reset. Sitting outside the view's code path lets it answer without publishing from an effect.
+
+**Supports Requirements**: REQT-m776z5vdhe, REQT-dxbaat20ja, REQT-f2affyt2h2, REQT-hsef5r7c4z, REQT-g86vdmyyp9, REQT-h8rxvhpj9g, REQT-ps5zx85jvc, REQT-869jyzdes7
+
+
+
+<a id="software-object-ARCH-smcbvznq0z"></a>
+
+### DiffOptions (struct; DREAMED - ARCH-smcbvznq0z)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+the engine's compare choices, plus whether unchanged lines fold and how many surround each change; every field defaulted
+```
+
+What a live diff is built with. Folding sits here rather than on the viewer because the row plan the live diff owns cannot be computed without it (ARCH-phde62wxvn).
+
+**Supports Requirements**: REQT-7tk9vxv9wd, REQT-qcnxhemvhn
+
+
+
+<a id="software-object-ARCH-87bw15t11s"></a>
+
+### UseDiffHooks (hook pair; DREAMED - ARCH-87bw15t11s)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+use_diff(old, new) and use_diff_with(old, new, options), both returning a Diff owned by the calling component
+```
+
+How an app reaches a live diff. The pair keeps the common call short while the second form carries the options, and the calling component's ownership is what makes the state outlive a render without the viewer holding it.
+
+**Supports Requirements**: REQT-7tk9vxv9wd
 
 
 
