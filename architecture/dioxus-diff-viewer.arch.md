@@ -23,10 +23,10 @@ Dioxus diff viewer crate built on a diff analysis engine.
 
 **Maturity**:
 
-- DREAMED: 19/27
-- draft: 4/27
-- consented: 3/27
-- abandoned: 1/27
+- DREAMED: 20/28
+- draft: 4/28
+- consented: 3/28
+- abandoned: 1/28
 
 ## In this document
 
@@ -37,6 +37,7 @@ Dioxus diff viewer crate built on a diff analysis engine.
 
 
 
+- [blake3](#blake3-arch-v811rxcq9d) (external): Third-party Rust crate hashing the two texts into one identity.
 - [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s) (internal): Turns two texts and options into paired line information.
 - [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering a diff in split or inline view.
 - [similar](#similar-arch-wdrt39xvh4) (external): Third-party Rust crate computing text alignment.
@@ -44,6 +45,25 @@ Dioxus diff viewer crate built on a diff analysis engine.
 
 
 ## Components
+
+<a id="blake3-arch-v811rxcq9d"></a>
+
+### Component: blake3 (external; DREAMED - ARCH-v811rxcq9d)
+
+Third-party Rust crate hashing the two texts into one identity.
+
+**Activities**:
+
+- Hash the compared texts into a content identity
+
+
+
+**Supports Requirements**: REQT-zen8fyae28
+
+
+
+
+---
 
 <a id="diffanalysisengine-arch-jf3s5npp9s"></a>
 
