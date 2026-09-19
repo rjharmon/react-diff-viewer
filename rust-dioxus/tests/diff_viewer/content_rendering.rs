@@ -4,7 +4,7 @@ use std::cell::Cell;
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::DXDIFF__INLINE_TOKEN;
-use dioxus_diff_viewer::{DiffView, DiffViewer, LineContent};
+use dioxus_diff_viewer::{DiffView, DiffViewer, LineContent, use_diff};
 
 use crate::mounted_app::MountedApp;
 
@@ -13,10 +13,10 @@ use crate::mounted_app::MountedApp;
 #[test]
 fn the_split_view_shows_each_title_above_its_column() {
     fn app() -> Element {
+        let diff = use_diff("a", "b");
         rsx! {
             DiffViewer {
-                old_text: "a",
-                new_text: "b",
+                diff,
                 left_title: rsx! { "Old" },
                 right_title: rsx! { b { "New" } },
             }
@@ -32,20 +32,15 @@ fn the_split_view_shows_each_title_above_its_column() {
 #[test]
 fn the_inline_view_shows_only_the_left_title() {
     fn app() -> Element {
+        let diff = use_diff("a", "b");
         rsx! {
             DiffViewer {
-                old_text: "a",
-                new_text: "b",
+                diff,
                 view: DiffView::Inline,
                 left_title: rsx! { "Old" },
                 right_title: rsx! { "New" },
             }
-            DiffViewer {
-                old_text: "a",
-                new_text: "b",
-                view: DiffView::Inline,
-                right_title: rsx! { "New" },
-            }
+            DiffViewer { diff, view: DiffView::Inline, right_title: rsx! { "New" } }
         }
     }
 
@@ -68,10 +63,10 @@ fn the_inline_view_shows_only_the_left_title() {
 #[test]
 fn a_consumer_renderer_shapes_whole_lines_and_each_inline_token() {
     fn app() -> Element {
+        let diff = use_diff("same\nab", "same\nac");
         rsx! {
             DiffViewer {
-                old_text: "same\nab",
-                new_text: "same\nac",
+                diff,
                 line_content_renderer: move |content: LineContent| rsx! { em { "[{content.text()}]" } },
             }
         }
@@ -102,13 +97,14 @@ fn a_consumer_renderer_shapes_whole_lines_and_each_inline_token() {
 #[test]
 fn titles_span_the_columns_of_the_lines_below_them() {
     fn split_numbered() -> Element {
-        rsx! { DiffViewer { old_text: "a", new_text: "b", left_title: rsx! { "Old" }, right_title: rsx! { "New" } } }
+        let diff = use_diff("a", "b");
+        rsx! { DiffViewer { diff, left_title: rsx! { "Old" }, right_title: rsx! { "New" } } }
     }
     fn split_unnumbered() -> Element {
+        let diff = use_diff("a", "b");
         rsx! {
             DiffViewer {
-                old_text: "a",
-                new_text: "b",
+                diff,
                 show_line_numbers: false,
                 left_title: rsx! { "Old" },
                 right_title: rsx! { "New" },
@@ -116,13 +112,14 @@ fn titles_span_the_columns_of_the_lines_below_them() {
         }
     }
     fn inline_numbered() -> Element {
-        rsx! { DiffViewer { old_text: "a", new_text: "b", view: DiffView::Inline, left_title: rsx! { "Old" } } }
+        let diff = use_diff("a", "b");
+        rsx! { DiffViewer { diff, view: DiffView::Inline, left_title: rsx! { "Old" } } }
     }
     fn inline_unnumbered() -> Element {
+        let diff = use_diff("a", "b");
         rsx! {
             DiffViewer {
-                old_text: "a",
-                new_text: "b",
+                diff,
                 view: DiffView::Inline,
                 show_line_numbers: false,
                 left_title: rsx! { "Old" },
@@ -151,10 +148,10 @@ fn titles_span_the_columns_of_the_lines_below_them() {
 #[test]
 fn a_side_with_no_line_is_not_sent_through_the_renderer() {
     fn app() -> Element {
+        let diff = use_diff("a", "a\nb");
         rsx! {
             DiffViewer {
-                old_text: "a",
-                new_text: "a\nb",
+                diff,
                 line_content_renderer: move |content: LineContent| rsx! { em { "[{content.text()}]" } },
             }
         }
@@ -187,14 +184,14 @@ fn MountStamp(text: String) -> Element {
 /// button that edits the last line of the new text.
 fn stamped_ten_lines() -> Element {
     let mut new_text = use_signal(|| "l1\nl2\nl3\nl4\nl5\nL6\nl7\nl8\nl9\nl10".to_string());
+    let diff = use_diff("l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10", new_text());
     rsx! {
         button {
             onclick: move |_| new_text.set("l1\nl2\nl3\nl4\nl5\nL6\nl7\nl8\nl9\nL10".into()),
             "edit the last line"
         }
         DiffViewer {
-            old_text: "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10",
-            new_text: new_text(),
+            diff,
             line_content_renderer: move |content: LineContent| rsx! {
                 MountStamp { text: content.text().to_string() }
             },

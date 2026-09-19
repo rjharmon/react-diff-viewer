@@ -9,10 +9,12 @@ mod consumer_callbacks;
 mod diff_analysis_engine;
 mod diff_analysis_options;
 mod diff_analysis_output;
+mod diff_options;
 mod diff_viewer;
+mod expanded_folds;
 mod fold_planning;
-mod fold_reset_trigger;
 mod line_id;
+mod live_diff;
 mod row_rendering;
 pub mod styling_hooks;
 
@@ -23,6 +25,7 @@ pub use diff_analysis_output::{
     ChangeKind, DiffAnalysis, InlineChanges, InlineToken, LineEndingChange, LineSide,
     PairedLineEntry, TokenKind,
 };
+pub use diff_options::DiffOptions;
 pub use diff_viewer::{DiffTheme, DiffView, DiffViewer, DiffViewerProps};
-pub use fold_reset_trigger::{FoldResetTrigger, use_fold_reset_trigger};
 pub use line_id::{LineId, LineIdParseError};
+pub use live_diff::{Diff, use_diff, use_diff_with};

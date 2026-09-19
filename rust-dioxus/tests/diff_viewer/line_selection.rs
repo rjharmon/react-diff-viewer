@@ -2,7 +2,7 @@
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::DXDIFF__HIGHLIGHTED;
-use dioxus_diff_viewer::{DiffView, DiffViewer, LineId, LineNumberClick};
+use dioxus_diff_viewer::{DiffView, DiffViewer, LineId, LineNumberClick, use_diff};
 use dioxus_html::Modifiers;
 
 use crate::mounted_app::MountedApp;
@@ -38,7 +38,8 @@ fn text_in_any_other_form_is_not_a_line_id() {
 #[test]
 fn a_listed_line_is_highlighted_on_its_own_side() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc", highlighted_lines: vec![LineId::New(2)] } }
+        let diff = use_diff("a\nb", "a\nc");
+        rsx! { DiffViewer { diff, highlighted_lines: vec![LineId::New(2)] } }
     }
 
     let viewer = MountedApp::new(app);
@@ -55,7 +56,8 @@ fn a_listed_line_is_highlighted_on_its_own_side() {
 #[test]
 fn a_listed_old_line_highlights_its_row_and_its_own_side() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc", highlighted_lines: vec![LineId::Old(2)] } }
+        let diff = use_diff("a\nb", "a\nc");
+        rsx! { DiffViewer { diff, highlighted_lines: vec![LineId::Old(2)] } }
     }
 
     let viewer = MountedApp::new(app);
@@ -72,13 +74,9 @@ fn a_listed_old_line_highlights_its_row_and_its_own_side() {
 #[test]
 fn an_inline_unchanged_line_is_highlighted_by_either_of_its_ids() {
     fn app() -> Element {
+        let diff = use_diff("gone\na", "a");
         rsx! {
-            DiffViewer {
-                old_text: "gone\na",
-                new_text: "a",
-                view: DiffView::Inline,
-                highlighted_lines: vec![LineId::New(1)],
-            }
+            DiffViewer { diff, view: DiffView::Inline, highlighted_lines: vec![LineId::New(1)] }
         }
     }
 
@@ -93,10 +91,10 @@ fn an_inline_unchanged_line_is_highlighted_by_either_of_its_ids() {
 /// Records every line number click it receives, one list item each.
 fn recording_clicks(view: DiffView) -> Element {
     let mut clicks = use_signal(Vec::<LineNumberClick>::new);
+    let diff = use_diff("a\nb", "a\nc\nd");
     rsx! {
         DiffViewer {
-            old_text: "a\nb",
-            new_text: "a\nc\nd",
+            diff,
             view,
             on_line_number_click: move |click| clicks.write().push(click),
         }

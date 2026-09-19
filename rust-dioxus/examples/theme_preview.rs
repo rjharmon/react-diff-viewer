@@ -12,7 +12,10 @@
 use std::fs;
 
 use dioxus::prelude::*;
-use dioxus_diff_viewer::{CompareMethod, DiffTheme, DiffView, DiffViewer, LineId, LineNumberClick};
+use dioxus_diff_viewer::{
+    CompareMethod, DiffOptions, DiffTheme, DiffView, DiffViewer, LineId, LineNumberClick,
+    use_diff_with,
+};
 
 /// A code edit: modified lines with word-level changes, an addition and a
 /// removal with no counterpart so both empty sides show, a run of unchanged
@@ -39,14 +42,20 @@ fn Sample(
     new_text: String,
     compare: CompareMethod,
 ) -> Element {
+    let diff = use_diff_with(
+        old_text,
+        new_text,
+        DiffOptions {
+            compare,
+            ..DiffOptions::default()
+        },
+    );
     rsx! {
         h2 { "{heading}" }
         DiffViewer {
-            old_text,
-            new_text,
+            diff,
             theme,
             view,
-            compare,
             highlighted_lines: vec![LineId::New(3)],
             left_title: rsx! { "before" },
             right_title: rsx! { "after" },

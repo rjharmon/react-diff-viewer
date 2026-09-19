@@ -4,7 +4,9 @@
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::*;
-use dioxus_diff_viewer::{CompareMethod, DiffViewer, LineId};
+use dioxus_diff_viewer::{
+    CompareMethod, DiffOptions, DiffView, DiffViewer, LineId, use_diff, use_diff_with,
+};
 
 use crate::mounted_app::MountedApp;
 
@@ -29,11 +31,17 @@ fn states_of(viewer: &MountedApp, kind_class: &str) -> Vec<String> {
 /// change, the second highlighted), ten unchanged lines whose middle four fold,
 /// and a removed line.
 fn app() -> Element {
+    let diff = use_diff_with(
+        "  kept\r\nab\nl1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\ngone",
+        "kept\nac\nl1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10",
+        DiffOptions {
+            compare: CompareMethod::TrimmedLine,
+            ..DiffOptions::default()
+        },
+    );
     rsx! {
         DiffViewer {
-            old_text: "  kept\r\nab\nl1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\ngone",
-            new_text: "kept\nac\nl1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10",
-            compare: CompareMethod::TrimmedLine,
+            diff,
             highlighted_lines: vec![LineId::New(2)],
             left_title: rsx! { "Old" },
         }
@@ -124,9 +132,8 @@ fn the_viewer_carries_its_view() {
 #[test]
 fn the_inline_line_ending_arrow_carries_its_kind_and_state() {
     fn inline_app() -> Element {
-        rsx! {
-            DiffViewer { old_text: "a\r\nb", new_text: "a\nb", view: dioxus_diff_viewer::DiffView::Inline }
-        }
+        let diff = use_diff("a\r\nb", "a\nb");
+        rsx! { DiffViewer { diff, view: DiffView::Inline } }
     }
 
     let viewer = MountedApp::new(inline_app);

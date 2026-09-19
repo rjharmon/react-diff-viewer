@@ -1,20 +1,15 @@
 //! The Dioxus component apps mount to show the differences between two texts.
 //!
-//! Architecture: ARCH-m4dkxzw6hh (DiffViewer). The component asks the engine
-//! for a diff analysis and renders from it (ARCH-atczcqvdsz, Line diff
-//! hand-off).
-
-use std::cell::Cell;
-use std::rc::Rc;
+//! Architecture: ARCH-m4dkxzw6hh (DiffViewer). The component renders the live
+//! diff an app hands it and keeps no diff state of its own
+//! (ARCH:dcisn-xgpr1asvyn).
 
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
-use crate::diff_analysis_engine::analyze_diff;
-use crate::diff_analysis_options::{CompareMethod, DiffAnalysisOptions};
-use crate::fold_planning::{PlannedRow, plan_rows};
-use crate::fold_reset_trigger::{ExpandedFolds, FoldBasis, FoldResetTrigger};
+use crate::fold_planning::PlannedRow;
 use crate::line_id::LineId;
+use crate::live_diff::Diff;
 use crate::row_rendering::{RowKey, RowRendering};
 use crate::styling_hooks::*;
 
@@ -66,43 +61,26 @@ pub enum DiffView {
     Inline,
 }
 
-/// Shows the differences between an old and a new text.
+/// Shows the differences an app's live diff holds.
 ///
-/// Only the two texts are required; every other prop has a default.
+/// Only the live diff is required; every other prop has a default.
 #[component]
 pub fn DiffViewer(
-    /// The text before the change.
-    old_text: ReadSignal<String>,
-    /// The text after the change.
-    new_text: ReadSignal<String>,
+    /// The live diff to render, built with `use_diff` or `use_diff_with`.
+    ///
+    /// REQT-m776z5vdhe (Rendering a live diff): the viewer's only data prop.
+    diff: Diff,
     /// Split or inline layout.
     #[props(default)]
     view: DiffView,
     /// Which palette this viewer reads; the default follows the reader.
     #[props(default)]
     theme: DiffTheme,
-    /// How modified lines are compared when marking inline changes.
-    #[props(default)]
-    compare: ReadSignal<CompareMethod>,
-    /// Whether modified lines mark the tokens changed within them.
-    #[props(default = true)]
-    mark_inline_changes: ReadSignal<bool>,
-    /// Each side's first line is numbered one more than this.
-    #[props(default)]
-    line_offset: ReadSignal<usize>,
     /// Whether line numbers show.
     #[props(default = true)]
     show_line_numbers: bool,
-    /// Whether unchanged lines far from every change fold away.
-    #[props(default = true)]
-    fold_unchanged_lines: bool,
-    /// How many unchanged lines stay shown around each change.
-    #[props(default = 3_usize)]
-    surrounding_line_count: ReadSignal<usize>,
     /// Renders a fold row's content in place of "Expand N lines ...".
     fold_row_renderer: Option<Callback<HiddenLines, Element>>,
-    /// Lets the app return every expanded fold to folded.
-    fold_reset_trigger: Option<FoldResetTrigger>,
     /// Lines to highlight, by line id.
     #[props(default)]
     highlighted_lines: Vec<LineId>,
@@ -115,42 +93,15 @@ pub fn DiffViewer(
     /// Shown above the new column in the split view.
     right_title: Option<Element>,
 ) -> Element {
-    // ARCH-atczcqvdsz (Line diff hand-off): the engine runs again only when the
-    // texts or the engine's options change.
-    let diff = use_memo(move || {
-        let options = DiffAnalysisOptions {
-            compare: compare(),
-            mark_inline_changes: mark_inline_changes(),
-            line_offset: line_offset(),
-        };
-        analyze_diff(&old_text.read(), &new_text.read(), &options)
-    });
-    // REQT-zen8fyae28 (Rendered content identity): a change to either text
-    // gives every row a new identity, so consumer-rendered content remounts.
-    let texts_hash = use_memo(move || {
-        let old_text = old_text.read();
-        let mut hasher = blake3::Hasher::new();
-        hasher.update(&(old_text.len() as u64).to_le_bytes());
-        hasher.update(old_text.as_bytes());
-        hasher.update(new_text.read().as_bytes());
-        hasher.finalize()
-    });
-    let input_generation = use_fold_input_generation(old_text, new_text, surrounding_line_count);
-    let mut expanded_folds = use_signal(ExpandedFolds::default);
-
-    // REQT-869jyzdes7 (Fold reset) with REQT-v748c7mjr6 (Expanding folds):
-    // expansions hold until a reset or a change of texts or surrounding-line
-    // count gives the folds a new basis.
-    let basis = FoldBasis {
-        input_generation: input_generation(),
-        resets: fold_reset_trigger.map_or(0, |trigger| trigger.resets()),
-    };
-    let diff = diff.read();
-    // REQT-qcnxhemvhn (Folded unchanged lines): folding is on unless turned off.
-    let folding = fold_unchanged_lines.then(|| *surrounding_line_count.read());
-    let planned_rows = plan_rows(&diff, folding, |start| {
-        expanded_folds.read().is_expanded(basis, start)
-    });
+    // Reading the live diff's state here subscribes this viewer to it, so a
+    // change reaches every viewer over one diff whatever its own props say.
+    let analysis = diff.analysis();
+    let analysis = analysis.read();
+    // REQT-dxbaat20ja (One plan per live diff): the rows come from the diff's
+    // own plan rather than from a plan this viewer makes.
+    let planned_rows = diff.planned_rows();
+    let planned_rows = planned_rows.read();
+    let content_identity = diff.content_identity();
 
     let rows = RowRendering {
         view,
@@ -195,16 +146,16 @@ pub fn DiffViewer(
                     }
                 }
                 // A one-item keyed list: a new key replaces every row beneath it.
-                for texts_hash in std::iter::once(texts_hash()) {
-                    Fragment { key: "{texts_hash}",
+                for content_identity in std::iter::once(content_identity) {
+                    Fragment { key: "{content_identity}",
                         // The keyed Fragment is the loop's own item, so Dioxus
                         // matches rows by key rather than by position.
                         for planned in planned_rows.iter().copied() {
-                            Fragment { key: "{RowKey::new(&diff, planned)}",
+                            Fragment { key: "{RowKey::new(&analysis, planned)}",
                                 match planned {
-                                    PlannedRow::Entry(position) => rows.entry_rows(&diff.entries[position]),
-                                    PlannedRow::Fold(fold) => rows.fold_row(fold, &diff.entries[fold.start], move || {
-                                        expanded_folds.write().expand(basis, fold.start);
+                                    PlannedRow::Entry(position) => rows.entry_rows(&analysis.entries[position]),
+                                    PlannedRow::Fold(fold) => rows.fold_row(fold, &analysis.entries[fold.start], move || {
+                                        diff.expand_fold(fold.start);
                                     }),
                                 }
                             }
@@ -214,23 +165,4 @@ pub fn DiffViewer(
             }
         }
     }
-}
-
-/// A number that changes whenever the compared texts or the surrounding-line
-/// count change, and at no other time.
-fn use_fold_input_generation(
-    old_text: ReadSignal<String>,
-    new_text: ReadSignal<String>,
-    surrounding_line_count: ReadSignal<usize>,
-) -> Memo<u64> {
-    let generations = use_hook(|| Rc::new(Cell::new(0_u64)));
-    use_memo(move || {
-        // Reading subscribes the memo to each input.
-        old_text.read();
-        new_text.read();
-        surrounding_line_count.read();
-        let generation = generations.get() + 1;
-        generations.set(generation);
-        generation
-    })
 }

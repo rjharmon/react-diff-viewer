@@ -2,7 +2,7 @@
 //! reference case.
 
 use dioxus::prelude::*;
-use dioxus_diff_viewer::{DiffView, DiffViewer};
+use dioxus_diff_viewer::{DiffView, DiffViewer, use_diff};
 
 use crate::mounted_app::MountedApp;
 
@@ -29,7 +29,8 @@ const bb = 456
 #[test]
 fn reference_case_it_should_render_a_table() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: OLD_CODE, new_text: NEW_CODE } }
+        let diff = use_diff(OLD_CODE, NEW_CODE);
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
@@ -41,7 +42,8 @@ fn reference_case_it_should_render_a_table() {
 #[test]
 fn reference_case_it_should_render_diff_lines_in_diff_view() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: OLD_CODE, new_text: NEW_CODE } }
+        let diff = use_diff(OLD_CODE, NEW_CODE);
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
@@ -53,7 +55,8 @@ fn reference_case_it_should_render_diff_lines_in_diff_view() {
 #[test]
 fn reference_case_it_should_render_diff_lines_in_inline_view() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: OLD_CODE, new_text: NEW_CODE, view: DiffView::Inline } }
+        let diff = use_diff(OLD_CODE, NEW_CODE);
+        rsx! { DiffViewer { diff, view: DiffView::Inline } }
     }
 
     let viewer = MountedApp::new(app);

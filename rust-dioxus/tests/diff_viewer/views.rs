@@ -5,7 +5,9 @@ use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::{
     DXDIFF__GUTTER, DXDIFF__LINE_ENDING_ARROW, DXDIFF__LINE_ENDING_CHIP, DXDIFF__WHITESPACE_CHIP,
 };
-use dioxus_diff_viewer::{CompareMethod, DiffView, DiffViewer};
+use dioxus_diff_viewer::{
+    CompareMethod, DiffOptions, DiffView, DiffViewer, use_diff, use_diff_with,
+};
 
 use crate::mounted_app::MountedApp;
 
@@ -14,7 +16,8 @@ use crate::mounted_app::MountedApp;
 #[test]
 fn two_texts_alone_show_old_lines_left_and_new_lines_right() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc" } }
+        let diff = use_diff("a\nb", "a\nc");
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
@@ -29,7 +32,8 @@ fn two_texts_alone_show_old_lines_left_and_new_lines_right() {
 #[test]
 fn the_inline_view_shows_a_modified_line_s_old_text_above_its_new_text() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc", view: DiffView::Inline } }
+        let diff = use_diff("a\nb", "a\nc");
+        rsx! { DiffViewer { diff, view: DiffView::Inline } }
     }
 
     let viewer = MountedApp::new(app);
@@ -46,9 +50,11 @@ fn the_inline_view_shows_a_modified_line_s_old_text_above_its_new_text() {
 #[test]
 fn the_split_view_marks_removed_and_added_lines() {
     fn app() -> Element {
+        let removal = use_diff("a\nold", "a");
+        let addition = use_diff("a", "a\nnew");
         rsx! {
-            DiffViewer { old_text: "a\nold", new_text: "a" }
-            DiffViewer { old_text: "a", new_text: "a\nnew" }
+            DiffViewer { diff: removal }
+            DiffViewer { diff: addition }
         }
     }
 
@@ -70,9 +76,11 @@ fn the_split_view_marks_removed_and_added_lines() {
 #[test]
 fn the_inline_view_marks_removed_and_added_lines() {
     fn app() -> Element {
+        let removal = use_diff("a\nold", "a");
+        let addition = use_diff("a", "a\nnew");
         rsx! {
-            DiffViewer { old_text: "a\nold", new_text: "a", view: DiffView::Inline }
-            DiffViewer { old_text: "a", new_text: "a\nnew", view: DiffView::Inline }
+            DiffViewer { diff: removal, view: DiffView::Inline }
+            DiffViewer { diff: addition, view: DiffView::Inline }
         }
     }
 
@@ -94,7 +102,8 @@ fn the_inline_view_marks_removed_and_added_lines() {
 #[test]
 fn each_side_of_a_line_ending_change_shows_its_terminator_as_a_chip() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\r\nb", new_text: "a\nb" } }
+        let diff = use_diff("a\r\nb", "a\nb");
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
@@ -111,7 +120,8 @@ fn each_side_of_a_line_ending_change_shows_its_terminator_as_a_chip() {
 #[test]
 fn an_inline_unchanged_line_shows_its_old_chip_an_arrow_and_its_new_chip() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\r\nb", new_text: "a\nb", view: DiffView::Inline } }
+        let diff = use_diff("a\r\nb", "a\nb");
+        rsx! { DiffViewer { diff, view: DiffView::Inline } }
     }
 
     let viewer = MountedApp::new(app);
@@ -132,14 +142,17 @@ fn an_inline_unchanged_line_shows_its_old_chip_an_arrow_and_its_new_chip() {
 #[test]
 fn both_sides_of_a_whitespace_change_show_a_ws_chip() {
     fn app() -> Element {
-        rsx! {
-            DiffViewer { old_text: "  a\nz", new_text: "a\nz", compare: CompareMethod::TrimmedLine }
-            DiffViewer {
-                old_text: "  a\nz",
-                new_text: "a\nz",
+        let diff = use_diff_with(
+            "  a\nz",
+            "a\nz",
+            DiffOptions {
                 compare: CompareMethod::TrimmedLine,
-                view: DiffView::Inline,
-            }
+                ..DiffOptions::default()
+            },
+        );
+        rsx! {
+            DiffViewer { diff }
+            DiffViewer { diff, view: DiffView::Inline }
         }
     }
 
@@ -156,14 +169,10 @@ fn both_sides_of_a_whitespace_change_show_a_ws_chip() {
 #[test]
 fn line_numbers_are_hidden_when_the_consumer_hides_them() {
     fn app() -> Element {
+        let diff = use_diff("a\nb", "a\nc");
         rsx! {
-            DiffViewer { old_text: "a\nb", new_text: "a\nc", show_line_numbers: false }
-            DiffViewer {
-                old_text: "a\nb",
-                new_text: "a\nc",
-                show_line_numbers: false,
-                view: DiffView::Inline,
-            }
+            DiffViewer { diff, show_line_numbers: false }
+            DiffViewer { diff, show_line_numbers: false, view: DiffView::Inline }
         }
     }
 

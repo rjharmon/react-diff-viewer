@@ -13,7 +13,7 @@ use std::rc::Rc;
 use dioxus::document::{Document, Eval, NoOpDocument, StyleProps};
 use dioxus::prelude::*;
 use dioxus_diff_viewer::styling_hooks::{DXDIFF__GUTTER, DXDIFF__GUTTER_CLICKABLE};
-use dioxus_diff_viewer::{DiffTheme, DiffViewer, LineNumberClick};
+use dioxus_diff_viewer::{DiffTheme, DiffViewer, LineNumberClick, use_diff};
 
 use crate::mounted_app::MountedApp;
 
@@ -676,7 +676,8 @@ fn record_delivered_styles() {
 fn a_mounted_viewer_delivers_the_crate_s_stylesheet_to_the_document() {
     fn app() -> Element {
         record_delivered_styles();
-        rsx! { DiffViewer { old_text: "a", new_text: "b" } }
+        let diff = use_diff("a", "b");
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
@@ -699,9 +700,10 @@ fn a_mounted_viewer_delivers_the_crate_s_stylesheet_to_the_document() {
 fn every_mounted_viewer_delivers_the_same_stylesheet() {
     fn app() -> Element {
         record_delivered_styles();
+        let diff = use_diff("a", "b");
         rsx! {
-            DiffViewer { old_text: "a", new_text: "b" }
-            DiffViewer { old_text: "a", new_text: "b", theme: DiffTheme::Dark }
+            DiffViewer { diff }
+            DiffViewer { diff, theme: DiffTheme::Dark }
         }
     }
 
@@ -718,10 +720,12 @@ fn every_mounted_viewer_delivers_the_same_stylesheet() {
 #[test]
 fn a_viewer_follows_the_reader_unless_the_app_chooses() {
     fn reader_app() -> Element {
-        rsx! { DiffViewer { old_text: "a", new_text: "b" } }
+        let diff = use_diff("a", "b");
+        rsx! { DiffViewer { diff } }
     }
     fn chosen_app() -> Element {
-        rsx! { DiffViewer { old_text: "a", new_text: "b", theme: DiffTheme::Dark } }
+        let diff = use_diff("a", "b");
+        rsx! { DiffViewer { diff, theme: DiffTheme::Dark } }
     }
 
     assert_eq!(viewer_themes(&MountedApp::new(reader_app)), vec!["auto"]);
@@ -733,9 +737,10 @@ fn a_viewer_follows_the_reader_unless_the_app_chooses() {
 #[test]
 fn two_mounted_viewers_may_read_different_themes() {
     fn app() -> Element {
+        let diff = use_diff("a", "b");
         rsx! {
-            DiffViewer { old_text: "a", new_text: "b", theme: DiffTheme::Light }
-            DiffViewer { old_text: "a", new_text: "b", theme: DiffTheme::Dark }
+            DiffViewer { diff, theme: DiffTheme::Light }
+            DiffViewer { diff, theme: DiffTheme::Dark }
         }
     }
 
@@ -762,12 +767,12 @@ fn viewer_themes(viewer: &MountedApp) -> Vec<String> {
 #[test]
 fn only_a_gutter_that_answers_a_click_is_marked_clickable() {
     fn listening_app() -> Element {
+        let diff = use_diff(
+            "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nchanged",
+            "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\ndifferent",
+        );
         rsx! {
-            DiffViewer {
-                old_text: "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nchanged",
-                new_text: "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\ndifferent",
-                on_line_number_click: move |_: LineNumberClick| {},
-            }
+            DiffViewer { diff, on_line_number_click: move |_: LineNumberClick| {} }
         }
     }
 
@@ -805,7 +810,8 @@ fn only_a_gutter_that_answers_a_click_is_marked_clickable() {
 #[test]
 fn a_viewer_reporting_no_clicks_marks_no_gutter_clickable() {
     fn app() -> Element {
-        rsx! { DiffViewer { old_text: "a\nb", new_text: "a\nc" } }
+        let diff = use_diff("a\nb", "a\nc");
+        rsx! { DiffViewer { diff } }
     }
 
     let viewer = MountedApp::new(app);
