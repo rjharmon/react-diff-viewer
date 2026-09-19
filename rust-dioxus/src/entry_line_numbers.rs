@@ -11,12 +11,12 @@ use std::ops::{Range, RangeInclusive};
 use crate::diff_analysis_output::{LineSide, PairedLineEntry};
 use crate::line_id::LineId;
 
-/// A run of consecutive lines, in each side's own line numbers.
+/// The line numbers a run of consecutive entries spans, on each side.
 ///
 /// A side is absent when the run holds no line of that text: the old side of a
 /// run of added lines, or the new side of a run of removed lines.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LineRun {
+pub struct LineNumberSpan {
     /// The old text's first and last line numbers in this run.
     pub old: Option<RangeInclusive<usize>>,
     /// The new text's first and last line numbers in this run.
@@ -27,9 +27,12 @@ pub struct LineRun {
 ///
 /// REQT-f2affyt2h2 (Where the changes are), REQT-hsef5r7c4z (Which lines are
 /// hidden): both answers read their two sides' numbers here.
-pub(crate) fn line_run_of(entries: &[PairedLineEntry], positions: Range<usize>) -> LineRun {
+pub(crate) fn line_number_span_of(
+    entries: &[PairedLineEntry],
+    positions: Range<usize>,
+) -> LineNumberSpan {
     let run = &entries[positions];
-    LineRun {
+    LineNumberSpan {
         old: side_run(run.iter().filter_map(|entry| entry.old.as_ref())),
         new: side_run(run.iter().filter_map(|entry| entry.new.as_ref())),
     }

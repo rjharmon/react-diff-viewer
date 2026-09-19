@@ -29,5 +29,5 @@ pub use diff_analysis_output::{
 };
 pub use diff_options::DiffOptions;
 pub use diff_viewer::{DiffTheme, DiffView, DiffViewer, DiffViewerProps};
-pub use entry_line_numbers::LineRun;
+pub use entry_line_numbers::LineNumberSpan;
 pub use line_id::{LineId, LineIdParseError};

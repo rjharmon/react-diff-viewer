@@ -8,7 +8,7 @@
 use std::ops::RangeInclusive;
 
 use dioxus::prelude::*;
-use dioxus_diff_viewer::{DiffOptions, DiffViewer, LineRun, use_diff, use_diff_with};
+use dioxus_diff_viewer::{DiffOptions, DiffViewer, LineNumberSpan, use_diff, use_diff_with};
 
 use crate::mounted_app::MountedApp;
 
@@ -21,7 +21,7 @@ const RUN_CLASS: &str = "run";
 
 /// One run as an app might read it out: `L-2..3 R-2..3`, with a side reading
 /// `L-none` or `R-none` where the run holds no line of that text.
-fn run_reading(run: &LineRun) -> String {
+fn run_reading(run: &LineNumberSpan) -> String {
     format!(
         "{} {}",
         side_reading("L", run.old.as_ref()),
@@ -38,7 +38,7 @@ fn side_reading(side: &str, numbers: Option<&RangeInclusive<usize>>) -> String {
 
 /// Shows an answer the way an app reading it would: one row per run.
 #[component]
-fn Runs(runs: Vec<LineRun>) -> Element {
+fn Runs(runs: Vec<LineNumberSpan>) -> Element {
     rsx! {
         for run in runs {
             p { class: RUN_CLASS, "{run_reading(&run)}" }
