@@ -23,7 +23,8 @@ pub(crate) struct FoldBasis {
 /// The folds expanded so far, by each fold's first entry position.
 #[derive(Debug, Default)]
 pub(crate) struct ExpandedFolds {
-    /// What the expansions below were made under; absent while none are held.
+    /// What the expansions in `starts` were made under; absent until the
+    /// first expansion, and left standing by `reset`.
     basis: Option<FoldBasis>,
     starts: BTreeSet<usize>,
 }
