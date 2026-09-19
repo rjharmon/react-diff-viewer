@@ -61,6 +61,7 @@ The Dioxus component apps mount to show two texts' differences, rendering the en
 **Exclusions** (boundary clarifications):
 - Does NOT handle Whitespace-insensitive word, sentence, and CSS comparison (react-diff-viewer's WORDS, SENTENCES, CSS) - Not ported; the compare methods offered are character, word, line, and trimmed line, and CompareMethod leaves room for more.
 - Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
+- Does NOT handle Closing one expanded region from app code - Steering carries expand-at-a-line, expand-everything and reset. An app reaches the same end state by reading which lines are hidden, resetting, and re-expanding what it wants kept; the reference package offers no per-region close either.
 
 
 **Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8, REQT-aaxrz33x1n, REQT-ef5a9d2paw

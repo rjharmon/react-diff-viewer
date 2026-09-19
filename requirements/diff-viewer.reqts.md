@@ -51,7 +51,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 
 ### 4. Driving it from code
 <nobr>**Key Requirements:**</nobr>
-- **Driving it from code**: Apps ask a mounted diff where its changes are and which lines are hidden, and open or re-fold them from their own code.
+- **Driving it from code**: Apps ask a mounted diff where its changes are and which lines are hidden, and open folds from their own code.
 
 
 # Detailed Requirements
