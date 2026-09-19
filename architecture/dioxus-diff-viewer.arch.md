@@ -455,11 +455,11 @@ The only translator between the engine's entry positions and the line numbers an
 >
 > **Vision**: A presentation-free engine whose output the component renders.
 
-The engine returns a ~~LineDiff~~ DiffAnalysis from two texts and ~~LineDiffOptions~~ DiffAnalysisOptions; ~~the component builds split and inline views and folding from that output alone~~ the live diff plans the rows from that output alone and the viewer builds split and inline views from the plan (~~`rust-dioxus/src/live_diff.rs`~~ `rust-dioxus/src/diff.rs`, `rust-dioxus/src/diff_viewer.rs`). The engine stays presentation-free either way, which is what this decision settled.
+The engine returns a ~~LineDiff~~ DiffAnalysis from two texts and ~~LineDiffOptions~~ DiffAnalysisOptions; ~~the component builds split and inline views and folding from that output alone~~ the diff plans the rows from that output alone and the viewer builds split and inline views from the plan (~~`rust-dioxus/src/live_diff.rs`~~ `rust-dioxus/src/diff.rs`, `rust-dioxus/src/diff_viewer.rs`). The engine stays presentation-free either way, which is what this decision settled.
 
 
 **Also involves**:
-- DiffViewer (ARCH-m4dkxzw6hh): ~~Renders views and folding from LineDiff alone~~ Renders views from the live diff's row plan
+- DiffViewer (ARCH-m4dkxzw6hh): ~~Renders views and folding from LineDiff alone~~ Renders views from the diff's row plan
 
 
 
@@ -515,26 +515,26 @@ The viewer renders its embedded stylesheet through `document::Style`, inside a c
 
 **Subject**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
-**Context**: The app-held live state this port is adding needs a name, and the fitting one already belongs to the engine.
+**Context**: The app-held state this port is adding needs a name, and the fitting one already belongs to the engine.
 
 > **Situation**: `line_diff` and `LineDiff` are public (`rust-dioxus/src/lib.rs:22`, `:25`) and carry roughly forty-five call sites in the engine's test file.
 >
-> **Impact**: One word would mean both the alignment the engine computes and the live state an app holds, in a single namespace a consumer imports whole.
+> **Impact**: One word would mean both the alignment the engine computes and the state an app holds, in a single namespace a consumer imports whole.
 >
 > **Vision**: Two names a reader cannot mistake for each other, each saying which of the two it is.
 
-The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysis`; the live state an app holds takes the plain `Diff`, reached through `use_diff`. The rename reaches the engine modules and their filenames, the crate root, the engine tests, ARCH-exgfx6rwdt, the requirements' file list, and the glossary. Chosen over leaving the engine alone and qualifying the newcomer, which costs no paperwork but leaves the call site a consumer writes most often carrying the longer name. ~~Recorded ahead of the change: the code still carries the earlier names.~~ The code carries the new names: `rust-dioxus/src/lib.rs` exports `analyze_diff`, `DiffAnalysis` and `DiffAnalysisOptions`, and the engine's three modules are named for them.
+The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysis`; the state an app holds takes the plain `Diff`, reached through `use_diff`. The rename reaches the engine modules and their filenames, the crate root, the engine tests, ARCH-exgfx6rwdt, the requirements' file list, and the glossary. Chosen over leaving the engine alone and qualifying the newcomer, which costs no paperwork but leaves the call site a consumer writes most often carrying the longer name. ~~Recorded ahead of the change: the code still carries the earlier names.~~ The code carries the new names: `rust-dioxus/src/lib.rs` exports `analyze_diff`, `DiffAnalysis` and `DiffAnalysisOptions`, and the engine's three modules are named for them.
 
 
 **Also involves**:
 - DiffAnalysis (ARCH-exgfx6rwdt): Becomes DiffAnalysis
-- DiffViewer (ARCH-m4dkxzw6hh): Its app-held live state takes the plain Diff
+- DiffViewer (ARCH-m4dkxzw6hh): Its app-held state takes the plain Diff
 
 
 
 <a id="decision-ARCH:dcisn-xgpr1asvyn"></a>
 
-### The app holds the live diff; the viewer renders it (accepted; draft - ARCH:dcisn-xgpr1asvyn)
+### The app holds the diff; the viewer renders it (accepted; draft - ARCH:dcisn-xgpr1asvyn)
 
 **Subject**: DiffViewer (ARCH-m4dkxzw6hh)
 
@@ -546,12 +546,12 @@ The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysi
 >
 > **Vision**: One object outside the view's code path that owns the inputs and derives the answers, so nothing is published and nothing lags.
 
-A crate hook builds the live diff from the two texts, as the pair `use_diff` and `use_diff_with`, the second taking an options value that composes the engine's options with the folding choices and defaults every field. The live diff owns the texts, the engine call, the identity hash, the expanded folds with their basis, and the planned rows; it answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything, and reset. The viewer takes it as its one data prop and keeps the presentation props: view, theme, line-number visibility, the consumer renderers, highlighting, the click handler, and the titles. Steering names lines and never folds, so ARCH-y9545npjzg's rule holds while its reset-only trigger is retired into the live diff. Chosen over publishing from an effect, and over reporting through callbacks, which pushes but cannot answer what is folded now. ~~Recorded ahead of the change: the code still carries the earlier arrangement.~~ The code carries this arrangement: ~~`rust-dioxus/src/live_diff.rs`~~ `rust-dioxus/src/diff.rs` holds the live diff and the hook pair, and `rust-dioxus/src/diff_viewer.rs` takes `diff` as its one data prop.
+A crate hook builds the diff from the two texts, as the pair `use_diff` and `use_diff_with`, the second taking an options value that composes the engine's options with the folding choices and defaults every field. The diff owns the texts, the engine call, the identity hash, the expanded folds with their basis, and the planned rows; it answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything, and reset. The viewer takes it as its one data prop and keeps the presentation props: view, theme, line-number visibility, the consumer renderers, highlighting, the click handler, and the titles. Steering names lines and never folds, so ARCH-y9545npjzg's rule holds while its reset-only trigger is retired into the diff. Chosen over publishing from an effect, and over reporting through callbacks, which pushes but cannot answer what is folded now. ~~Recorded ahead of the change: the code still carries the earlier arrangement.~~ The code carries this arrangement: ~~`rust-dioxus/src/live_diff.rs`~~ `rust-dioxus/src/diff.rs` holds the diff and the hook pair, and `rust-dioxus/src/diff_viewer.rs` takes `diff` as its one data prop.
 
 
 **Also involves**:
-- FoldResetTrigger (ARCH-y9545npjzg): Widened into the live diff and retired as a reset-only trigger
-- DiffAnalysis (ARCH-exgfx6rwdt): Computed once inside the live diff rather than inside the viewer
+- FoldResetTrigger (ARCH-y9545npjzg): Widened into the diff and retired as a reset-only trigger
+- DiffAnalysis (ARCH-exgfx6rwdt): Computed once inside the diff rather than inside the viewer
 
 
 
