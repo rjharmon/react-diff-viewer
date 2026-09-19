@@ -5,7 +5,7 @@
 
 *local; DREAMED; ARCH-h2qwqte1g6*
 
-Dioxus diff viewer crate built on a line diff engine.
+Dioxus diff viewer crate built on a diff analysis engine.
 
 **Activities**:
 
@@ -23,9 +23,10 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 17/25
-- draft: 5/25
-- consented: 3/25
+- DREAMED: 18/26
+- draft: 4/26
+- consented: 3/26
+- abandoned: 1/26
 
 ## In this document
 
@@ -36,56 +37,17 @@ Dioxus diff viewer crate built on a line diff engine.
 
 
 
-- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view.
-- [LineDiffEngine](#linediffengine-arch-jf3s5npp9s) (internal): Turns two texts and options into paired line information.
+- [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s) (internal): Turns two texts and options into paired line information.
+- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view.
 - [similar](#similar-arch-wdrt39xvh4) (external): Third-party Rust crate computing text alignment.
 
 
 
 ## Components
 
-<a id="diffviewer-arch-m4dkxzw6hh"></a>
+<a id="diffanalysisengine-arch-jf3s5npp9s"></a>
 
-### Component: DiffViewer (internal; DREAMED - ARCH-m4dkxzw6hh)
-
-The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view.
-
-**Activities**:
-
-- Render split and inline views from a LineDiff
-- Fold unchanged lines around changes
-- Report line-number clicks to the app
-
-
-
-**Exclusions** (boundary clarifications):
-- Does NOT handle Whitespace-insensitive word, sentence, and CSS comparison (react-diff-viewer's WORDS, SENTENCES, CSS) - Not ported; the compare methods offered are character, word, line, and trimmed line, and CompareMethod leaves room for more.
-- Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - The fold reset trigger only resets; reading fold state from app code belongs to programmatic control of the viewer.
-- Does NOT handle Closing one expanded region from app code - Steering carries expand-at-a-line, expand-everything and reset. An app reaches the same end state by reading which lines are hidden, resetting, and re-expanding what it wants kept; the reference package offers no per-region close either.
-
-
-**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8, REQT-aaxrz33x1n, REQT-ef5a9d2paw
-
-**Concerns and Responsibilities**:
-- **Responsibility**: Rendering engine output without diffing again
-- **Responsibility**: Expanded-fold state and its reset trigger
-- **Responsibility**: Line highlighting and selection
-- **Responsibility**: Consumer rendering of line content and fold rows
-- **Responsibility**: Rendered content identity: line numbers within a text pair
-- **Responsibility**: Styling hook classes on its markup
-- **Responsibility**: Style delivery and theme selection
-- **Responsibility**: Hover feedback on the row under the pointer
-
-
-**Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
-
-
-
----
-
-<a id="linediffengine-arch-jf3s5npp9s"></a>
-
-### Component: LineDiffEngine (internal; DREAMED - ARCH-jf3s5npp9s)
+### Component: DiffAnalysisEngine (internal; DREAMED - ARCH-jf3s5npp9s)
 
 Turns two texts and options into paired line information.
 
@@ -116,6 +78,42 @@ Turns two texts and options into paired line information.
 
 ---
 
+<a id="diffviewer-arch-m4dkxzw6hh"></a>
+
+### Component: DiffViewer (internal; DREAMED - ARCH-m4dkxzw6hh)
+
+The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view.
+
+**Activities**:
+
+- Render split and inline views from a live diff
+- Show fold rows and expand one a reader activates
+- Report line-number clicks to the app
+
+
+
+**Exclusions** (boundary clarifications):
+- Does NOT handle Whitespace-insensitive word, sentence, and CSS comparison (react-diff-viewer's WORDS, SENTENCES, CSS) - Not ported; the compare methods offered are character, word, line, and trimmed line, and CompareMethod leaves room for more.
+- Does NOT handle Reporting whether a reset found any expanded fold (the boolean react-diff-viewer's resetCodeBlocks() returns) - Resetting returns nothing; an app that wants to know reads which lines are hidden before and after.
+- Does NOT handle Closing one expanded region from app code - Steering carries expand-at-a-line, expand-everything and reset. An app reaches the same end state by reading which lines are hidden, resetting, and re-expanding what it wants kept; the reference package offers no per-region close either.
+
+
+**Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8, REQT-aaxrz33x1n, REQT-ef5a9d2paw, REQT-m776z5vdhe
+
+**Concerns and Responsibilities**:
+- **Responsibility**: Rendering a live diff without diffing or planning again
+- **Responsibility**: Line highlighting and selection
+- **Responsibility**: Consumer rendering of line content and fold rows
+- **Responsibility**: Keeping consumer-rendered content mounted with its line
+- **Responsibility**: Styling hook classes on its markup
+- **Responsibility**: Style delivery and theme selection
+- **Responsibility**: Hover feedback on the row under the pointer
+
+
+
+
+---
+
 <a id="similar-arch-wdrt39xvh4"></a>
 
 ### Component: similar (external; DREAMED - ARCH-wdrt39xvh4)
@@ -141,8 +139,8 @@ Third-party Rust crate computing text alignment.
 
 | Component | Parent | Summary |
 |-----------|--------|---------|
-| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount to show two texts' differences, rendering the engine's output in split or inline view. |
-| [LineDiffEngine](#linediffengine-arch-jf3s5npp9s) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | Turns two texts and options into paired line information. |
+| [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | Turns two texts and options into paired line information. |
+| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view. |
 
 
 
@@ -154,13 +152,13 @@ Third-party Rust crate computing text alignment.
 
 ### Interaction: Line diff hand-off (library_call; DREAMED - ARCH-atczcqvdsz)
 
-[DiffViewer](#diffviewer-arch-m4dkxzw6hh), [LineDiffEngine](#linediffengine-arch-jf3s5npp9s), [similar](#similar-arch-wdrt39xvh4) - Trigger: The component renders with new texts or options.
+[Diff](#diff-arch-8tce9rry3b), [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s), [similar](#similar-arch-wdrt39xvh4) - Trigger: Either text or the engine's options change.
 
-The component asks the engine for a LineDiff and renders from it; the engine splits the lines itself and asks `similar` to align their texts.
+The live diff asks the engine for a DiffAnalysis and every viewer over it renders from that; the engine splits the lines itself and asks `similar` to align their texts.
 
-**Payload**: two texts and LineDiffOptions; LineDiff
+**Payload**: two texts and DiffAnalysisOptions; DiffAnalysis
 
-**Error**: None on text input: every pair of texts yields a LineDiff.
+**Error**: None on text input: every pair of texts yields a DiffAnalysis.
 **Supports Requirements**: REQT-hmsfnfe5wc
 
 
@@ -184,15 +182,15 @@ The component asks the engine for a LineDiff and renders from it; the engine spl
 
 <a id="software-object-ARCH-n7wmjnmt65"></a>
 
-### LineDiffOptions (struct; DREAMED - ARCH-n7wmjnmt65)
+### DiffAnalysisOptions (struct; DREAMED - ARCH-n7wmjnmt65)
 
-**Component**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Component**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 ```
 compare method (character, word, line, trimmed line); inline changes on or off; line offset
 ```
 
-The engine's input choices; the app sets them through the component.
+The engine's own input choices, which a live diff's options value composes.
 
 **Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-z9r0pc53jg, REQT-4nz35dscrn, REQT-smd01rma2q
 
@@ -200,15 +198,15 @@ The engine's input choices; the app sets them through the component.
 
 <a id="software-object-ARCH-exgfx6rwdt"></a>
 
-### LineDiff (struct; DREAMED - ARCH-exgfx6rwdt)
+### DiffAnalysis (struct; DREAMED - ARCH-exgfx6rwdt)
 
-**Component**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Component**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 ```
 paired line entries in display order; positions of entries holding a change, including a pair whose terminators differ
 ```
 
-The engine's output and the component's only input for views and folding.
+The engine's output, and the live diff's only input for rows and folding.
 
 **Supports Requirements**: REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-rtwn1qresp, REQT-qcnxhemvhn
 
@@ -218,7 +216,7 @@ The engine's output and the component's only input for views and folding.
 
 ### PairedLineEntry (struct; DREAMED - ARCH-kjjykjtt5r)
 
-**Component**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Component**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 ```
 old side and new side, each optional with shared line text and line number; change kind (unchanged, removed, added, modified); inline change tokens on modified entries, each side's tokens marked unchanged, removed, or added and rejoining to that side's text; line ending change with each side's terminator; whether a modified pair differs in leading or trailing whitespace
@@ -232,7 +230,7 @@ One row of the diff as either view reads it.
 
 <a id="software-object-ARCH-y9545npjzg"></a>
 
-### FoldResetTrigger (struct; draft - ARCH-y9545npjzg)
+### FoldResetTrigger (struct; abandoned - ARCH-y9545npjzg)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
@@ -240,9 +238,7 @@ One row of the diff as either view reads it.
 an opaque copyable handle whose one action returns every expanded fold to folded
 ```
 
-The optional prop through which an app resets folds, and nothing more. The crate creates it and owns the folds it acts on, so an app never names a fold; a viewer given none keeps its folds to itself.
-
-**Supports Requirements**: REQT-869jyzdes7, REQT-v748c7mjr6
+Retired with the viewer's own fold state. An app resets through the live diff (ARCH-8tce9rry3b), which keeps the expanded folds and takes two more fold actions besides; its rule that an app never names a fold carried over.
 
 
 
@@ -406,6 +402,22 @@ How an app reaches a live diff. The pair keeps the common call short while the s
 
 
 
+<a id="software-object-ARCH-hrwskjav44"></a>
+
+### LineRun (struct; DREAMED - ARCH-hrwskjav44)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+
+```
+each side's first and last line numbers, either side absent when the run holds no line of that text
+```
+
+The shape both of the live diff's reading answers come back in. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
+
+**Supports Requirements**: REQT-f2affyt2h2, REQT-hsef5r7c4z
+
+
+
 
 
 
@@ -416,7 +428,7 @@ How an app reaches a live diff. The pair keeps the common call short while the s
 
 ### Engine separate from component (accepted; DREAMED - ARCH:dcisn-wma0h4mndz)
 
-**Subject**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Subject**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 **Context**: Views and folding need line diff information without diffing inside rendering.
 
@@ -426,11 +438,11 @@ How an app reaches a live diff. The pair keeps the common call short while the s
 >
 > **Vision**: A presentation-free engine whose output the component renders.
 
-The engine returns a LineDiff from two texts and LineDiffOptions; the component builds split and inline views and folding from that output alone.
+The engine returns a ~~LineDiff~~ DiffAnalysis from two texts and ~~LineDiffOptions~~ DiffAnalysisOptions; ~~the component builds split and inline views and folding from that output alone~~ the live diff plans the rows from that output alone and the viewer builds split and inline views from the plan (`rust-dioxus/src/live_diff.rs`, `rust-dioxus/src/diff_viewer.rs`). The engine stays presentation-free either way, which is what this decision settled.
 
 
 **Also involves**:
-- DiffViewer (ARCH-m4dkxzw6hh): Renders views and folding from LineDiff alone
+- DiffViewer (ARCH-m4dkxzw6hh): ~~Renders views and folding from LineDiff alone~~ Renders views from the live diff's row plan
 
 
 
@@ -438,7 +450,7 @@ The engine returns a LineDiff from two texts and LineDiffOptions; the component 
 
 ### Engine tokenizes lines, similar aligns them (accepted; DREAMED - ARCH:dcisn-zyt966vq09)
 
-**Subject**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Subject**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 **Context**: Line identity must ignore terminators while each terminator stays reportable.
 
@@ -484,7 +496,7 @@ The viewer renders its embedded stylesheet through `document::Style`, inside a c
 
 ### Engine renamed so the viewer can own the word diff (accepted; draft - ARCH:dcisn-x8fa9g2hm8)
 
-**Subject**: LineDiffEngine (ARCH-jf3s5npp9s)
+**Subject**: DiffAnalysisEngine (ARCH-jf3s5npp9s)
 
 **Context**: The app-held live state this port is adding needs a name, and the fitting one already belongs to the engine.
 
@@ -494,11 +506,11 @@ The viewer renders its embedded stylesheet through `document::Style`, inside a c
 >
 > **Vision**: Two names a reader cannot mistake for each other, each saying which of the two it is.
 
-The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysis`; the live state an app holds takes the plain `Diff`, reached through `use_diff`. The rename reaches the engine modules and their filenames, the crate root, the engine tests, ARCH-exgfx6rwdt, the requirements' file list, and the glossary. Chosen over leaving the engine alone and qualifying the newcomer, which costs no paperwork but leaves the call site a consumer writes most often carrying the longer name. Recorded ahead of the change: the code still carries the earlier names.
+The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysis`; the live state an app holds takes the plain `Diff`, reached through `use_diff`. The rename reaches the engine modules and their filenames, the crate root, the engine tests, ARCH-exgfx6rwdt, the requirements' file list, and the glossary. Chosen over leaving the engine alone and qualifying the newcomer, which costs no paperwork but leaves the call site a consumer writes most often carrying the longer name. ~~Recorded ahead of the change: the code still carries the earlier names.~~ The code carries the new names: `rust-dioxus/src/lib.rs` exports `analyze_diff`, `DiffAnalysis` and `DiffAnalysisOptions`, and the engine's three modules are named for them.
 
 
 **Also involves**:
-- LineDiff (ARCH-exgfx6rwdt): Becomes DiffAnalysis
+- DiffAnalysis (ARCH-exgfx6rwdt): Becomes DiffAnalysis
 - DiffViewer (ARCH-m4dkxzw6hh): Its app-held live state takes the plain Diff
 
 
@@ -517,12 +529,12 @@ The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysi
 >
 > **Vision**: One object outside the view's code path that owns the inputs and derives the answers, so nothing is published and nothing lags.
 
-A crate hook builds the live diff from the two texts, as the pair `use_diff` and `use_diff_with`, the second taking an options value that composes the engine's options with the folding choices and defaults every field. The live diff owns the texts, the engine call, the identity hash, the expanded folds with their basis, and the planned rows; it answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything, and reset. The viewer takes it as its one data prop and keeps the presentation props: view, theme, line-number visibility, the consumer renderers, highlighting, the click handler, and the titles. Steering names lines and never folds, so ARCH-y9545npjzg's rule holds while its reset-only trigger is retired into the live diff. Chosen over publishing from an effect, and over reporting through callbacks, which pushes but cannot answer what is folded now. Recorded ahead of the change: the code still carries the earlier arrangement.
+A crate hook builds the live diff from the two texts, as the pair `use_diff` and `use_diff_with`, the second taking an options value that composes the engine's options with the folding choices and defaults every field. The live diff owns the texts, the engine call, the identity hash, the expanded folds with their basis, and the planned rows; it answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything, and reset. The viewer takes it as its one data prop and keeps the presentation props: view, theme, line-number visibility, the consumer renderers, highlighting, the click handler, and the titles. Steering names lines and never folds, so ARCH-y9545npjzg's rule holds while its reset-only trigger is retired into the live diff. Chosen over publishing from an effect, and over reporting through callbacks, which pushes but cannot answer what is folded now. ~~Recorded ahead of the change: the code still carries the earlier arrangement.~~ The code carries this arrangement: `rust-dioxus/src/live_diff.rs` holds the live diff and the hook pair, and `rust-dioxus/src/diff_viewer.rs` takes `diff` as its one data prop.
 
 
 **Also involves**:
 - FoldResetTrigger (ARCH-y9545npjzg): Widened into the live diff and retired as a reset-only trigger
-- LineDiff (ARCH-exgfx6rwdt): Computed once inside the live diff rather than inside the viewer
+- DiffAnalysis (ARCH-exgfx6rwdt): Computed once inside the live diff rather than inside the viewer
 
 
 
