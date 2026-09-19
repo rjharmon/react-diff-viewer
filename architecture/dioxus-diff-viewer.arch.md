@@ -497,7 +497,8 @@ A crate hook builds the live diff from the two texts, as the pair `use_diff` and
 ## Open Questions
 
 
-- [ ] Do the folding choices belong to the live diff or to the viewer beside `view`? *(context: The live diff owns the row plan, so it needs the surrounding-line count and whether folding is on at all; both read to a consumer as display choices sitting a line or two away from `view`. Raised while settling ARCH:dcisn-xgpr1asvyn.)*
+- [x] ***RESOLVED:*** Do the folding choices belong to the live diff or to the viewer beside `view`? *(context: The live diff owns the row plan, so it needs the surrounding-line count and whether folding is on at all; both read to a consumer as display choices sitting a line or two away from `view`. Raised while settling ARCH:dcisn-xgpr1asvyn.)*
+  **Resolution**: The live diff owns them, as fields of the options value `use_diff_with` takes. ARCH:dcisn-xgpr1asvyn gives the live diff the planned rows, and the plan cannot be computed without whether folding is on and how many unchanged lines surround each change; the expanded folds' basis already turns on the same count. Two viewers over one live diff therefore share one row plan and one folding configuration. The viewer keeps no folding prop.
 
 
 
