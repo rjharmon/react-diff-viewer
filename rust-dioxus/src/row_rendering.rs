@@ -7,7 +7,7 @@ use std::fmt;
 
 use dioxus::prelude::*;
 
-use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
+use crate::consumer_callbacks::{FoldRowLines, LineContent, LineNumberClick};
 use crate::diff_analysis_output::{
     ChangeKind, DiffAnalysis, InlineToken, LineSide, PairedLineEntry,
 };
@@ -56,7 +56,7 @@ pub(crate) struct RowRendering<'a> {
     pub(crate) highlighted_lines: &'a [LineId],
     pub(crate) on_line_number_click: Option<EventHandler<LineNumberClick>>,
     pub(crate) line_content_renderer: Option<Callback<LineContent, Element>>,
-    pub(crate) fold_row_renderer: Option<Callback<HiddenLines, Element>>,
+    pub(crate) fold_row_renderer: Option<Callback<FoldRowLines, Element>>,
 }
 
 /// One line as a row shows it: its gutters' line ids, marker, text, and chips.
@@ -331,7 +331,7 @@ impl RowRendering<'_> {
         first_hidden: &PairedLineEntry,
         mut on_expand: impl FnMut() + 'static,
     ) -> Element {
-        let hidden_lines = HiddenLines {
+        let fold_row_lines = FoldRowLines {
             count: fold.len,
             first_old_number: first_hidden.old.as_ref().map_or(0, |side| side.number),
             first_new_number: first_hidden.new.as_ref().map_or(0, |side| side.number),
@@ -341,8 +341,8 @@ impl RowRendering<'_> {
         // its content spans the rest of the row.
         let content_span = self.cells_per_row() - gutters - 1;
         let label = match self.fold_row_renderer {
-            Some(renderer) => renderer.call(hidden_lines),
-            None => rsx! { "Expand {hidden_lines.count} lines ..." },
+            Some(renderer) => renderer.call(fold_row_lines),
+            None => rsx! { "Expand {fold_row_lines.count} lines ..." },
         };
         rsx! {
             tr {

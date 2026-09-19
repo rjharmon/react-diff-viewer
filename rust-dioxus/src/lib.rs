@@ -19,7 +19,7 @@ mod line_id;
 mod row_rendering;
 pub mod styling_hooks;
 
-pub use consumer_callbacks::{HiddenLines, LineContent, LineNumberClick, ModifierKeys};
+pub use consumer_callbacks::{FoldRowLines, LineContent, LineNumberClick, ModifierKeys};
 pub use diff::{Diff, use_diff, use_diff_with};
 pub use diff_analysis_engine::analyze_diff;
 pub use diff_analysis_options::{CompareMethod, DiffAnalysisOptions};

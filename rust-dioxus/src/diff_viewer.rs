@@ -6,7 +6,7 @@
 
 use dioxus::prelude::*;
 
-use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
+use crate::consumer_callbacks::{FoldRowLines, LineContent, LineNumberClick};
 use crate::diff::Diff;
 use crate::fold_planning::PlannedRow;
 use crate::line_id::LineId;
@@ -80,7 +80,7 @@ pub fn DiffViewer(
     #[props(default = true)]
     show_line_numbers: bool,
     /// Renders a fold row's content in place of "Expand N lines ...".
-    fold_row_renderer: Option<Callback<HiddenLines, Element>>,
+    fold_row_renderer: Option<Callback<FoldRowLines, Element>>,
     /// Lines to highlight, by line id.
     #[props(default)]
     highlighted_lines: Vec<LineId>,

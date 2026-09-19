@@ -33,8 +33,8 @@ pub(crate) fn line_number_span_of(
 ) -> LineNumberSpan {
     let run = &entries[positions];
     LineNumberSpan {
-        old: side_run(run.iter().filter_map(|entry| entry.old.as_ref())),
-        new: side_run(run.iter().filter_map(|entry| entry.new.as_ref())),
+        old: side_span(run.iter().filter_map(|entry| entry.old.as_ref())),
+        new: side_span(run.iter().filter_map(|entry| entry.new.as_ref())),
     }
 }
 
@@ -44,7 +44,7 @@ pub(crate) fn line_number_span_of(
 /// Each side numbers its own lines upward across the entries
 /// (REQT-smd01rma2q, Independent numbering), so the first and last carrying
 /// entries hold the lowest and highest numbers.
-fn side_run<'a>(mut sides: impl Iterator<Item = &'a LineSide>) -> Option<RangeInclusive<usize>> {
+fn side_span<'a>(mut sides: impl Iterator<Item = &'a LineSide>) -> Option<RangeInclusive<usize>> {
     let first = sides.next()?.number;
     let last = sides.last().map_or(first, |side| side.number);
     Some(first..=last)

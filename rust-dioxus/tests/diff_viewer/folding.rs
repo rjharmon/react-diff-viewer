@@ -2,7 +2,7 @@
 
 use dioxus::prelude::*;
 use dioxus_diff_viewer::{
-    DiffOptions, DiffView, DiffViewer, HiddenLines, LineId, use_diff, use_diff_with,
+    DiffOptions, DiffView, DiffViewer, FoldRowLines, LineId, use_diff, use_diff_with,
 };
 
 use crate::mounted_app::MountedApp;
@@ -126,7 +126,7 @@ fn a_consumer_renders_a_fold_row_from_its_hidden_lines() {
         rsx! {
             DiffViewer {
                 diff,
-                fold_row_renderer: move |hidden: HiddenLines| rsx! {
+                fold_row_renderer: move |hidden: FoldRowLines| rsx! {
                     "{hidden.count} hidden from L-{hidden.first_old_number} R-{hidden.first_new_number}"
                 },
             }

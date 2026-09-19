@@ -50,7 +50,7 @@ impl LineContent {
 /// REQT-1tdrfvay4q (Fold rows): the hidden-line count, and the old and new line
 /// numbers of the first hidden line.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct HiddenLines {
+pub struct FoldRowLines {
     /// How many lines the fold hides.
     pub count: usize,
     /// The old-text line number of the first hidden line.
