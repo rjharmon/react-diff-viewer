@@ -38,7 +38,7 @@ Dioxus diff viewer crate built on a diff analysis engine.
 
 
 - [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s) (internal): Turns two texts and options into paired line information.
-- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view.
+- [DiffViewer](#diffviewer-arch-m4dkxzw6hh) (internal): The Dioxus component apps mount to show two texts' differences, rendering a diff in split or inline view.
 - [similar](#similar-arch-wdrt39xvh4) (external): Third-party Rust crate computing text alignment.
 
 
@@ -72,7 +72,7 @@ Turns two texts and options into paired line information.
 - **Responsibility**: Positions of entries holding a change
 
 
-**Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
+**Interactions**: [Diff analysis hand-off](#interaction-ARCH-atczcqvdsz)
 
 
 
@@ -82,11 +82,11 @@ Turns two texts and options into paired line information.
 
 ### Component: DiffViewer (internal; DREAMED - ARCH-m4dkxzw6hh)
 
-The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view.
+The Dioxus component apps mount to show two texts' differences, rendering a diff in split or inline view.
 
 **Activities**:
 
-- Render split and inline views from a live diff
+- Render split and inline views from a diff
 - Show fold rows and expand one a reader activates
 - Report line-number clicks to the app
 
@@ -101,7 +101,7 @@ The Dioxus component apps mount to show two texts' differences, rendering a live
 **Supports Requirements**: REQT-2k7j51afde, REQT-qerexp825r, REQT-p2gkf77kjj, REQT-3ekk7hre3k, REQT-m9r3k5b1ge, REQT-3928hx46s3, REQT-zen8fyae28, REQT-78dg0g6a2h, REQT-q356bvvv15, REQT-kcm5ba45sp, REQT-sc8expw3q8, REQT-aaxrz33x1n, REQT-ef5a9d2paw, REQT-m776z5vdhe
 
 **Concerns and Responsibilities**:
-- **Responsibility**: Rendering a live diff without diffing or planning again
+- **Responsibility**: Rendering a diff without diffing or planning again
 - **Responsibility**: Line highlighting and selection
 - **Responsibility**: Consumer rendering of line content and fold rows
 - **Responsibility**: Keeping consumer-rendered content mounted with its line
@@ -126,7 +126,7 @@ Third-party Rust crate computing text alignment.
 
 
 
-**Interactions**: [Line diff hand-off](#interaction-ARCH-atczcqvdsz)
+**Interactions**: [Diff analysis hand-off](#interaction-ARCH-atczcqvdsz)
 
 
 
@@ -140,7 +140,7 @@ Third-party Rust crate computing text alignment.
 | Component | Parent | Summary |
 |-----------|--------|---------|
 | [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | Turns two texts and options into paired line information. |
-| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount to show two texts' differences, rendering a live diff in split or inline view. |
+| [DiffViewer](#diffviewer-arch-m4dkxzw6hh) | [dioxus-diff-viewer](#dioxus-diff-viewer-arch-h2qwqte1g6) | The Dioxus component apps mount to show two texts' differences, rendering a diff in split or inline view. |
 
 
 
@@ -150,11 +150,11 @@ Third-party Rust crate computing text alignment.
 
 <a id="interaction-ARCH-atczcqvdsz"></a>
 
-### Interaction: Line diff hand-off (library_call; DREAMED - ARCH-atczcqvdsz)
+### Interaction: Diff analysis hand-off (library_call; DREAMED - ARCH-atczcqvdsz)
 
 [Diff](#diff-arch-8tce9rry3b), [DiffAnalysisEngine](#diffanalysisengine-arch-jf3s5npp9s), [similar](#similar-arch-wdrt39xvh4) - Trigger: Either text or the engine's options change.
 
-The live diff asks the engine for a DiffAnalysis and every viewer over it renders from that; the engine splits the lines itself and asks `similar` to align their texts.
+The diff asks the engine for a DiffAnalysis and every viewer over it renders from that; the engine splits the lines itself and asks `similar` to align their texts.
 
 **Payload**: two texts and DiffAnalysisOptions; DiffAnalysis
 
@@ -163,7 +163,7 @@ The live diff asks the engine for a DiffAnalysis and every viewer over it render
 
 
 
-![Line diff hand-off: collaboration](./diagrams/ARCH-atczcqvdsz-collaboration.svg)
+![Diff analysis hand-off: collaboration](./diagrams/ARCH-atczcqvdsz-collaboration.svg)
 
 
 ---
@@ -190,7 +190,7 @@ The live diff asks the engine for a DiffAnalysis and every viewer over it render
 compare method (character, word, line, trimmed line); inline changes on or off; line offset
 ```
 
-The engine's own input choices, which a live diff's options value composes.
+The engine's own input choices, which a diff's options value composes.
 
 **Supports Requirements**: REQT-czecf8krqc, REQT-xzc8n354h1, REQT-spzdk2z1pk, REQT-z9r0pc53jg, REQT-4nz35dscrn, REQT-smd01rma2q
 
@@ -206,7 +206,7 @@ The engine's own input choices, which a live diff's options value composes.
 paired line entries in display order; positions of entries holding a change, including a pair whose terminators differ
 ```
 
-The engine's output, and the live diff's only input for rows and folding.
+The engine's output, and the diff's only input for rows and folding.
 
 **Supports Requirements**: REQT-hmsfnfe5wc, REQT-dqxm8fa7ts, REQT-rtwn1qresp, REQT-qcnxhemvhn
 
@@ -238,7 +238,7 @@ One row of the diff as either view reads it.
 an opaque copyable handle whose one action returns every expanded fold to folded
 ```
 
-Retired with the viewer's own fold state. An app resets through the live diff (ARCH-8tce9rry3b), which keeps the expanded folds and takes two more fold actions besides; its rule that an app never names a fold carried over.
+Retired with the viewer's own fold state. An app resets through the diff (ARCH-8tce9rry3b), which keeps the expanded folds and takes two more fold actions besides; its rule that an app never names a fold carried over.
 
 
 
@@ -364,7 +364,7 @@ The prop choosing a viewer's palette, written onto the viewer element so two mou
 the two texts, the analysis, the content identity, the expanded folds with their basis, and the planned rows
 ```
 
-The live state an app holds and viewers render. It answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything and reset. Sitting outside the view's code path lets it answer without publishing from an effect.
+The state an app holds and viewers render. It answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything and reset. Sitting outside the view's code path lets it answer without publishing from an effect.
 
 **Supports Requirements**: REQT-m776z5vdhe, REQT-dxbaat20ja, REQT-f2affyt2h2, REQT-hsef5r7c4z, REQT-g86vdmyyp9, REQT-h8rxvhpj9g, REQT-ps5zx85jvc, REQT-869jyzdes7
 
@@ -380,7 +380,7 @@ The live state an app holds and viewers render. It answers where the changes are
 the engine's compare choices, plus whether unchanged lines fold and how many surround each change; every field defaulted
 ```
 
-What a live diff is built with. Folding sits here rather than on the viewer because the row plan the live diff owns cannot be computed without it (ARCH-phde62wxvn).
+What a diff is built with. Folding sits here rather than on the viewer because the row plan the diff owns cannot be computed without it (ARCH-phde62wxvn).
 
 **Supports Requirements**: REQT-7tk9vxv9wd, REQT-qcnxhemvhn
 
@@ -396,7 +396,7 @@ What a live diff is built with. Folding sits here rather than on the viewer beca
 use_diff(old, new) and use_diff_with(old, new, options), both returning a Diff owned by the calling component
 ```
 
-How an app reaches a live diff. The pair keeps the common call short while the second form carries the options, and the calling component's ownership is what makes the state outlive a render without the viewer holding it.
+How an app reaches a diff. The pair keeps the common call short while the second form carries the options, and the calling component's ownership is what makes the state outlive a render without the viewer holding it.
 
 **Supports Requirements**: REQT-7tk9vxv9wd
 
@@ -412,7 +412,7 @@ How an app reaches a live diff. The pair keeps the common call short while the s
 each side's first and last line numbers, either side absent when the run holds no line of that text
 ```
 
-The shape both of the live diff's reading answers come back in. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
+The shape both of the diff's reading answers come back in. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
 
 **Supports Requirements**: REQT-f2affyt2h2, REQT-hsef5r7c4z
 
@@ -558,8 +558,8 @@ A crate hook builds the live diff from the two texts, as the pair `use_diff` and
 ## Open Questions
 
 
-- [x] ***RESOLVED:*** Do the folding choices belong to the live diff or to the viewer beside `view`? *(context: The live diff owns the row plan, so it needs the surrounding-line count and whether folding is on at all; both read to a consumer as display choices sitting a line or two away from `view`. Raised while settling ARCH:dcisn-xgpr1asvyn.)*
-  **Resolution**: The live diff owns them, as fields of the options value `use_diff_with` takes. ARCH:dcisn-xgpr1asvyn gives the live diff the planned rows, and the plan cannot be computed without whether folding is on and how many unchanged lines surround each change; the expanded folds' basis already turns on the same count. Two viewers over one live diff therefore share one row plan and one folding configuration. The viewer keeps no folding prop.
+- [x] ***RESOLVED:*** Do the folding choices belong to the diff or to the viewer beside `view`? *(context: The diff owns the row plan, so it needs the surrounding-line count and whether folding is on at all; both read to a consumer as display choices sitting a line or two away from `view`. Raised while settling ARCH:dcisn-xgpr1asvyn.)*
+  **Resolution**: The diff owns them, as fields of the options value `use_diff_with` takes. ARCH:dcisn-xgpr1asvyn gives the diff the planned rows, and the plan cannot be computed without whether folding is on and how many unchanged lines surround each change; the expanded folds' basis already turns on the same count. Two viewers over one diff therefore share one row plan and one folding configuration. The viewer keeps no folding prop.
 
 
 

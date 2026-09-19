@@ -100,7 +100,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
  - **2.2.1: Folded unchanged lines** (**IMPLEMENTED/NEEDS VERIFICATION**) - **unchanged lines beyond the surrounding count fold away** Unless the consumer turns folding off, the viewer MUST fold unchanged lines lying more than the surrounding-line count away from every change; that count defaults to 3. <nobr>***draft** REQT-qcnxhemvhn*</nobr>
  - **2.2.2: Fold rows** (**IMPLEMENTED/NEEDS VERIFICATION**) - **one row per fold, consumer may supply its content** The viewer MUST show each fold as one row reading "Expand N lines ...", where N is the number of hidden lines, unless the consumer supplies the row's content, which the viewer MUST render from the hidden-line count and the old and new line numbers of the first hidden line. <nobr>***DREAMED** REQT-1tdrfvay4q*</nobr>
  - **2.2.3: Expanding folds** (**IN PROGRESS**) - **revealed lines stay revealed until a reset or an input change** Activating a fold row MUST reveal the lines it hides, and lines revealed by a fold row or from app code MUST stay revealed until an app returns every fold to folded, or the compared texts or the surrounding-line count change. <nobr>***DREAMED** REQT-v748c7mjr6*</nobr>
- - **2.2.4: Where fold state lives** (**IN PROGRESS**) - **the live diff keeps the fold state, not the viewer** The live diff an app holds MUST keep the expanded-fold state, so that no viewer keeps fold state of its own. <nobr>***DREAMED** REQT-869jyzdes7*</nobr>
+ - **2.2.4: Where fold state lives** (**IN PROGRESS**) - **the diff keeps the fold state, not the viewer** The diff an app holds MUST keep the expanded-fold state, so that no viewer keeps fold state of its own. <nobr>***DREAMED** REQT-869jyzdes7*</nobr>
 
 #### 2.3.0: Line selection (**IMPLEMENTED/NEEDS VERIFICATION**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-p2gkf77kjj*</nobr>
 
@@ -139,22 +139,22 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 ### 4.0: Driving it from code (**IN PROGRESS**) - **AREA:** Driving it from code - Ensures an app can read a mounted viewer and open its folds from its own code. Applies when reading or changing what the crate reports about a diff's changes and hidden lines, or the actions that open folds and return them to folded. - <nobr>***DREAMED** REQT-62p6rwsepb*</nobr>
 
 
-#### 4.1.0: The live diff (**IN PROGRESS**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-nyjk0c9fbf*</nobr>
+#### 4.1.0: Holding a diff (**IN PROGRESS**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-nyjk0c9fbf*</nobr>
 
- - **4.1.1: Building a live diff** (**IN PROGRESS**) - **two texts alone, or texts with one fully defaulted options value** The crate MUST let an app build a live diff from an old and a new text alone, and MUST offer a second form taking one options value carrying the compare method, whether inline changes are marked, the line offset, whether unchanged lines fold, and how many unchanged lines surround each change, every field defaulted. <nobr>***DREAMED** REQT-7tk9vxv9wd*</nobr>
- - **4.1.2: Rendering a live diff** (**IN PROGRESS**) - **the live diff is the viewer's only data prop** The viewer MUST take a live diff as its only data prop, and MUST keep as its own props the view, the theme, line-number visibility, highlighted lines, the content and fold-row renderers, the line-number click handler, and the titles. <nobr>***DREAMED** REQT-m776z5vdhe*</nobr>
- - **4.1.3: One plan per live diff** (**IN PROGRESS**) - **viewers over one live diff share its row plan** Viewers rendering the same live diff MUST show the same rows, so that a fold opened through that live diff opens in every one of them. <nobr>***DREAMED** REQT-dxbaat20ja*</nobr>
+ - **4.1.1: Building a diff** (**IN PROGRESS**) - **two texts alone, or texts with one fully defaulted options value** The crate MUST let an app build a diff from an old and a new text alone, and MUST offer a second form taking one options value carrying the compare method, whether inline changes are marked, the line offset, whether unchanged lines fold, and how many unchanged lines surround each change, every field defaulted. <nobr>***DREAMED** REQT-7tk9vxv9wd*</nobr>
+ - **4.1.2: Rendering a diff** (**IN PROGRESS**) - **the diff is the viewer's only data prop** The viewer MUST take a diff as its only data prop, and MUST keep as its own props the view, the theme, line-number visibility, highlighted lines, the content and fold-row renderers, the line-number click handler, and the titles. <nobr>***DREAMED** REQT-m776z5vdhe*</nobr>
+ - **4.1.3: One plan per diff** (**IN PROGRESS**) - **viewers over one diff share its row plan** Viewers rendering the same diff MUST show the same rows, so that a fold opened through that diff opens in every one of them. <nobr>***DREAMED** REQT-dxbaat20ja*</nobr>
 
 #### 4.2.0: Reading a diff (**IN PROGRESS**) - **AREA:** ‹no-area› - <nobr>***DREAMED** REQT-jyhvdaa75p*</nobr>
 
- - **4.2.1: Where the changes are** (**IN PROGRESS**) - **changes as runs, in each side's line numbers** A live diff MUST report its changes in document order, each as one run of consecutive changed lines with the old-side and new-side line numbers that run spans. The lines it counts as changed MUST be the ones folding measures its surrounding-line count from. <nobr>***DREAMED** REQT-f2affyt2h2*</nobr>
- - **4.2.2: Which lines are hidden** (**IN PROGRESS**) - **hidden runs, current as of the asking** A live diff MUST report which lines its folds hide at the moment it is asked, each hidden run with the old-side and new-side line numbers that run spans, so that a fold a reader has already expanded is reported as hidden no longer. <nobr>***DREAMED** REQT-hsef5r7c4z*</nobr>
+ - **4.2.1: Where the changes are** (**IN PROGRESS**) - **changes as runs, in each side's line numbers** A diff MUST report its changes in document order, each as one run of consecutive changed lines with the old-side and new-side line numbers that run spans. The lines it counts as changed MUST be the ones folding measures its surrounding-line count from. <nobr>***DREAMED** REQT-f2affyt2h2*</nobr>
+ - **4.2.2: Which lines are hidden** (**IN PROGRESS**) - **hidden runs, current as of the asking** A diff MUST report which lines its folds hide at the moment it is asked, each hidden run with the old-side and new-side line numbers that run spans, so that a fold a reader has already expanded is reported as hidden no longer. <nobr>***DREAMED** REQT-hsef5r7c4z*</nobr>
 
 #### 4.3.0: Opening and refolding (**IN PROGRESS**) - **AREA:** ‹no-area› - <nobr>***draft** REQT-p3xyw73v2p*</nobr>
 
- - **4.3.1: Expanding at a line** (**IN PROGRESS**) - **name a hidden line, get its whole run back** A live diff MUST reveal the whole run of hidden lines holding a line an app names by its line id, and MUST leave the shown lines unchanged when the named line is not hidden. <nobr>***DREAMED** REQT-g86vdmyyp9*</nobr>
- - **4.3.2: Expanding everything** (**IN PROGRESS**) - **one action opens every fold** A live diff MUST reveal every line its folds hide, in one action. <nobr>***DREAMED** REQT-h8rxvhpj9g*</nobr>
- - **4.3.3: Resetting folds** (**IN PROGRESS**) - **one action refolds everything** A live diff MUST return every expanded fold to folded, in one action. <nobr>***DREAMED** REQT-ps5zx85jvc*</nobr>
+ - **4.3.1: Expanding at a line** (**IN PROGRESS**) - **name a hidden line, get its whole run back** A diff MUST reveal the whole run of hidden lines holding a line an app names by its line id, and MUST leave the shown lines unchanged when the named line is not hidden. <nobr>***DREAMED** REQT-g86vdmyyp9*</nobr>
+ - **4.3.2: Expanding everything** (**IN PROGRESS**) - **one action opens every fold** A diff MUST reveal every line its folds hide, in one action. <nobr>***DREAMED** REQT-h8rxvhpj9g*</nobr>
+ - **4.3.3: Resetting folds** (**IN PROGRESS**) - **one action refolds everything** A diff MUST return every expanded fold to folded, in one action. <nobr>***DREAMED** REQT-ps5zx85jvc*</nobr>
 
 # Files
 
@@ -162,14 +162,14 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 - `rust-dioxus/src/diff_analysis_engine.rs` - Splits both texts into lines, aligns them through `similar`, and builds the paired entries: line marking, modified-line pairing, inline change tokens under each compare method, independent numbering, and the changed positions.
 - `rust-dioxus/src/diff_analysis_options.rs` - The engine's own input choices: compare method, whether to mark inline changes, and the line offset.
 - `rust-dioxus/src/diff_analysis_output.rs` - What the engine hands back: paired line entries with each side's text and number, the change kind, inline tokens indexed into their line, and any line ending change.
-- `rust-dioxus/src/diff_viewer.rs` - The component apps mount: the live diff it renders, its presentation props, and the viewer table with its titles.
+- `rust-dioxus/src/diff_viewer.rs` - The component apps mount: the diff it renders, its presentation props, and the viewer table with its titles.
 - `rust-dioxus/src/row_rendering.rs` - The rows of both views: line rows with gutters, change markers, content, and chips, and fold rows.
 - `rust-dioxus/src/fold_planning.rs` - Which rows a view shows: each paired line entry, or a fold row for a run of unchanged lines far from every change.
 - `rust-dioxus/src/consumer_callbacks.rs` - What the viewer hands the app's renderers and click handler: line content, hidden lines, and line-number clicks with held keys.
 - `rust-dioxus/src/styling_hooks.rs` - The `dxdiff` class names the viewer's markup carries for each element kind, view, and state.
 - `rust-dioxus/src/line_id.rs` - Line ids: a line's side and number, written and read as `L-20` or `R-3`.
-- `rust-dioxus/src/live_diff.rs` - The live diff an app holds and every viewer over it renders: the two texts, the engine call, the content identity, the fold state, the row plan, the two reading answers, the three fold actions, and the hook pair that builds one.
-- `rust-dioxus/src/diff_options.rs` - What a live diff is built with: the engine's compare choices together with whether unchanged lines fold and how many surround each change, every field defaulted.
+- `rust-dioxus/src/diff.rs` - The diff an app holds and every viewer over it renders: the two texts, the engine call, the content identity, the fold state, the row plan, the two reading answers, the three fold actions, and the hook pair that builds one.
+- `rust-dioxus/src/diff_options.rs` - What a diff is built with: the engine's compare choices together with whether unchanged lines fold and how many surround each change, every field defaulted.
 - `rust-dioxus/src/entry_line_numbers.rs` - The one relation between entry positions and each side's line numbers: the runs an app reads changes and hidden lines in, and the position a named line resolves to.
 - `rust-dioxus/src/expanded_folds.rs` - The folds a reader or an app has expanded and the basis they hold under, so expansions planned for other texts or another surrounding-line count read as folded without a write during rendering.
 
