@@ -596,7 +596,9 @@ fn the_row_under_the_pointer_is_tinted_over_its_own_line_colors() {
         let (_, alpha) = tint
             .trim_end_matches(')')
             .rsplit_once(',')
-            .unwrap_or_else(|| panic!("in {theme}, the row tint reads {tint}, which states no alpha"));
+            .unwrap_or_else(|| {
+                panic!("in {theme}, the row tint reads {tint}, which states no alpha")
+            });
         let alpha: f64 = alpha.trim().parse().expect("the alpha is a number");
         assert!(
             (0.0..1.0).contains(&alpha),
@@ -631,7 +633,9 @@ fn the_row_under_the_pointer_shows_its_line_numbers_at_full_strength() {
         .expect("some rule reads the gutter hover background");
     let selector = &sheet[..sheet[..affordance].rfind('{').expect("the rule opens")];
     assert!(
-        selector.trim_end().ends_with(".dxdiff-gutter-clickable:hover"),
+        selector
+            .trim_end()
+            .ends_with(".dxdiff-gutter-clickable:hover"),
         "the hover background reaches only the gutters that answer a click"
     );
 }

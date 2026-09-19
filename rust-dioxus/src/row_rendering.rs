@@ -159,7 +159,11 @@ impl RowRendering<'_> {
         let old_side = entry.old.as_ref();
         let new_side = entry.new.as_ref();
         let line = old_side.or(new_side);
-        let side = if old_side.is_some() { Side::Old } else { Side::New };
+        let side = if old_side.is_some() {
+            Side::Old
+        } else {
+            Side::New
+        };
         let (state, marker) = line_state(line, side, entry.change);
         let line_endings = match &entry.line_ending_change {
             Some(change) => [Some(change.old.as_str()), Some(change.new.as_str())],
@@ -247,12 +251,7 @@ impl RowRendering<'_> {
         }
     }
 
-    fn gutter(
-        &self,
-        line_id: Option<LineId>,
-        state: &'static str,
-        highlighted: bool,
-    ) -> Element {
+    fn gutter(&self, line_id: Option<LineId>, state: &'static str, highlighted: bool) -> Element {
         // REQT-bqm9w6v4ms (Line number clicks): each click on a line number
         // calls the consumer's handler with the line's id. Only a gutter with a
         // number, in a viewer given a handler, listens for clicks.
