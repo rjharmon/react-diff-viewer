@@ -404,7 +404,7 @@ How an app reaches a diff. The pair keeps the common call short while the second
 
 <a id="software-object-ARCH-hrwskjav44"></a>
 
-### LineRun (struct; DREAMED - ARCH-hrwskjav44)
+### LineNumberSpan (struct; DREAMED - ARCH-hrwskjav44)
 
 **Component**: DiffViewer (ARCH-m4dkxzw6hh)
 
@@ -412,7 +412,7 @@ How an app reaches a diff. The pair keeps the common call short while the second
 each side's first and last line numbers, either side absent when the run holds no line of that text
 ```
 
-The shape both of the diff's reading answers come back in. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
+The shape both of the diff's reading answers come back in: the line numbers one run of entries spans, rather than the run itself. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
 
 **Supports Requirements**: REQT-f2affyt2h2, REQT-hsef5r7c4z
 
