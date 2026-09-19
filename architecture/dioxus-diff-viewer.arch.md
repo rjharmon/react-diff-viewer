@@ -23,10 +23,10 @@ Dioxus diff viewer crate built on a diff analysis engine.
 
 **Maturity**:
 
-- DREAMED: 18/26
-- draft: 4/26
-- consented: 3/26
-- abandoned: 1/26
+- DREAMED: 19/27
+- draft: 4/27
+- consented: 3/27
+- abandoned: 1/27
 
 ## In this document
 
@@ -415,6 +415,23 @@ each side's first and last line numbers, either side absent when the run holds n
 The shape both of the diff's reading answers come back in: the line numbers one run of entries spans, rather than the run itself. A run of added lines carries no old side and a run of removed lines no new side, which is why each side is optional.
 
 **Supports Requirements**: REQT-f2affyt2h2, REQT-hsef5r7c4z
+
+
+
+<a id="software-object-ARCH-syx4s6r1kf"></a>
+
+### EntryLineNumberRelation (module; DREAMED - ARCH-syx4s6r1kf)
+
+**Component**: DiffViewer (ARCH-m4dkxzw6hh)
+**Source**: `rust-dioxus/src/entry_line_numbers.rs`
+
+```
+a run of entry positions to each side's line-number span; a line id back to the entry position carrying it
+```
+
+The only translator between the engine's entry positions and the line numbers an app reads and names. Both reading answers translate outward through it and expanding at a named line translates inward, so no answer grows a second reckoning of where a line sits.
+
+**Supports Requirements**: REQT-f2affyt2h2, REQT-hsef5r7c4z, REQT-g86vdmyyp9
 
 
 
