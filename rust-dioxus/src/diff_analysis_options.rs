@@ -1,6 +1,6 @@
 //! The choices a consumer makes about how two texts are compared.
 //!
-//! Architecture: ARCH-n7wmjnmt65 (LineDiffOptions).
+//! Architecture: ARCH-n7wmjnmt65 (DiffAnalysisOptions).
 
 /// How a modified line's old and new text are compared when marking inline changes.
 ///
@@ -25,7 +25,7 @@ pub enum CompareMethod {
 
 /// The engine's input choices.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LineDiffOptions {
+pub struct DiffAnalysisOptions {
     /// How modified lines are compared when marking inline changes.
     pub compare: CompareMethod,
     /// Whether modified lines carry the tokens removed and added within them.
@@ -36,7 +36,7 @@ pub struct LineDiffOptions {
     pub line_offset: usize,
 }
 
-impl Default for LineDiffOptions {
+impl Default for DiffAnalysisOptions {
     fn default() -> Self {
         Self {
             // REQT-czecf8krqc (Character comparison): the default compare method.

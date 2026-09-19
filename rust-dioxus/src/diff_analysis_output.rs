@@ -1,7 +1,7 @@
 //! What the engine hands the component: paired line entries and the positions
 //! of the entries holding a change.
 //!
-//! Architecture: ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r (PairedLineEntry).
+//! Architecture: ARCH-exgfx6rwdt (DiffAnalysis), ARCH-kjjykjtt5r (PairedLineEntry).
 //!
 //! Each line's text is shared rather than borrowed from the two input texts. A
 //! Dioxus component keeps this output in state across renders, which needs
@@ -139,7 +139,7 @@ fn token_texts<'a>(
 
 /// The engine's output and the component's only input for views and folding.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct LineDiff {
+pub struct DiffAnalysis {
     /// The paired line entries in display order.
     pub entries: Vec<PairedLineEntry>,
     /// The positions in `entries` of the entries holding a change, ascending.

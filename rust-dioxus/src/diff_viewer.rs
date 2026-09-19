@@ -1,7 +1,8 @@
 //! The Dioxus component apps mount to show the differences between two texts.
 //!
 //! Architecture: ARCH-m4dkxzw6hh (DiffViewer). The component asks the engine
-//! for a line diff and renders from it (ARCH-atczcqvdsz, Line diff hand-off).
+//! for a diff analysis and renders from it (ARCH-atczcqvdsz, Line diff
+//! hand-off).
 
 use std::cell::Cell;
 use std::rc::Rc;
@@ -9,10 +10,10 @@ use std::rc::Rc;
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
+use crate::diff_analysis_engine::analyze_diff;
+use crate::diff_analysis_options::{CompareMethod, DiffAnalysisOptions};
 use crate::fold_planning::{PlannedRow, plan_rows};
 use crate::fold_reset_trigger::{ExpandedFolds, FoldBasis, FoldResetTrigger};
-use crate::line_diff_engine::line_diff;
-use crate::line_diff_options::{CompareMethod, LineDiffOptions};
 use crate::line_id::LineId;
 use crate::row_rendering::{RowKey, RowRendering};
 use crate::styling_hooks::*;
@@ -117,12 +118,12 @@ pub fn DiffViewer(
     // ARCH-atczcqvdsz (Line diff hand-off): the engine runs again only when the
     // texts or the engine's options change.
     let diff = use_memo(move || {
-        let options = LineDiffOptions {
+        let options = DiffAnalysisOptions {
             compare: compare(),
             mark_inline_changes: mark_inline_changes(),
             line_offset: line_offset(),
         };
-        line_diff(&old_text.read(), &new_text.read(), &options)
+        analyze_diff(&old_text.read(), &new_text.read(), &options)
     });
     // REQT-zen8fyae28 (Rendered content identity): a change to either text
     // gives every row a new identity, so consumer-rendered content remounts.

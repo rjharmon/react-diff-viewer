@@ -8,9 +8,11 @@ use std::fmt;
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
+use crate::diff_analysis_output::{
+    ChangeKind, DiffAnalysis, InlineToken, LineSide, PairedLineEntry,
+};
 use crate::diff_viewer::DiffView;
 use crate::fold_planning::{Fold, PlannedRow};
-use crate::line_diff_output::{ChangeKind, InlineToken, LineDiff, LineSide, PairedLineEntry};
 use crate::line_id::LineId;
 use crate::styling_hooks::*;
 
@@ -20,12 +22,12 @@ use crate::styling_hooks::*;
 /// REQT-zen8fyae28 (Rendered content identity): line numbers identify a row
 /// while the compared texts stay the same.
 pub(crate) struct RowKey<'a> {
-    diff: &'a LineDiff,
+    diff: &'a DiffAnalysis,
     planned: PlannedRow,
 }
 
 impl<'a> RowKey<'a> {
-    pub(crate) fn new(diff: &'a LineDiff, planned: PlannedRow) -> Self {
+    pub(crate) fn new(diff: &'a DiffAnalysis, planned: PlannedRow) -> Self {
         Self { diff, planned }
     }
 }

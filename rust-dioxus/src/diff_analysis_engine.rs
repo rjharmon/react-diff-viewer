@@ -1,6 +1,6 @@
 //! Turns two texts and options into paired line information.
 //!
-//! Architecture: ARCH-jf3s5npp9s (LineDiffEngine). The engine carries no
+//! Architecture: ARCH-jf3s5npp9s (DiffAnalysisEngine). The engine carries no
 //! presentation: views, folding, and styling belong to the component.
 //!
 //! Alignment comes from `similar`, but not from its line tokenizer: that
@@ -13,10 +13,10 @@ use std::sync::Arc;
 
 use similar::{ChangeTag, DiffOp, TextDiff};
 
-use crate::line_diff_options::{CompareMethod, LineDiffOptions};
-use crate::line_diff_output::{
-    ChangeKind, InlineChanges, InlineToken, LineDiff, LineEndingChange, LineSide, PairedLineEntry,
-    TokenKind,
+use crate::diff_analysis_options::{CompareMethod, DiffAnalysisOptions};
+use crate::diff_analysis_output::{
+    ChangeKind, DiffAnalysis, InlineChanges, InlineToken, LineEndingChange, LineSide,
+    PairedLineEntry, TokenKind,
 };
 
 /// One line of an input text, with the terminator that ended it held aside.
@@ -28,8 +28,8 @@ struct InputLine<'a> {
 
 /// Computes paired line information for two texts.
 ///
-/// Every pair of texts yields a `LineDiff`; there is no failure case.
-pub fn line_diff(old_text: &str, new_text: &str, options: &LineDiffOptions) -> LineDiff {
+/// Every pair of texts yields a `DiffAnalysis`; there is no failure case.
+pub fn analyze_diff(old_text: &str, new_text: &str, options: &DiffAnalysisOptions) -> DiffAnalysis {
     // REQT-9tze98pt6g (Trailing whitespace): each text's end is trimmed, so
     // trailing blank lines never show as changes.
     let old_lines = split_lines(old_text.trim_end());
@@ -142,7 +142,7 @@ fn split_lines(text: &str) -> Vec<InputLine<'_>> {
 
 /// Accumulates paired entries while counting each side's lines independently.
 struct EntryBuilder<'a> {
-    options: &'a LineDiffOptions,
+    options: &'a DiffAnalysisOptions,
     entries: Vec<PairedLineEntry>,
     changed_positions: Vec<usize>,
     // REQT-smd01rma2q (Independent numbering): each side counts its own lines,
@@ -152,7 +152,7 @@ struct EntryBuilder<'a> {
 }
 
 impl<'a> EntryBuilder<'a> {
-    fn new(options: &'a LineDiffOptions) -> Self {
+    fn new(options: &'a DiffAnalysisOptions) -> Self {
         Self {
             options,
             entries: Vec::new(),
@@ -255,8 +255,8 @@ impl<'a> EntryBuilder<'a> {
         self.entries.push(entry);
     }
 
-    fn finish(self) -> LineDiff {
-        LineDiff {
+    fn finish(self) -> DiffAnalysis {
+        DiffAnalysis {
             entries: self.entries,
             changed_positions: self.changed_positions,
         }

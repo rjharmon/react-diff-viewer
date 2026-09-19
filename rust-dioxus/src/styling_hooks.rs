@@ -6,7 +6,7 @@
 //! highlight state, and a gutter that reports its clicks carries one more
 //! naming that.
 
-use crate::line_diff_output::{ChangeKind, TokenKind};
+use crate::diff_analysis_output::{ChangeKind, TokenKind};
 
 /// The table holding the whole viewer.
 pub const DXDIFF__VIEWER: &str = "dxdiff-viewer";

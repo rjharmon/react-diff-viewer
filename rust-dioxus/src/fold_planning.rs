@@ -4,7 +4,7 @@
 //! This is presentation-free planning over the engine's output, kept apart from
 //! rendering so both views read the same plan.
 
-use crate::line_diff_output::LineDiff;
+use crate::diff_analysis_output::DiffAnalysis;
 
 /// One planned row: an entry to show, or a fold hiding a run of entries.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -32,7 +32,7 @@ pub(crate) struct Fold {
 /// With `surrounding_line_count` absent, folding is off and every entry shows.
 /// `is_expanded` reports whether the fold starting at a position was expanded.
 pub(crate) fn plan_rows(
-    diff: &LineDiff,
+    diff: &DiffAnalysis,
     surrounding_line_count: Option<usize>,
     is_expanded: impl Fn(usize) -> bool,
 ) -> Vec<PlannedRow> {
@@ -73,7 +73,11 @@ pub(crate) fn plan_rows(
 
 /// Whether every changed entry lies more than `surrounding_line_count`
 /// positions away. With no changes at all, every entry is far from them.
-fn is_far_from_changes(diff: &LineDiff, position: usize, surrounding_line_count: usize) -> bool {
+fn is_far_from_changes(
+    diff: &DiffAnalysis,
+    position: usize,
+    surrounding_line_count: usize,
+) -> bool {
     // The changed positions are ascending, so the nearest change is at the
     // insertion point or just before it.
     let changes = &diff.changed_positions;

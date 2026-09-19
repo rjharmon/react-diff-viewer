@@ -1,13 +1,13 @@
-//! Tests for the line diff engine, read through its public output.
+//! Tests for the diff analysis engine, read through its public output.
 //!
-//! Every test names one requirement. The tests call `line_diff` with
-//! `LineDiffOptions` and read `LineDiff` and `PairedLineEntry`:
-//! ARCH-jf3s5npp9s (LineDiffEngine), ARCH-n7wmjnmt65 (LineDiffOptions),
-//! ARCH-exgfx6rwdt (LineDiff), ARCH-kjjykjtt5r (PairedLineEntry). They hold to
+//! Every test names one requirement. The tests call `analyze_diff` with
+//! `DiffAnalysisOptions` and read `DiffAnalysis` and `PairedLineEntry`:
+//! ARCH-jf3s5npp9s (DiffAnalysisEngine), ARCH-n7wmjnmt65 (DiffAnalysisOptions),
+//! ARCH-exgfx6rwdt (DiffAnalysis), ARCH-kjjykjtt5r (PairedLineEntry). They hold to
 //! the observable output each requirement names.
 
 use dioxus_diff_viewer::{
-    ChangeKind, CompareMethod, LineDiff, LineDiffOptions, TokenKind, line_diff,
+    ChangeKind, CompareMethod, DiffAnalysis, DiffAnalysisOptions, TokenKind, analyze_diff,
 };
 use proptest::prelude::*;
 
@@ -19,7 +19,7 @@ use proptest::prelude::*;
 type Row = (ChangeKind, Option<(usize, String)>, Option<(usize, String)>);
 
 /// One `Row` per entry: change kind, old side, new side.
-fn rows(diff: &LineDiff) -> Vec<Row> {
+fn rows(diff: &DiffAnalysis) -> Vec<Row> {
     diff.entries
         .iter()
         .map(|entry| {
@@ -55,7 +55,7 @@ fn removed(number: usize, text: &str) -> Row {
 }
 
 /// Old-side inline tokens of one entry, rejoined.
-fn old_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
+fn old_tokens_rejoined(diff: &DiffAnalysis, index: usize) -> String {
     assert_inline_changes(diff, index);
     diff.entries[index]
         .old_inline_tokens()
@@ -63,7 +63,7 @@ fn old_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
         .collect()
 }
 
-fn new_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
+fn new_tokens_rejoined(diff: &DiffAnalysis, index: usize) -> String {
     assert_inline_changes(diff, index);
     diff.entries[index]
         .new_inline_tokens()
@@ -72,17 +72,17 @@ fn new_tokens_rejoined(diff: &LineDiff, index: usize) -> String {
 }
 
 /// One side's tokens as kind-and-text pairs, for tests that check granularity.
-fn old_tokens(diff: &LineDiff, index: usize) -> Vec<(TokenKind, &str)> {
+fn old_tokens(diff: &DiffAnalysis, index: usize) -> Vec<(TokenKind, &str)> {
     assert_inline_changes(diff, index);
     diff.entries[index].old_inline_tokens().collect()
 }
 
-fn new_tokens(diff: &LineDiff, index: usize) -> Vec<(TokenKind, &str)> {
+fn new_tokens(diff: &DiffAnalysis, index: usize) -> Vec<(TokenKind, &str)> {
     assert_inline_changes(diff, index);
     diff.entries[index].new_inline_tokens().collect()
 }
 
-fn assert_inline_changes(diff: &LineDiff, index: usize) {
+fn assert_inline_changes(diff: &DiffAnalysis, index: usize) {
     assert!(
         diff.entries[index].inline_changes.is_some(),
         "entry {index} carries inline changes"
@@ -96,7 +96,7 @@ fn assert_inline_changes(diff: &LineDiff, index: usize) {
 /// REQT-hmsfnfe5wc (Line marking)
 #[test]
 fn a_line_only_the_new_text_has_is_added_and_the_shared_line_is_unchanged() {
-    let diff = line_diff("test", "test\n    newLine", &LineDiffOptions::default());
+    let diff = analyze_diff("test", "test\n    newLine", &DiffAnalysisOptions::default());
 
     assert_eq!(
         rows(&diff),
@@ -107,7 +107,7 @@ fn a_line_only_the_new_text_has_is_added_and_the_shared_line_is_unchanged() {
 /// REQT-hmsfnfe5wc (Line marking)
 #[test]
 fn a_line_only_the_old_text_has_is_removed() {
-    let diff = line_diff("test\n    oldLine", "test", &LineDiffOptions::default());
+    let diff = analyze_diff("test\n    oldLine", "test", &DiffAnalysisOptions::default());
 
     assert_eq!(
         rows(&diff),
@@ -118,10 +118,10 @@ fn a_line_only_the_old_text_has_is_removed() {
 /// REQT-hmsfnfe5wc (Line marking): lines differing only in their terminator align as unchanged.
 #[test]
 fn the_same_two_lines_under_windows_and_unix_endings_are_unchanged() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "first\r\nsecond",
         "first\nsecond",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     assert_eq!(
@@ -134,12 +134,12 @@ fn the_same_two_lines_under_windows_and_unix_endings_are_unchanged() {
 /// REQT-dqxm8fa7ts (Modified lines)
 #[test]
 fn a_removed_line_followed_by_an_added_line_is_one_modified_entry() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("test\n    oldLine", "test\n    newLine", &options);
+    let diff = analyze_diff("test\n    oldLine", "test\n    newLine", &options);
 
     assert_eq!(
         rows(&diff),
@@ -157,12 +157,12 @@ fn a_removed_line_followed_by_an_added_line_is_one_modified_entry() {
 /// REQT-dqxm8fa7ts (Modified lines): more added lines than removed leaves the extras plain.
 #[test]
 fn an_added_line_beyond_the_removed_ones_stays_a_plain_addition() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "My Updated Name\nAlso this info", &options);
+    let diff = analyze_diff("Hello World", "My Updated Name\nAlso this info", &options);
 
     assert_eq!(
         rows(&diff),
@@ -180,10 +180,10 @@ fn an_added_line_beyond_the_removed_ones_stays_a_plain_addition() {
 /// REQT-4nz35dscrn (Inline changes): on unless the consumer turns them off.
 #[test]
 fn a_modified_line_carries_inline_changes_by_default() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "Hello World",
         "My Updated Name",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     assert_eq!(old_tokens_rejoined(&diff, 0), "Hello World");
@@ -193,12 +193,12 @@ fn a_modified_line_carries_inline_changes_by_default() {
 /// REQT-4nz35dscrn (Inline changes)
 #[test]
 fn a_modified_line_carries_no_inline_changes_when_they_are_turned_off() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "My Updated Name", &options);
+    let diff = analyze_diff("Hello World", "My Updated Name", &options);
 
     assert!(diff.entries[0].inline_changes.is_none());
 }
@@ -206,10 +206,10 @@ fn a_modified_line_carries_no_inline_changes_when_they_are_turned_off() {
 /// REQT-9tze98pt6g (Trailing whitespace)
 #[test]
 fn trailing_blank_lines_in_either_text_are_not_a_change() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "test\n\n\n    ",
         "test\n\n    ",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     assert_eq!(rows(&diff), vec![unchanged(1, "test")]);
@@ -219,10 +219,10 @@ fn trailing_blank_lines_in_either_text_are_not_a_change() {
 /// REQT-rtwn1qresp (Line ending changes)
 #[test]
 fn a_pair_whose_terminators_differ_reports_the_ending_change_with_both_terminators() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "first\r\nsecond",
         "first\nsecond",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     let ending_change = diff.entries[0]
@@ -244,10 +244,10 @@ fn a_pair_whose_terminators_differ_reports_the_ending_change_with_both_terminato
 /// chip away, while both sides still read unchanged.
 #[test]
 fn a_pair_carrying_a_line_ending_change_holds_a_changed_position() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "first\r\nsecond",
         "first\nsecond",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     assert_eq!(diff.changed_positions, vec![0]);
@@ -262,7 +262,7 @@ fn a_pair_carrying_a_line_ending_change_holds_a_changed_position() {
 /// three terminators, and reports against a newline like any other.
 #[test]
 fn a_bare_carriage_return_against_a_newline_is_a_line_ending_change() {
-    let diff = line_diff("a\rb", "a\nb", &LineDiffOptions::default());
+    let diff = analyze_diff("a\rb", "a\nb", &DiffAnalysisOptions::default());
 
     let ending_change = diff.entries[0]
         .line_ending_change
@@ -281,16 +281,16 @@ fn a_bare_carriage_return_against_a_newline_is_a_line_ending_change() {
 /// inline changes are marked.
 #[test]
 fn trimmed_line_comparison_marks_edge_whitespace_edits_as_whitespace_changes() {
-    let trimmed = LineDiffOptions {
+    let trimmed = DiffAnalysisOptions {
         compare: CompareMethod::TrimmedLine,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
-    let trimmed_without_inline_changes = LineDiffOptions {
+    let trimmed_without_inline_changes = DiffAnalysisOptions {
         mark_inline_changes: false,
         ..trimmed.clone()
     };
     // Each text's end is trimmed (REQT-9tze98pt6g), so the edited line is not last.
-    let cases: Vec<(&str, &str, &str, &LineDiffOptions)> = vec![
+    let cases: Vec<(&str, &str, &str, &DiffAnalysisOptions)> = vec![
         ("leading whitespace added", "a\nend", "  a\nend", &trimmed),
         (
             "trailing whitespace changed",
@@ -313,7 +313,7 @@ fn trimmed_line_comparison_marks_edge_whitespace_edits_as_whitespace_changes() {
     ];
 
     for (case, old_text, new_text, options) in cases {
-        let diff = line_diff(old_text, new_text, options);
+        let diff = analyze_diff(old_text, new_text, options);
 
         assert!(diff.entries[0].whitespace_change, "{case}");
     }
@@ -323,58 +323,61 @@ fn trimmed_line_comparison_marks_edge_whitespace_edits_as_whitespace_changes() {
 /// whitespace is content, and other compare methods mark no whitespace change.
 #[test]
 fn only_edge_whitespace_under_trimmed_line_comparison_is_a_whitespace_change() {
-    let trimmed = LineDiffOptions {
+    let trimmed = DiffAnalysisOptions {
         compare: CompareMethod::TrimmedLine,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
-    let cases: Vec<(&str, &str, &str, LineDiffOptions)> = vec![
+    let cases: Vec<(&str, &str, &str, DiffAnalysisOptions)> = vec![
         ("interior whitespace edit", "a b", "a  b", trimmed),
         (
             "character comparison",
             "a",
             "  a",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
         ),
         (
             "word comparison",
             "a",
             "  a",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 compare: CompareMethod::Word,
-                ..LineDiffOptions::default()
+                ..DiffAnalysisOptions::default()
             },
         ),
         (
             "line comparison",
             "a",
             "  a",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 compare: CompareMethod::Line,
-                ..LineDiffOptions::default()
+                ..DiffAnalysisOptions::default()
             },
         ),
     ];
 
     for (case, old_text, new_text, options) in cases {
-        let diff = line_diff(old_text, new_text, &options);
+        let diff = analyze_diff(old_text, new_text, &options);
 
         assert_eq!(diff.entries[0].change, ChangeKind::Modified, "{case}");
         assert!(!diff.entries[0].whitespace_change, "{case}");
     }
 }
 
-/// ARCH-atczcqvdsz (Line diff hand-off): every pair of texts yields a LineDiff,
+/// ARCH-atczcqvdsz (Line diff hand-off): every pair of texts yields a DiffAnalysis,
 /// with no failure case, including when either text is empty. Two empty texts
 /// yield no entries, as the reference does for the same reason
 /// (`src/compute-lines.ts:57-64`): an empty row would read as an added line.
 #[test]
 fn an_empty_text_on_either_side_yields_a_diff_rather_than_a_failure() {
-    let options = LineDiffOptions::default();
+    let options = DiffAnalysisOptions::default();
 
-    assert_eq!(line_diff("", "", &options), LineDiff::default());
-    assert_eq!(rows(&line_diff("", "abc", &options)), vec![added(1, "abc")]);
+    assert_eq!(analyze_diff("", "", &options), DiffAnalysis::default());
     assert_eq!(
-        rows(&line_diff("abc", "", &options)),
+        rows(&analyze_diff("", "abc", &options)),
+        vec![added(1, "abc")]
+    );
+    assert_eq!(
+        rows(&analyze_diff("abc", "", &options)),
         vec![removed(1, "abc")]
     );
 }
@@ -386,7 +389,7 @@ fn an_empty_text_on_either_side_yields_a_diff_rather_than_a_failure() {
 /// REQT-czecf8krqc (Character comparison): the default splits below word level.
 #[test]
 fn inline_changes_compare_characters_unless_another_method_is_chosen() {
-    let diff = line_diff("Hello World", "Hello Word", &LineDiffOptions::default());
+    let diff = analyze_diff("Hello World", "Hello Word", &DiffAnalysisOptions::default());
 
     let removed_text: String = old_tokens(&diff, 0)
         .into_iter()
@@ -399,12 +402,12 @@ fn inline_changes_compare_characters_unless_another_method_is_chosen() {
 /// REQT-xzc8n354h1 (Word comparison): each whitespace run and each non-whitespace run is one token.
 #[test]
 fn word_comparison_keeps_whitespace_runs_as_their_own_tokens() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         compare: CompareMethod::Word,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "Hello Rust", &options);
+    let diff = analyze_diff("Hello World", "Hello Rust", &options);
 
     let new_side = new_tokens(&diff, 0);
     assert_eq!(
@@ -420,12 +423,12 @@ fn word_comparison_keeps_whitespace_runs_as_their_own_tokens() {
 /// REQT-spzdk2z1pk (Line comparison): the whole modified line is one token.
 #[test]
 fn line_comparison_marks_the_whole_line_as_one_token() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         compare: CompareMethod::Line,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "Hello Rust", &options);
+    let diff = analyze_diff("Hello World", "Hello Rust", &options);
 
     let new_side = new_tokens(&diff, 0);
     assert_eq!(new_side, vec![(TokenKind::Added, "Hello Rust")]);
@@ -436,13 +439,13 @@ fn line_comparison_marks_the_whole_line_as_one_token() {
 /// one unchanged token keeping its full text.
 #[test]
 fn trimmed_line_comparison_marks_an_edge_whitespace_edit_unchanged() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         compare: CompareMethod::TrimmedLine,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
     // Each text's end is trimmed (REQT-9tze98pt6g), so the edited line is not last.
-    let diff = line_diff("  Hello\nend", "Hello  \nend", &options);
+    let diff = analyze_diff("  Hello\nend", "Hello  \nend", &options);
 
     assert_eq!(diff.entries[0].change, ChangeKind::Modified);
     assert_eq!(
@@ -459,12 +462,12 @@ fn trimmed_line_comparison_marks_an_edge_whitespace_edit_unchanged() {
 /// whole line as one removed and one added token.
 #[test]
 fn trimmed_line_comparison_marks_a_content_change_as_whole_line_tokens() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         compare: CompareMethod::TrimmedLine,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", " Hello Rust", &options);
+    let diff = analyze_diff("Hello World", " Hello Rust", &options);
 
     assert_eq!(
         old_tokens(&diff, 0),
@@ -483,13 +486,13 @@ fn trimmed_line_comparison_marks_a_content_change_as_whole_line_tokens() {
 /// REQT-smd01rma2q (Independent numbering)
 #[test]
 fn each_side_counts_its_own_lines_from_one_more_than_the_offset() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         line_offset: 5,
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "My Updated Name\nAlso this info", &options);
+    let diff = analyze_diff("Hello World", "My Updated Name\nAlso this info", &options);
 
     assert_eq!(
         rows(&diff),
@@ -523,35 +526,35 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
         Some((1, "Hello World".into())),
         Some((1, "My Updated Name".into())),
     );
-    let cases: Vec<(&str, &str, &str, LineDiffOptions, Vec<Row>)> = vec![
+    let cases: Vec<(&str, &str, &str, DiffAnalysisOptions, Vec<Row>)> = vec![
         (
             "Should it avoid trailing spaces",
             "test\n\n\n    ",
             "test\n\n    ",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
             vec![unchanged(1, "test")],
         ),
         (
             "Should identify line addition",
             "test",
             "test\n    newLine",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
             vec![unchanged(1, "test"), added(2, "    newLine")],
         ),
         (
             "Should identify line deletion",
             "test\n    oldLine",
             "test",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
             vec![unchanged(1, "test"), removed(2, "    oldLine")],
         ),
         (
             "Should identify line modification",
             "test\n    oldLine",
             "test\n    newLine",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 mark_inline_changes: false,
-                ..LineDiffOptions::default()
+                ..DiffAnalysisOptions::default()
             },
             vec![
                 unchanged(1, "test"),
@@ -566,7 +569,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "Should identify word diff",
             "test\n    oldLine",
             "test\n    newLine",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
             vec![
                 unchanged(1, "test"),
                 (
@@ -580,16 +583,16 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "Should call \"diffChars\" jsDiff method when compareMethod is not provided",
             "Hello World",
             "My Updated Name\nAlso this info",
-            LineDiffOptions::default(),
+            DiffAnalysisOptions::default(),
             vec![name_pair.clone(), added(2, "Also this info")],
         ),
         (
             "Should call \"diffWords\" jsDiff method when a compareMethod IS provided",
             "Hello World",
             "My Updated Name\nAlso this info",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 compare: CompareMethod::Word,
-                ..LineDiffOptions::default()
+                ..DiffAnalysisOptions::default()
             },
             vec![name_pair.clone(), added(2, "Also this info")],
         ),
@@ -597,9 +600,9 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "Should not call jsDiff method and not diff text when disableWordDiff is true",
             "Hello World",
             "My Updated Name\nAlso this info",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 mark_inline_changes: false,
-                ..LineDiffOptions::default()
+                ..DiffAnalysisOptions::default()
             },
             vec![name_pair, added(2, "Also this info")],
         ),
@@ -607,7 +610,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
             "Should start line counting from offset",
             "Hello World",
             "My Updated Name\nAlso this info",
-            LineDiffOptions {
+            DiffAnalysisOptions {
                 compare: CompareMethod::Word,
                 mark_inline_changes: false,
                 line_offset: 5,
@@ -624,7 +627,7 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
     ];
 
     for (reference_case, old_text, new_text, options, expected) in cases {
-        let diff = line_diff(old_text, new_text, &options);
+        let diff = analyze_diff(old_text, new_text, &options);
 
         assert_eq!(rows(&diff), expected, "reference case {reference_case:?}");
     }
@@ -639,23 +642,23 @@ fn every_reference_case_pairs_its_lines_as_the_reference_does() {
 /// last row. The engine reports the real entry positions.
 #[test]
 fn changed_positions_index_the_entries_that_hold_a_change() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("Hello World", "My Updated Name\nAlso this info", &options);
+    let diff = analyze_diff("Hello World", "My Updated Name\nAlso this info", &options);
     assert_eq!(diff.changed_positions, vec![0, 1]);
 
     // Carried over unchanged: one changed row at index 1.
-    let diff = line_diff("test", "test\n    newLine", &options);
+    let diff = analyze_diff("test", "test\n    newLine", &options);
     assert_eq!(diff.changed_positions, vec![1]);
 
-    let diff = line_diff("test\n    oldLine", "test", &options);
+    let diff = analyze_diff("test\n    oldLine", "test", &options);
     assert_eq!(diff.changed_positions, vec![1]);
 
     // Carried over: no changed rows when only trailing whitespace differs.
-    let diff = line_diff("test\n\n\n    ", "test\n\n    ", &options);
+    let diff = analyze_diff("test\n\n\n    ", "test\n\n    ", &options);
     assert!(diff.changed_positions.is_empty());
 }
 
@@ -669,10 +672,10 @@ fn changed_positions_index_the_entries_that_hold_a_change() {
 /// contradict word comparison, where adjacent unchanged tokens stay separate.
 #[test]
 fn character_comparison_emits_one_inline_token_per_character() {
-    let diff = line_diff(
+    let diff = analyze_diff(
         "test\n    oldLine",
         "test\n    newLine",
-        &LineDiffOptions::default(),
+        &DiffAnalysisOptions::default(),
     );
 
     let old_side = old_tokens(&diff, 1);
@@ -726,7 +729,7 @@ fn text() -> impl Strategy<Value = String> {
 }
 
 /// One side's line texts, in entry order.
-fn side_texts(diff: &LineDiff, side: Side) -> Vec<String> {
+fn side_texts(diff: &DiffAnalysis, side: Side) -> Vec<String> {
     diff.entries
         .iter()
         .filter_map(|entry| match side {
@@ -759,7 +762,7 @@ proptest! {
         old_text in text(),
         new_text in text(),
     ) {
-        let diff = line_diff(&old_text, &new_text, &LineDiffOptions::default());
+        let diff = analyze_diff(&old_text, &new_text, &DiffAnalysisOptions::default());
 
         prop_assert_eq!(
             side_texts(&diff, Side::Old).concat(),
@@ -778,11 +781,11 @@ proptest! {
         new_text in text(),
         line_offset in 0usize..50,
     ) {
-        let options = LineDiffOptions {
+        let options = DiffAnalysisOptions {
             line_offset,
-            ..LineDiffOptions::default()
+            ..DiffAnalysisOptions::default()
         };
-        let diff = line_diff(&old_text, &new_text, &options);
+        let diff = analyze_diff(&old_text, &new_text, &options);
 
         let old_numbers: Vec<usize> = diff
             .entries
@@ -841,7 +844,7 @@ fn chosen_text_pairs_split_into_the_lines_expected() {
     ];
 
     for (old_text, new_text, old_lines, new_lines) in cases {
-        let diff = line_diff(old_text, new_text, &LineDiffOptions::default());
+        let diff = analyze_diff(old_text, new_text, &DiffAnalysisOptions::default());
 
         assert_eq!(
             side_texts(&diff, Side::Old),
@@ -865,12 +868,12 @@ fn chosen_text_pairs_split_into_the_lines_expected() {
 /// engine keeps the line empty and leaves padding to the component.
 #[test]
 fn an_empty_removed_line_keeps_its_empty_text_rather_than_a_space() {
-    let options = LineDiffOptions {
+    let options = DiffAnalysisOptions {
         mark_inline_changes: false,
-        ..LineDiffOptions::default()
+        ..DiffAnalysisOptions::default()
     };
 
-    let diff = line_diff("first\n\nlast", "first\nlast", &options);
+    let diff = analyze_diff("first\n\nlast", "first\nlast", &options);
 
     assert_eq!(
         rows(&diff),
@@ -886,11 +889,11 @@ fn an_empty_removed_line_keeps_its_empty_text_rather_than_a_space() {
     );
 }
 
-/// ARCH-exgfx6rwdt (LineDiff): an app may compute a diff on another thread and
+/// ARCH-exgfx6rwdt (DiffAnalysis): an app may compute a diff on another thread and
 /// hand the output across.
 #[test]
 fn the_engine_output_can_cross_threads() {
     fn crosses_threads<T: Send + Sync + 'static>() {}
-    crosses_threads::<LineDiff>();
+    crosses_threads::<DiffAnalysis>();
     crosses_threads::<dioxus_diff_viewer::LineContent>();
 }
