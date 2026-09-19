@@ -1,6 +1,6 @@
 //! Reading a diff: REQT-jyhvdaa75p and children.
 //!
-//! A live diff's answers are values, and a live diff lives inside the component
+//! A diff's answers are values, and a diff lives inside the component
 //! whose hook built it. Each app below therefore renders its answer as one row
 //! per run, which is what an app reading the answer would do with it, and the
 //! test reads those rows back.

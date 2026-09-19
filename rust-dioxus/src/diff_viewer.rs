@@ -1,15 +1,15 @@
 //! The Dioxus component apps mount to show the differences between two texts.
 //!
-//! Architecture: ARCH-m4dkxzw6hh (DiffViewer). The component renders the live
-//! diff an app hands it and keeps no diff state of its own
+//! Architecture: ARCH-m4dkxzw6hh (DiffViewer). The component renders the diff
+//! an app hands it and keeps no diff state of its own
 //! (ARCH:dcisn-xgpr1asvyn).
 
 use dioxus::prelude::*;
 
 use crate::consumer_callbacks::{HiddenLines, LineContent, LineNumberClick};
+use crate::diff::Diff;
 use crate::fold_planning::PlannedRow;
 use crate::line_id::LineId;
-use crate::live_diff::Diff;
 use crate::row_rendering::{RowKey, RowRendering};
 use crate::styling_hooks::*;
 
@@ -61,14 +61,14 @@ pub enum DiffView {
     Inline,
 }
 
-/// Shows the differences an app's live diff holds.
+/// Shows the differences an app's diff holds.
 ///
-/// Only the live diff is required; every other prop has a default.
+/// Only the diff is required; every other prop has a default.
 #[component]
 pub fn DiffViewer(
-    /// The live diff to render, built with `use_diff` or `use_diff_with`.
+    /// The diff to render, built with `use_diff` or `use_diff_with`.
     ///
-    /// REQT-m776z5vdhe (Rendering a live diff): the viewer's only data prop.
+    /// REQT-m776z5vdhe (Rendering a diff): the viewer's only data prop.
     diff: Diff,
     /// Split or inline layout.
     #[props(default)]
@@ -93,11 +93,11 @@ pub fn DiffViewer(
     /// Shown above the new column in the split view.
     right_title: Option<Element>,
 ) -> Element {
-    // Reading the live diff's state here subscribes this viewer to it, so a
+    // Reading the diff's state here subscribes this viewer to it, so a
     // change reaches every viewer over one diff whatever its own props say.
     let analysis = diff.analysis();
     let analysis = analysis.read();
-    // REQT-dxbaat20ja (One plan per live diff): the rows come from the diff's
+    // REQT-dxbaat20ja (One plan per diff): the rows come from the diff's
     // own plan rather than from a plan this viewer makes.
     let planned_rows = diff.planned_rows();
     let planned_rows = planned_rows.read();

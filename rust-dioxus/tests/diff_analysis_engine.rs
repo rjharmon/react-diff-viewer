@@ -363,7 +363,7 @@ fn only_edge_whitespace_under_trimmed_line_comparison_is_a_whitespace_change() {
     }
 }
 
-/// ARCH-atczcqvdsz (Line diff hand-off): every pair of texts yields a DiffAnalysis,
+/// ARCH-atczcqvdsz (Diff analysis hand-off): every pair of texts yields a DiffAnalysis,
 /// with no failure case, including when either text is empty. Two empty texts
 /// yield no entries, as the reference does for the same reason
 /// (`src/compute-lines.ts:57-64`): an empty row would read as an added line.

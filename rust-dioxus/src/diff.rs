@@ -1,7 +1,7 @@
-//! The live diff an app holds and viewers render.
+//! The diff an app holds and viewers render.
 //!
 //! Architecture: ARCH-8tce9rry3b (Diff), ARCH-87bw15t11s (UseDiffHooks),
-//! ARCH:dcisn-xgpr1asvyn (the app holds the live diff, the viewer renders it).
+//! ARCH:dcisn-xgpr1asvyn (the app holds the diff, the viewer renders it).
 //!
 //! The state sits outside any view's code path, which is what lets it answer
 //! an app's questions without publishing them from an effect.
@@ -96,7 +96,7 @@ impl Diff {
 
     /// The rows to show, planned once for every viewer over this diff.
     ///
-    /// REQT-dxbaat20ja (One plan per live diff)
+    /// REQT-dxbaat20ja (One plan per diff)
     pub(crate) fn planned_rows(&self) -> Memo<Vec<PlannedRow>> {
         self.planned_rows
     }
@@ -174,24 +174,24 @@ impl std::fmt::Debug for Diff {
     }
 }
 
-/// Builds a live diff from an old and a new text.
+/// Builds a diff from an old and a new text.
 ///
 /// This is a hook: call it at the top of a component, unconditionally. The
 /// calling component owns the state, which is what lets it outlive a render
 /// without a viewer holding it.
 ///
-/// REQT-7tk9vxv9wd (Building a live diff): the two texts alone, compared and
+/// REQT-7tk9vxv9wd (Building a diff): the two texts alone, compared and
 /// folded under [`DiffOptions::default`].
 pub fn use_diff(old_text: impl AsRef<str>, new_text: impl AsRef<str>) -> Diff {
     use_diff_with(old_text, new_text, DiffOptions::default())
 }
 
-/// Builds a live diff from an old and a new text and the options they are
+/// Builds a diff from an old and a new text and the options they are
 /// compared and folded under.
 ///
 /// This is a hook: call it at the top of a component, unconditionally.
 ///
-/// REQT-7tk9vxv9wd (Building a live diff): the form taking one options value.
+/// REQT-7tk9vxv9wd (Building a diff): the form taking one options value.
 pub fn use_diff_with(
     old_text: impl AsRef<str>,
     new_text: impl AsRef<str>,
@@ -199,7 +199,7 @@ pub fn use_diff_with(
 ) -> Diff {
     let inputs = use_diff_inputs(old_text.as_ref(), new_text.as_ref(), options);
 
-    // ARCH-atczcqvdsz (Line diff hand-off): the live diff asks the engine, and
+    // ARCH-atczcqvdsz (Diff analysis hand-off): the diff asks the engine, and
     // only when the texts or the engine's options change.
     let analysis = use_memo(move || {
         let inputs = inputs.read();
@@ -220,7 +220,7 @@ pub fn use_diff_with(
         folding: inputs.read().options.folding(),
     });
     let expanded_folds = use_signal(ExpandedFolds::default);
-    // REQT-dxbaat20ja (One plan per live diff): one plan, which every viewer
+    // REQT-dxbaat20ja (One plan per diff): one plan, which every viewer
     // over this diff reads, so a fold opened here opens in all of them.
     let planned_rows = use_memo(move || {
         let basis = fold_basis();

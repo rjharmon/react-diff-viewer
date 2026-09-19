@@ -1,15 +1,15 @@
-//! What a live diff is built with: the engine's compare choices together with
+//! What a diff is built with: the engine's compare choices together with
 //! the folding choices.
 //!
 //! Architecture: ARCH-smcbvznq0z (DiffOptions). Folding sits here rather than
-//! on the viewer because the row plan the live diff owns cannot be computed
+//! on the viewer because the row plan the diff owns cannot be computed
 //! without it.
 
 use crate::diff_analysis_options::{CompareMethod, DiffAnalysisOptions};
 
-/// The choices an app makes when building a live diff.
+/// The choices an app makes when building a diff.
 ///
-/// REQT-7tk9vxv9wd (Building a live diff): every field is defaulted, so an app
+/// REQT-7tk9vxv9wd (Building a diff): every field is defaulted, so an app
 /// states only what it wants to change and takes the rest from
 /// [`DiffOptions::default`].
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -251,7 +251,7 @@ fn a_fold_expands_again_after_a_reset() {
     assert_eq!(viewer.row_readings()[0], unchanged_row(1));
 }
 
-/// The ten-line fixture with buttons driving the live diff's fold actions from
+/// The ten-line fixture with buttons driving the diff's fold actions from
 /// app code, each naming a line rather than a fold.
 fn ten_lines_with_fold_actions() -> Element {
     let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
@@ -386,7 +386,7 @@ fn a_fold_row_spans_every_column_of_the_rows_around_it() {
     }
 }
 
-/// Two viewers over one live diff, the second inline, with the fold rows of
+/// Two viewers over one diff, the second inline, with the fold rows of
 /// the first alone reachable through `expand_first_fold`.
 fn ten_lines_in_two_viewers() -> Element {
     let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
@@ -396,9 +396,9 @@ fn ten_lines_in_two_viewers() -> Element {
     }
 }
 
-/// REQT-dxbaat20ja (One plan per live diff) with REQT-869jyzdes7 (Where fold
+/// REQT-dxbaat20ja (One plan per diff) with REQT-869jyzdes7 (Where fold
 /// state lives): a fold opened through one viewer opens in the other, because
-/// the live diff holds the one plan both of them read.
+/// the diff holds the one plan both of them read.
 /// How many viewers still hide the fixture's first two lines.
 fn two_line_folds(viewer: &MountedApp) -> usize {
     viewer
@@ -409,7 +409,7 @@ fn two_line_folds(viewer: &MountedApp) -> usize {
 }
 
 #[test]
-fn a_fold_opened_in_one_viewer_over_a_live_diff_opens_in_the_other() {
+fn a_fold_opened_in_one_viewer_over_one_diff_opens_in_the_other() {
     let mut viewer = MountedApp::new(ten_lines_in_two_viewers);
     assert_eq!(
         two_line_folds(&viewer),
@@ -432,7 +432,7 @@ fn a_fold_opened_in_one_viewer_over_a_live_diff_opens_in_the_other() {
     );
 }
 
-/// Two viewers over one live diff, with a button naming a hidden line from app
+/// Two viewers over one diff, with a button naming a hidden line from app
 /// code rather than either viewer's own fold row.
 fn ten_lines_in_two_viewers_with_a_fold_action() -> Element {
     let diff = use_diff(OLD_TEN_LINES, NEW_TEN_LINES);
@@ -443,8 +443,8 @@ fn ten_lines_in_two_viewers_with_a_fold_action() -> Element {
     }
 }
 
-/// REQT-dxbaat20ja (One plan per live diff) with REQT-g86vdmyyp9 (Expanding at
-/// a line): a fold opened through the live diff itself, naming no viewer,
+/// REQT-dxbaat20ja (One plan per diff) with REQT-g86vdmyyp9 (Expanding at
+/// a line): a fold opened through the diff itself, naming no viewer,
 /// opens in every viewer rendering that diff.
 #[test]
 fn a_fold_an_app_opens_by_naming_a_line_opens_in_every_viewer() {

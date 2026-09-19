@@ -1,7 +1,7 @@
 //! The folds a reader or an app has expanded, and the basis they hold under.
 //!
 //! Architecture: ARCH-8tce9rry3b (Diff), which owns this state.
-//! REQT-869jyzdes7 (Where fold state lives): the live diff keeps it, so no
+//! REQT-869jyzdes7 (Where fold state lives): the diff keeps it, so no
 //! viewer keeps fold state of its own.
 
 use std::collections::BTreeSet;
