@@ -11,6 +11,7 @@ mod diff_analysis_options;
 mod diff_analysis_output;
 mod diff_options;
 mod diff_viewer;
+mod entry_line_numbers;
 mod expanded_folds;
 mod fold_planning;
 mod line_id;
@@ -27,5 +28,6 @@ pub use diff_analysis_output::{
 };
 pub use diff_options::DiffOptions;
 pub use diff_viewer::{DiffTheme, DiffView, DiffViewer, DiffViewerProps};
+pub use entry_line_numbers::LineRun;
 pub use line_id::{LineId, LineIdParseError};
 pub use live_diff::{Diff, use_diff, use_diff_with};

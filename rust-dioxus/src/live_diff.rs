@@ -11,6 +11,7 @@ use dioxus::prelude::*;
 use crate::diff_analysis_engine::analyze_diff;
 use crate::diff_analysis_output::DiffAnalysis;
 use crate::diff_options::DiffOptions;
+use crate::entry_line_numbers::{LineRun, changed_runs, line_run_of};
 use crate::expanded_folds::{ExpandedFolds, FoldBasis};
 use crate::fold_planning::{PlannedRow, plan_rows};
 
@@ -39,6 +40,37 @@ pub struct Diff {
 }
 
 impl Diff {
+    /// Where the changes are, in document order, each as one run of
+    /// consecutive changed lines.
+    ///
+    /// REQT-f2affyt2h2 (Where the changes are): the runs come from the same
+    /// changed positions folding measures its surrounding-line count from, so
+    /// the lines reported changed are the lines folding treats as changed.
+    pub fn changed_line_runs(&self) -> Vec<LineRun> {
+        let analysis = self.analysis.read();
+        changed_runs(&analysis.changed_positions)
+            .map(|positions| line_run_of(&analysis.entries, positions))
+            .collect()
+    }
+
+    /// Which lines this diff's folds hide, as of this call.
+    ///
+    /// REQT-hsef5r7c4z (Which lines are hidden): the answer reads the row plan
+    /// the viewers read, so a fold a reader has already expanded is reported as
+    /// hidden no longer.
+    pub fn hidden_line_runs(&self) -> Vec<LineRun> {
+        let analysis = self.analysis.read();
+        self.planned_rows
+            .read()
+            .iter()
+            .filter_map(|planned| match planned {
+                PlannedRow::Fold(fold) => Some(fold.start..fold.start + fold.len),
+                PlannedRow::Entry(_) => None,
+            })
+            .map(|positions| line_run_of(&analysis.entries, positions))
+            .collect()
+    }
+
     /// Returns every expanded fold to folded.
     ///
     /// REQT-ps5zx85jvc (Resetting folds): one action, whose result shows in
