@@ -23,9 +23,9 @@ Dioxus diff viewer crate built on a line diff engine.
 
 **Maturity**:
 
-- DREAMED: 14/19
-- consented: 3/19
-- draft: 2/19
+- DREAMED: 14/22
+- draft: 5/22
+- consented: 3/22
 
 ## In this document
 
@@ -431,6 +431,52 @@ The viewer renders its embedded stylesheet through `document::Style`, inside a c
 
 
 
+<a id="decision-ARCH:dcisn-x8fa9g2hm8"></a>
+
+### Engine renamed so the viewer can own the word diff (accepted; draft - ARCH:dcisn-x8fa9g2hm8)
+
+**Subject**: LineDiffEngine (ARCH-jf3s5npp9s)
+
+**Context**: The app-held live state this port is adding needs a name, and the fitting one already belongs to the engine.
+
+> **Situation**: `line_diff` and `LineDiff` are public (`rust-dioxus/src/lib.rs:22`, `:25`) and carry roughly forty-five call sites in the engine's test file.
+>
+> **Impact**: One word would mean both the alignment the engine computes and the live state an app holds, in a single namespace a consumer imports whole.
+>
+> **Vision**: Two names a reader cannot mistake for each other, each saying which of the two it is.
+
+The engine's function becomes `analyze_diff` and its output becomes `DiffAnalysis`; the live state an app holds takes the plain `Diff`, reached through `use_diff`. The rename reaches the engine modules and their filenames, the crate root, the engine tests, ARCH-exgfx6rwdt, the requirements' file list, and the glossary. Chosen over leaving the engine alone and qualifying the newcomer, which costs no paperwork but leaves the call site a consumer writes most often carrying the longer name. Recorded ahead of the change: the code still carries the earlier names.
+
+
+**Also involves**:
+- LineDiff (ARCH-exgfx6rwdt): Becomes DiffAnalysis
+- DiffViewer (ARCH-m4dkxzw6hh): Its app-held live state takes the plain Diff
+
+
+
+<a id="decision-ARCH:dcisn-xgpr1asvyn"></a>
+
+### The app holds the live diff; the viewer renders it (accepted; draft - ARCH:dcisn-xgpr1asvyn)
+
+**Subject**: DiffViewer (ARCH-m4dkxzw6hh)
+
+**Context**: An app driving a mounted viewer needs to read where the changes are and which lines are hidden, which a viewer owning that state can only publish.
+
+> **Situation**: The viewer computes the diff, the identity hash, the fold state and the row plan in its own body (`rust-dioxus/src/diff_viewer.rs:119-152`), and keeps expansions readable without any write during rendering (`fold_reset_trigger.rs:75`).
+>
+> **Impact**: Publishing that state outward means either writing signals during render, which loops, or an effect that leaves the app a render behind the viewer.
+>
+> **Vision**: One object outside the view's code path that owns the inputs and derives the answers, so nothing is published and nothing lags.
+
+A crate hook builds the live diff from the two texts, as the pair `use_diff` and `use_diff_with`, the second taking an options value that composes the engine's options with the folding choices and defaults every field. The live diff owns the texts, the engine call, the identity hash, the expanded folds with their basis, and the planned rows; it answers where the changes are and which lines are hidden, and it takes expand-at-a-line, expand-everything, and reset. The viewer takes it as its one data prop and keeps the presentation props: view, theme, line-number visibility, the consumer renderers, highlighting, the click handler, and the titles. Steering names lines and never folds, so ARCH-y9545npjzg's rule holds while its reset-only trigger is retired into the live diff. Chosen over publishing from an effect, and over reporting through callbacks, which pushes but cannot answer what is folded now. Recorded ahead of the change: the code still carries the earlier arrangement.
+
+
+**Also involves**:
+- FoldResetTrigger (ARCH-y9545npjzg): Widened into the live diff and retired as a reset-only trigger
+- LineDiff (ARCH-exgfx6rwdt): Computed once inside the live diff rather than inside the viewer
+
+
+
 
 
 ## Design Patterns
@@ -450,6 +496,8 @@ The viewer renders its embedded stylesheet through `document::Style`, inside a c
 
 ## Open Questions
 
+
+- [ ] Do the folding choices belong to the live diff or to the viewer beside `view`? *(context: The live diff owns the row plan, so it needs the surrounding-line count and whether folding is on at all; both read to a consumer as display choices sitting a line or two away from `view`. Raised while settling ARCH:dcisn-xgpr1asvyn.)*
 
 
 
