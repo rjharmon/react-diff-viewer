@@ -172,6 +172,7 @@ The essential technologies are **Rust, dioxus, similar**. Related technologies i
 - `rust-dioxus/src/diff_options.rs` - What a diff is built with: the engine's compare choices together with whether unchanged lines fold and how many surround each change, every field defaulted.
 - `rust-dioxus/src/entry_line_numbers.rs` - The one relation between entry positions and each side's line numbers: the runs an app reads changes and hidden lines in, and the position a named line resolves to.
 - `rust-dioxus/src/expanded_folds.rs` - The folds a reader or an app has expanded and the basis they hold under, so expansions planned for other texts or another surrounding-line count read as folded without a write during rendering.
+- `rust-dioxus/src/dxdiff.css` - The stylesheet the viewer embeds and renders into the document: each theme's named colors, the cascade layer an app's own rules outrank, and the hover and contrast behavior of rows and line numbers.
 
 # Implementation Log
 
