@@ -396,9 +396,6 @@ fn ten_lines_in_two_viewers() -> Element {
     }
 }
 
-/// REQT-dxbaat20ja (One plan per diff) with REQT-869jyzdes7 (Where fold
-/// state lives): a fold opened through one viewer opens in the other, because
-/// the diff holds the one plan both of them read.
 /// How many viewers still hide the fixture's first two lines.
 fn two_line_folds(viewer: &MountedApp) -> usize {
     viewer
@@ -408,6 +405,9 @@ fn two_line_folds(viewer: &MountedApp) -> usize {
         .count()
 }
 
+/// REQT-dxbaat20ja (One plan per diff) with REQT-869jyzdes7 (Where fold
+/// state lives): a fold opened through one viewer opens in the other, because
+/// the diff holds the one plan both of them read.
 #[test]
 fn a_fold_opened_in_one_viewer_over_one_diff_opens_in_the_other() {
     let mut viewer = MountedApp::new(ten_lines_in_two_viewers);
